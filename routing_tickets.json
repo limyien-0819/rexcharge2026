@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "ticket_id": "20260507000001",
+    "timestamp": "2026-05-07T18:21:07.458442",
+    "team_id": "P03",
+    "file_name": "charger_no_pulse (6).jpg",
+    "brand": "",
+    "model": "Unknown",
+    "serial": "260100505",
+    "fault_label": "charger_no_pulse",
+    "observation": "Charger No Pulse",
+    "troubleshooting_steps": "Test power input and check CP signal output.",
+    "action_required": "Technician: Repair internal circuit or Replace mainboard",
+    "status": "Pending Review"
+  },
+  {
+    "ticket_id": "20260507000001",
+    "timestamp": "2026-05-07T18:21:07.459413",
+    "team_id": "P03",
+    "file_name": "charger_no_pulse (6).jpg",
+    "brand": "",
+    "model": "Unknown",
+    "serial": "260100505",
+    "fault_label": "charger_no_pulse",
+    "observation": "Charger No Pulse",
+    "troubleshooting_steps": "Test power input and check CP signal output.",
+    "action_required": "Technician: Repair internal circuit or Replace mainboard",
+    "status": "Pending Review"
+  },
+  {
+    "ticket_id": "20260507000002",
+    "timestamp": "2026-05-07T18:28:45.284174",
+    "team_id": "P02",
+    "file_name": "burnt_mark_issue (4).jpg",
+    "brand": "",
+    "model": "Unknown",
+    "serial": "260301416",
+    "fault_label": "burnt_mark_issue",
+    "observation": "Burnt Mark Issue",
+    "troubleshooting_steps": "Turn off power immediately. Check inside for melted or discolored parts.",
+    "action_required": "Technician: Replace damaged components; Rewire if necessary",
+    "status": "Pending Review"
+  }
+]
