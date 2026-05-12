@@ -47,26 +47,42 @@ st.markdown("""
         box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
     
-    /* Make the main drag-and-drop text readable */
-    div[data-testid="stFileUploader"] div[data-testid="stText"],
-    [data-testid="stCameraInput"] * {
+    /* Default text inside uploader (Drag and drop...) */
+    div[data-testid="stFileUploader"] div[data-testid="stText"] {
         color: #E2E8F0 !important;
-        font-weight: 600 !important;
-    }
-
-    /* --> FIX: Keep the 200MB helper text subtle <-- */
-    div[data-testid="stFileUploadDropzone"] small {
-        color: #64748B !important; /* Lighter slate gray */
-        font-weight: 400 !important;
-        display: block !important; /* Ensure it stays visible */
+        font-weight: 800 !important;
     }
     
+    /* --> FIX 1: Make the 200MB Helper Text Lighter <-- */
+    div[data-testid="stFileUploadDropzone"] small {
+        color: #94A3B8 !important; /* Subtle Slate Grey */
+        font-weight: 400 !important; /* Lighter font weight */
+    }
+
+    /* --> FIX 2: Force Camera Permission Text to be Darker <-- */
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] div[data-testid="stText"],
+    [data-testid="stCameraInput"] span,
+    [data-testid="stCameraInput"] a {
+        color: #000000 !important; /* Absolute Black for readability */
+        font-weight: 800 !important;
+    }
+
+    /* --> FIX 3: Force Uploaded File Name to be Darker <-- */
+    div[data-testid="stFileUploader"] div.uploadedFileName, 
+    div[data-testid="stFileUploader"] div[data-testid="stText"] span,
+    div[data-testid="stFileUploader"] span[data-testid="stText"] {
+        color: #000000 !important; /* Absolute Black for the white file card */
+        font-weight: 800 !important;
+    }
+    
+    /* Force the Cloud SVG Icon to be blue */
     div[data-testid="stFileUploader"] svg {
         fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
     }
 
-    /* Uploader Buttons */
+    /* Uploader & Camera Default Buttons */
     [data-testid="stFileUploader"] button,
     [data-testid="stCameraInput"] button {
         background-color: #1E293B !important;
@@ -81,11 +97,6 @@ st.markdown("""
     [data-testid="stCameraInput"] button:hover {
         background-color: #0EA5E9 !important;
         color: #000000 !important;
-    }
-
-    /* Target the uploaded filename text to make it darker */
-    div[data-testid="stFileUploader"] div[data-testid="stText"] {
-        color: #94A3B8 !important; /* Darker Slate Grey */
     }
 
     /* 3. LUXURY CONTROL TILES */
