@@ -9,13 +9,13 @@ import easyocr
 import re
 import csv
 import json
+import tempfile  # Needed for video processing
 from datetime import datetime
 from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
 st.set_page_config(page_title="RExharge Smart Diagnostic Hub", page_icon="⚡", layout="centered")
 
-# --- CUSTOM "ATAS" CSS DESIGN ---
 st.markdown("""
     <style>
     /* Clean background and premium font styles */
@@ -57,6 +57,21 @@ def load_ocr():
     return easyocr.Reader(['en'])
 
 reader = load_ocr()
+
+# --- HELPER: VIDEO TO IMAGE ---
+def get_frame_from_video(video_file):
+    """Saves video to a temp file and extracts the first frame."""
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
+        tfile.write(video_file.read())
+        temp_path = tfile.name
+    
+    vf = cv2.VideoCapture(temp_path)
+    success, frame = vf.read()
+    vf.release()
+    if success:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        return Image.fromarray(frame)
+    return None
 
 # --- SESSION STATE SETUP ---
 if 'last_label_name' not in st.session_state:
@@ -165,8 +180,8 @@ TEAM_DESCRIPTIONS = {
 }
 
 # --- 2. CONFIGURATION ---
-API_KEY = "Ho84sOOICvlyZ2T0K60S"
-MODEL_ENDPOINT = "rexharge-2026/2" 
+API_KEY = st.secrets["ROBOFLOW_API_KEY"]
+MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 3. TAB NAVIGATION ---
 tab1, tab2 = st.tabs(["🔍 Diagnostics", "📋 Tickets"])
@@ -184,10 +199,11 @@ with tab1:
 
     st.divider()
 
-    st.markdown("### 📸 2. Capture Fault")
-    st.write("Take a photo of the physical issue or component.")
+    st.markdown("### 📸 2. Capture Fault (Image or Video)")
+    st.write("Record video or take a photo of the physical issue.")
     fault_camera = st.camera_input("Take photo of fault", key="fault_cam", label_visibility="collapsed")
-    fault_upload = st.file_uploader("Or upload from gallery:", type=["jpg", "jpeg", "png"], key="fault_upload")
+    # Added video file extensions to uploader
+    fault_upload = st.file_uploader("Or upload from gallery:", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload")
     fault_file = fault_camera if fault_camera else fault_upload
     
     ready_for_analysis = bool(label_file and fault_file)
@@ -239,64 +255,72 @@ with tab1:
                                 serial = re.sub(r'^(SN|S/N|SN:|S/N:)\s*', '', res_s[0], flags=re.IGNORECASE).strip()
                                 serial = serial.lstrip(':').strip()
 
-                fault_image = Image.open(fault_file).convert("RGB")
-                
+                # --- FAULT PROCESSING (IMAGE OR VIDEO) ---
                 with st.spinner(f"Analyzing fault..."):
-                    buffered = io.BytesIO()
-                    fault_image.save(buffered, format="JPEG")
-                    img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
-                    
-                    try:
-                        response = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=15)
-                        response.raise_for_status()
-                        predictions = response.json().get('predictions', [])
-                    except requests.exceptions.RequestException as exc:
-                        boxed_error(f"Roboflow connection failed. Details: {exc}")
-                        predictions = []
-
-                    draw = ImageDraw.Draw(fault_image)
-                    faults_to_show = []
-                    for p in predictions:
-                        raw_label = p['class']
-                        label = normalize_label(raw_label)
-                        x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        if label in ROUTING_LOGIC:
-                            draw.rectangle([x0, y0, x1, y1], outline="#3B82F6", width=8) # Changed box color to blue for a cleaner look
-                            faults_to_show.append((label, ROUTING_LOGIC[label]))
-
-                annotated_fault_image = fault_image.copy()
-                customer_issues = []
-                technician_issues = []
-                for label, route in faults_to_show:
-                    if route['recipient'] == "Customer":
-                        customer_issues.append((label, route))
+                    # Logic: If it's a video, extract frame. Otherwise, open image.
+                    if fault_file.type.startswith('video'):
+                        fault_image = get_frame_from_video(fault_file)
                     else:
-                        technician_issues.append((label, route))
+                        fault_image = Image.open(fault_file).convert("RGB")
 
-                routed_tickets = []
-                if technician_issues:
-                    for label, route in technician_issues:
-                        ticket = create_routing_ticket(
-                            current_fault_name, brand, model, serial, label, route
-                        )
-                        routed_tickets.append(ticket)
+                    if fault_image:
+                        buffered = io.BytesIO()
+                        fault_image.save(buffered, format="JPEG")
+                        img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
+                        
+                        try:
+                            response = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=15)
+                            response.raise_for_status()
+                            predictions = response.json().get('predictions', [])
+                        except requests.exceptions.RequestException as exc:
+                            boxed_error(f"Roboflow connection failed. Details: {exc}")
+                            predictions = []
 
-                if routed_tickets:
-                    existing_tickets = load_tickets()
-                    existing_tickets.extend(routed_tickets)
-                    save_tickets(existing_tickets)
+                        draw = ImageDraw.Draw(fault_image)
+                        faults_to_show = []
+                        for p in predictions:
+                            raw_label = p['class']
+                            label = normalize_label(raw_label)
+                            x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
+                            if label in ROUTING_LOGIC:
+                                draw.rectangle([x0, y0, x1, y1], outline="#3B82F6", width=8) 
+                                faults_to_show.append((label, ROUTING_LOGIC[label]))
 
-                st.session_state.analysis_results = {
-                    'brand': brand,
-                    'model': model,
-                    'serial': serial,
-                    'customer_issues': customer_issues,
-                    'technician_issues': technician_issues,
-                    'faults_to_show': faults_to_show,
-                    'routed_tickets': routed_tickets,
-                    'annotated_fault_image': annotated_fault_image,
-                }
-                st.session_state.analysis_done = True
+                        annotated_fault_image = fault_image.copy()
+                        customer_issues = []
+                        technician_issues = []
+                        for label, route in faults_to_show:
+                            if route['recipient'] == "Customer":
+                                customer_issues.append((label, route))
+                            else:
+                                technician_issues.append((label, route))
+
+                        routed_tickets = []
+                        if technician_issues:
+                            for label, route in technician_issues:
+                                ticket = create_routing_ticket(
+                                    current_fault_name, brand, model, serial, label, route
+                                )
+                                routed_tickets.append(ticket)
+
+                        if routed_tickets:
+                            existing_tickets = load_tickets()
+                            existing_tickets.extend(routed_tickets)
+                            save_tickets(existing_tickets)
+
+                        st.session_state.analysis_results = {
+                            'brand': brand,
+                            'model': model,
+                            'serial': serial,
+                            'customer_issues': customer_issues,
+                            'technician_issues': technician_issues,
+                            'faults_to_show': faults_to_show,
+                            'routed_tickets': routed_tickets,
+                            'annotated_fault_image': annotated_fault_image,
+                        }
+                        st.session_state.analysis_done = True
+                    else:
+                        st.error("Failed to extract frame from video.")
 
     if st.session_state.analysis_done:
         results = st.session_state.analysis_results
