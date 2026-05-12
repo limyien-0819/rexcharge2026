@@ -554,4 +554,9 @@ with tab2:
                         all_t = load_tickets()
                         for item in all_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
-                        save_tickets(all_t); st.
+                        save_tickets(all_t); st.rerun()
+                
+                with c3:
+                    if st.button("ARCHIVE", key=f"d_{tid}_{idx}", use_container_width=True):
+                        all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
+                        save_tickets(all_t); st.rerun()
