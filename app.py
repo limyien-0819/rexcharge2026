@@ -22,119 +22,119 @@ st.set_page_config(
 )
 
 # --- THE "TESLA DASHBOARD" CSS NUKE ---
+# --- THE "ULTIMATE ATAS" DARK UI & FIXES ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
     
-    /* 1. ABSOLUTE DARK MODE OVERRIDE */
-    html, body, [class*="css"], .stApp {
+    /* 1. FORCE ALL TEXT TO LIGHT COLOR (Fixes the unreadable black text) */
+    html, body, [class*="css"], .stApp, p, div, span, label, h1, h2, h3, h4, h5, h6, li {
         font-family: 'Inter', sans-serif !important;
-        background-color: #000000 !important; /* Pure OLED Black */
+        color: #F8FAFC !important; 
+    }
+
+    /* 2. Deep Midnight Background */
+    .stApp {
+        background-color: #0B1120 !important; 
+    }
+
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* 3. Title Styling */
+    h1 {
+        font-weight: 800 !important;
+        letter-spacing: -1.5px !important;
+        text-align: center;
+        margin-top: -30px;
+        background: -webkit-linear-gradient(#38BDF8, #F8FAFC);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* 4. PREMIUM ATAS BUTTONS (Completely overrides Streamlit's ugly defaults) */
+    .stButton > button {
+        background: rgba(30, 41, 59, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #38BDF8 !important;
+        border-radius: 16px !important;
+        padding: 16px 24px !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        width: 100% !important;
+    }
+    .stButton > button:hover {
+        background: rgba(56, 189, 248, 0.1) !important;
+        border: 1px solid #38BDF8 !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 15px 25px -5px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 15px 30px -10px rgba(2, 132, 199, 0.6) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        transform: translateY(-4px) scale(1.02) !important;
+        box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.8) !important;
+    }
+
+    /* 5. Smoked Glass Expanders */
+    [data-testid="stExpander"] {
+        background: rgba(15, 23, 42, 0.7) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    [data-testid="stExpander"] details summary p {
+        font-weight: 600 !important;
+        font-size: 16px !important;
         color: #F8FAFC !important;
     }
 
-    #MainMenu, footer, header, [data-testid="stSidebar"] {
-        display: none !important;
-    }
-
-    /* 2. FIX THE UPLOADER (No more white backgrounds hiding text) */
-    div[data-testid="stFileUploader"] > section {
-        background-color: #0F172A !important; /* Deep Navy Background */
-        border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
-        border-radius: 16px !important;
-        padding: 24px !important;
-        box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
+    /* 6. Fix Uploader and Camera text visibility */
+    /* Target the container of the file uploader */
+    [data-testid="stFileUploader"] section {
+        border-radius: 20px !important;
+        border: 2px dashed #334155 !important;
+        background-color: rgba(30, 41, 59, 0.4) !important;
     }
     
-    /* Force ALL text inside the uploader to be readable */
-    div[data-testid="stFileUploader"] * {
-        color: #E2E8F0 !important;
-        font-weight: 600 !important;
+    /* Target the text inside the uploader dropzone */
+    [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {
+        color: #F8FAFC !important;
     }
-    div[data-testid="stFileUploader"] svg {
-        fill: #0EA5E9 !important; /* Make the upload icon neon blue */
-    }
-
-    /* 3. LUXURY CONTROL TILES (Replacing standard buttons) */
-    .stButton > button {
-        background: #0B1120 !important;
-        border: 1px solid #1E293B !important;
-        color: #38BDF8 !important;
-        border-radius: 16px !important;
-        height: 70px !important; /* Large touch target */
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
-        transition: all 0.2s ease-out !important;
-        width: 100% !important;
-    }
-    .stButton > button:active, .stButton > button:hover {
-        background: #0EA5E9 !important;
-        color: #000000 !important;
-        border: 1px solid #38BDF8 !important;
-        transform: scale(0.98) !important; /* Satisfying press effect */
-        box-shadow: 0 0 20px rgba(14, 165, 233, 0.5) !important;
+    
+    /* Target the 'Browse files' button text specifically */
+    [data-testid="stFileUploadDropzone"] button {
+        color: #38BDF8 !important; /* Make it neon blue so it stands out */
+        font-weight: bold !important;
     }
 
-    /* Primary "Action" Button */
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-        color: #FFFFFF !important;
-        border: none !important;
-        box-shadow: 0 0 30px rgba(2, 132, 199, 0.4) !important;
+    /* Target the text for camera permission ('This app would like to use your camera') */
+    [data-testid="stCameraInput"] div {
+        color: #F8FAFC !important;
     }
-    .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
-        transform: scale(1.02) !important;
-    }
-
-    /* 4. DASHBOARD PANELS (Replacing Expanders) */
-    [data-testid="stExpander"] {
-        background: #09090B !important; /* Extremely dark grey */
-        border: 1px solid #27272A !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
-        margin-top: 15px !important;
-    }
-    [data-testid="stExpander"] details summary p {
-        font-weight: 800 !important;
-        color: #0EA5E9 !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important;
+    /* Target the camera button text */
+    [data-testid="stCameraInput"] button {
+         color: #F8FAFC !important;
+         background-color: #1E293B !important; /* Give it a slightly lighter dark background */
+         border: 1px solid #334155 !important;
     }
 
-    /* 5. CUSTOM DASHBOARD TABS */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: transparent !important;
-        border-bottom: 2px solid #1E293B !important;
-        gap: 20px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        color: #64748B !important; 
-        font-weight: 800 !important; 
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        padding-bottom: 15px !important;
-    }
-    .stTabs [aria-selected="true"] { 
-        color: #F8FAFC !important; 
-        border-bottom: 3px solid #0EA5E9 !important; 
-    }
-
-    /* 6. Custom System Headers */
-    .dash-header {
-        font-size: 11px;
-        font-weight: 800;
-        color: #0EA5E9;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-        margin-top: 20px;
-        border-bottom: 1px solid #1E293B;
-        padding-bottom: 5px;
-    }
+    /* 7. Tab Styling */
+    .stTabs [data-baseweb="tab-list"] { background-color: transparent !important; }
+    .stTabs [data-baseweb="tab"] { color: #64748B !important; font-weight: 700 !important; }
+    .stTabs [aria-selected="true"] { color: #38BDF8 !important; border-bottom: 3px solid #38BDF8 !important; }
     </style>
 """, unsafe_allow_html=True)
 
