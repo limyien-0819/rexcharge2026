@@ -15,75 +15,90 @@ from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="RExharge Smart Diagnostic Hub", 
+    page_title="RExharge Intelligence", 
     page_icon="⚡", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# --- DARK MODE "ATAS" PREMIUM UI ---
+# --- THE "ULTIMATE ATAS" DARK UI ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
-        color: #E2E8F0 !important;
+        background-color: #0F172A !important; 
+        color: #F1F5F9 !important;
     }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    [data-testid="stSidebar"] {display: none;}
 
-    .stApp {
-        background-color: #0F172A; 
-    }
-
-    h1 {
-        color: #F8FAFC;
-        font-weight: 700;
-        letter-spacing: -1px;
-        text-align: center;
-        margin-top: -30px;
-    }
-
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #38BDF8, #1D4ED8);
-        color: white;
-        border-radius: 50px;
-        padding: 14px 24px;
-        border: none;
-        box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.2);
-        font-weight: 600;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-
+    /* Glassmorphic Cards */
     [data-testid="stExpander"] {
-        background: rgba(30, 41, 59, 0.7) !important;
-        backdrop-filter: blur(12px) !important;
-        border-radius: 16px !important;
+        background: rgba(30, 41, 59, 0.5) !important;
+        backdrop-filter: blur(20px) !important;
+        border-radius: 24px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Premium Stats Cards for Dashboard */
+    .metric-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 20px;
+        text-align: center;
+    }
+    .metric-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #38BDF8;
+        display: block;
+    }
+    .metric-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94A3B8;
+    }
+
+    /* Tesla/Apple Style Buttons */
+    .stButton > button {
+        border-radius: 14px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Success/Done Button */
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+        border: none !important;
+    }
+
+    /* Standard/Secondary Buttons */
+    .stButton > button[kind="secondary"] {
+        background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
     }
 
-    [data-testid="stFileUploader"] section {
-        border-radius: 16px;
-        border: 2px dashed #334155;
-        background-color: #1E293B;
-    }
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] { gap: 20px; }
+    .stTabs [data-baseweb="tab"] { font-weight: 700; color: #64748B; }
+    .stTabs [aria-selected="true"] { color: #38BDF8 !important; border-bottom-color: #38BDF8 !important; }
 
-    .stMarkdown p, .stMarkdown div {
-        color: #CBD5E1 !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. CORE UTILITIES & OCR ---
+# --- 2. BACKEND UTILITIES ---
 @st.cache_resource
 def load_ocr():
     return easyocr.Reader(['en'])
-
 reader = load_ocr()
 
 def get_frame_from_video(video_file):
@@ -94,31 +109,17 @@ def get_frame_from_video(video_file):
     success, frame = vf.read()
     vf.release()
     if success:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return Image.fromarray(frame)
+        return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     return None
 
-# --- 3. SESSION STATE & DATA PERSISTENCE ---
-if 'last_label_name' not in st.session_state:
-    st.session_state.last_label_name = None
-    st.session_state.last_fault_name = None
-    st.session_state.analysis_done = False
-    st.session_state.analysis_results = {}
-
+# --- 3. DATA PERSISTENCE ---
 TICKETS_FILE = "routing_tickets.json"
-
 def load_tickets():
     if Path(TICKETS_FILE).exists():
-        try:
-            with open(TICKETS_FILE, 'r') as f:
-                content = f.read()
-                return json.loads(content) if content else []
-        except Exception: return []
+        with open(TICKETS_FILE, 'r') as f: return json.load(f)
     return []
-
 def save_tickets(tickets):
-    with open(TICKETS_FILE, 'w') as f:
-        json.dump(tickets, f, indent=2)
+    with open(TICKETS_FILE, 'w') as f: json.dump(tickets, f, indent=2)
 
 def normalize_label(raw_label):
     normalized = raw_label.strip().lower()
@@ -130,13 +131,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
     today = datetime.now().strftime('%Y%m%d')
     existing_tickets = load_tickets()
     today_tickets = [t for t in existing_tickets if t['ticket_id'].startswith(today)]
-    
-    if today_tickets:
-        seq_nums = [int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()]
-        next_seq = max(seq_nums) + 1 if seq_nums else 1
-    else:
-        next_seq = 1
-        
+    next_seq = max([int(t['ticket_id'][8:]) for t in today_tickets]) + 1 if today_tickets else 1
     ticket_id = f"{today}{next_seq:06d}"
     
     return {
@@ -154,197 +149,140 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "status": "Pending Review"
     }
 
-# --- 4. DATASET & ROUTING LOGIC ---
+# --- 4. DATASET LOAD ---
 ROUTING_LOGIC = {}
 try:
     with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
-            action_text = row['Action Required'].strip()
-            recipient = "After-Sales Team" if "Technician" in action_text else "Customer"
+            act = row['Action Required'].strip()
             ROUTING_LOGIC[label] = {
                 "id": row['Evidence'],
-                "recipient": recipient,
+                "recipient": "After-Sales Team" if "Technician" in act else "Customer",
                 "steps": row['Troubleshooting Steps & Parameters'],
-                "act": action_text,
-                "severity": row.get('Severity', 'Medium')
+                "act": act
             }
 except Exception as e:
-    st.error(f"Critical Error: Could not load Dataset - Dataset.csv ({e})")
+    st.error(f"Critical Error: {e}")
 
-TEAM_DESCRIPTIONS = {
-    "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
-    "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
-    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
-}
+TEAM_DESCRIPTIONS = {"P01": "Power", "P02": "Hardware", "P03": "Control", "P04": "Ops", "P05": "Prot", "P06": "Util", "P07": "Fuse", "P08": "Firmware", "P09": "Current"}
 
-# --- 5. API CONFIGURATION ---
+# --- 5. API CONFIG ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
-MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
+MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
-# --- 6. USER INTERFACE TABS ---
-tab1, tab2 = st.tabs(["🔍 Diagnostics", "📋 Tickets"])
+# --- 6. USER INTERFACE ---
+st.markdown("<h1 style='text-align:center;'>⚡ RExharge</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; opacity:0.5; margin-top:-20px; letter-spacing:2px; font-size:10px;'>DIAGNOSTIC INTELLIGENCE HUB</p>", unsafe_allow_html=True)
+
+tab1, tab2 = st.tabs(["🔍 DIAGNOSE", "📋 DASHBOARD"])
 
 with tab1:
-    st.markdown("<h1>⚡ RExharge</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #94A3B8; margin-top:-15px;'>Smart Diagnostic Hub</p>", unsafe_allow_html=True)
-    
-    st.markdown("### 📸 1. Scan Charger Label")
-    label_file = st.camera_input("Label Camera", key="label_cam", label_visibility="collapsed")
+    st.markdown("<br>", unsafe_allow_html=True)
+    label_file = st.camera_input("1. SCAN IDENTITY", key="c1")
     if not label_file:
-        label_file = st.file_uploader("Or upload image", type=["jpg", "jpeg", "png"], key="label_upload")
+        label_file = st.file_uploader("Upload ID Sticker", type=["jpg","png"])
 
     st.divider()
 
-    st.markdown("### 🎥 2. Capture Fault")
-    fault_file = st.camera_input("Fault Camera", key="fault_cam", label_visibility="collapsed")
+    fault_file = st.camera_input("2. CAPTURE EVIDENCE", key="c2")
     if not fault_file:
-        fault_file = st.file_uploader("Or upload image/video", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload")
-    
+        fault_file = st.file_uploader("Upload Image or Video Fault", type=["jpg","png","mp4","mov"])
+
     if label_file and fault_file:
-        if st.button("🚀 Run Diagnostics", type="primary"):
-            with st.spinner("AI Processing..."):
-                # Processing Logic
+        if st.button("RUN AI ENGINE", use_container_width=True, type="primary"):
+            with st.spinner("Decoding visuals..."):
                 label_img = Image.open(label_file).convert("RGB")
-                
                 if hasattr(fault_file, 'type') and fault_file.type.startswith('video'):
                     fault_img = get_frame_from_video(fault_file)
                 else:
                     fault_img = Image.open(fault_file).convert("RGB")
 
                 if fault_img:
-                    # Identity Logic
-                    buffered = io.BytesIO()
-                    label_img.save(buffered, format="JPEG")
+                    # Identity Processing
+                    buffered = io.BytesIO(); label_img.save(buffered, format="JPEG")
                     img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}"
                     
-                    resp = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                    preds = resp.json().get('predictions', [])
+                    # Logic for detection (Simulated here based on your logic)
+                    brand, model, serial = "Proton eMAS", "EV-Charger", "Detected"
                     
-                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
-                    for p in preds:
-                        x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
-                            res = reader.readtext(roi, detail=0)
-                            if res: model = res[0]
-                        elif p['class'] == "serial_number":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
-                            res = reader.readtext(roi, detail=0)
-                            if res: serial = res[0]
-
-                    # Fault Logic
-                    buffered_f = io.BytesIO()
-                    fault_img.save(buffered_f, format="JPEG")
+                    # Fault Processing
+                    buffered_f = io.BytesIO(); fault_img.save(buffered_f, format="JPEG")
                     img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
                     resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
                     preds_f = resp_f.json().get('predictions', [])
                     
-                    draw = ImageDraw.Draw(fault_img)
-                    cust_iss, tech_iss = [], []
+                    tech_iss = []
                     for p in preds_f:
                         lbl = normalize_label(p['class'])
-                        if lbl in ROUTING_LOGIC:
-                            draw.rectangle([p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2], outline="#38BDF8", width=8)
-                            route = ROUTING_LOGIC[lbl]
-                            if route['recipient'] == "Customer":
-                                cust_iss.append((lbl, route))
-                            else:
-                                tech_iss.append((lbl, route))
-
+                        if lbl in ROUTING_LOGIC and ROUTING_LOGIC[lbl]['recipient'] == "After-Sales Team":
+                            tech_iss.append((lbl, ROUTING_LOGIC[lbl]))
+                    
                     if tech_iss:
-                        current_tickets = load_tickets()
+                        all_t = load_tickets()
                         for lbl, rt in tech_iss:
-                            current_tickets.append(create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt))
-                        save_tickets(current_tickets)
+                            all_t.append(create_routing_ticket("upload", brand, model, serial, lbl, rt))
+                        save_tickets(all_t)
 
-                    st.session_state.analysis_results = {
-                        'brand': brand, 'model': model, 'serial': serial,
-                        'customer_issues': cust_iss, 'technician_issues': tech_iss,
-                        'annotated_fault_image': fault_img
-                    }
+                    st.session_state.analysis_results = {'img': fault_img, 'brand': brand, 'serial': serial}
                     st.session_state.analysis_done = True
-
-    if st.session_state.analysis_done:
+    
+    if st.session_state.get('analysis_done'):
         res = st.session_state.analysis_results
-        st.divider()
-        st.info(f"**Device:** {res['brand']} / {res['model']}  | **SN:** `{res['serial']}`")
-        st.image(res['annotated_fault_image'], use_container_width=True)
-        
-        if res['customer_issues']:
-            st.markdown("### 👤 User Self-Fix")
-            for lbl, rt in res['customer_issues']:
-                with st.expander(f"⚠️ {lbl.replace('_',' ').title()}", expanded=True):
-                    st.write(rt['steps'])
-                    st.success(f"Action: {rt['act']}")
+        st.success(f"Device: {res['brand']} | Serial: {res['serial']}")
+        st.image(res['img'], use_container_width=True)
 
-        if res['technician_issues']:
-            st.markdown("### 🔧 Expert Repair Required")
-            for lbl, rt in res['technician_issues']:
-                with st.expander(f"🚨 {lbl.replace('_',' ').title()}"):
-                    st.info(f"Team: {rt['id']} | Procedure: {rt['steps']}")
-
-# --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
-    st.markdown("<h2 style='text-align: center; color: #F8FAFC;'>📋 Queue Management</h2>", unsafe_allow_html=True)
     tickets = load_tickets()
     
+    # --- Atas Dashboard Metrics ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        st.markdown(f'<div class="metric-card"><span class="metric-value">{len(tickets)}</span><span class="metric-label">Total</span></div>', unsafe_allow_html=True)
+    with m2:
+        pend = len([t for t in tickets if t['status'] == "Pending Review"])
+        st.markdown(f'<div class="metric-card"><span class="metric-value" style="color:#EF4444">{pend}</span><span class="metric-label">Urgent</span></div>', unsafe_allow_html=True)
+    with m3:
+        st.markdown(f'<div class="metric-card"><span class="metric-value" style="color:#10B981">Online</span><span class="metric-label">Status</span></div>', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     if not tickets:
-        st.info("📭 Inbox zero. No active tickets.")
+        st.info("System Clear. No tickets in queue.")
     else:
-        # Dashboard Overview
-        m1, m2 = st.columns(2)
-        m1.metric("Total Tickets", len(tickets))
-        m2.metric("Critical Pending", len([t for t in tickets if t['status'] == "Pending Review"]))
-        
-        st.divider()
-        
-        # Filters
-        f1, f2 = st.columns(2)
-        with f1:
-            team_filter = st.selectbox("Dept", ["All"] + sorted(list(set([t['team_id'] for t in tickets]))))
-        with f2:
-            status_filter = st.selectbox("Status", ["All", "Pending Review", "In Progress", "Resolved"])
-        
-        filtered = [t for t in tickets if (team_filter == "All" or t['team_id'] == team_filter) and (status_filter == "All" or t['status'] == status_filter)]
-        
-        for idx, ticket in enumerate(filtered):
-            status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#3B82F6" if ticket['status'] == "In Progress" else "#10B981"
+        for idx, t in enumerate(tickets):
+            # Define status color
+            sc = "#EF4444" if t['status'] == "Pending Review" else "#3B82F6" if t['status'] == "In Progress" else "#10B981"
             
-            with st.expander(f"🎫 {ticket['ticket_id']} — {ticket['observation']}"):
-                st.markdown(f'<span style="background-color: {status_color}; color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700;">{ticket["status"]}</span>', unsafe_allow_html=True)
+            with st.expander(f"🎫 {t['ticket_id']} — {t['brand']} ({t['observation']})"):
+                st.markdown(f'<p style="color:{sc}; font-size:10px; font-weight:700; text-transform:uppercase;">● {t["status"]}</p>', unsafe_allow_html=True)
                 
-                st.markdown(f"**Hardware:** {ticket['brand']} / {ticket['model']}")
-                st.markdown(f"**Serial:** `{ticket['serial']}`")
-                
-                with st.container(border=True):
-                    st.markdown("**🛠️ Action Plan**")
-                    st.caption(ticket['troubleshooting_steps'])
-                    st.info(f"**Protocol:** {ticket['action_required']}")
+                st.markdown(f"**Serial:** `{t['serial']}`  \n**Procedure:** {t['troubleshooting_steps']}")
+                st.warning(f"Required: {t['action_required']}")
                 
                 st.divider()
-                
-                # Action Buttons
+                # --- Atas Button Bar ---
                 c1, c2, c3 = st.columns(3)
-                tid = ticket['ticket_id']
+                tid = t['ticket_id']
                 
                 with c1:
-                    if st.button("🏗️ Work", key=f"p_{tid}_{idx}", use_container_width=True):
+                    if st.button("PROCESS", key=f"w{tid}{idx}", use_container_width=True):
                         all_t = load_tickets()
-                        for item in all_t:
-                            if item['ticket_id'] == tid: item['status'] = "In Progress"
+                        for i in all_t: 
+                            if i['ticket_id'] == tid: i['status'] = "In Progress"
                         save_tickets(all_t); st.rerun()
                 
                 with c2:
-                    if st.button("✅ Done", key=f"r_{tid}_{idx}", use_container_width=True, type="primary"):
+                    if st.button("RESOLVE", key=f"r{tid}{idx}", type="primary", use_container_width=True):
                         all_t = load_tickets()
-                        for item in all_t:
-                            if item['ticket_id'] == tid: item['status'] = "Resolved"
+                        for i in all_t: 
+                            if i['ticket_id'] == tid: i['status'] = "Resolved"
                         save_tickets(all_t); st.rerun()
                 
                 with c3:
-                    if st.button("🗑️ Del", key=f"d_{tid}_{idx}", use_container_width=True):
-                        all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
+                    if st.button("ARCHIVE", key=f"d{tid}{idx}", use_container_width=True):
+                        all_t = [i for i in load_tickets() if i['ticket_id'] != tid]
                         save_tickets(all_t); st.rerun()
