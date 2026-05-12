@@ -43,66 +43,49 @@ html, body, .stApp {
 h1 {
     color: #7DD3FC !important;
     font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(125,211,252,0.45);
 }
 
 /* ==============================
-   📸 INSTRUCTIONS (FIXED BOLD)
+   📸 INSTRUCTIONS (SAFE + BOLD FIX)
 ============================== */
 
-/* full instruction block */
-.stMarkdown {
-    color: #FFFFFF !important;
-}
-
-/* normal text */
+/* only markdown container */
 .stMarkdown p {
+    color: #E2E8F0 !important;
     font-size: 14px !important;
     font-weight: 400 !important;
-    color: #E2E8F0 !important;
     line-height: 1.6 !important;
 }
 
-/* 🔥 FORCE FIRST LINE BOLD (reliable Streamlit method) */
+/* FIRST LINE BOLD (reliable Streamlit selector) */
 .stMarkdown p:first-child {
     font-size: 18px !important;
     font-weight: 900 !important;
     color: #FFFFFF !important;
 }
 
-/* fallback: also bold any emoji-number pattern */
-.stMarkdown p strong {
-    font-weight: 900 !important;
-    color: #FFFFFF !important;
-}
-
 /* ==============================
-   TABS (FIXED VISIBILITY)
+   TABS (VISIBLE FIX)
 ============================== */
-
-/* inactive tab */
 .stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;   /* brighter grey */
+    color: #94A3B8 !important;
     font-weight: 600 !important;
 }
 
-/* active tab text */
 .stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
+    color: #FFFFFF !important;
     font-weight: 800 !important;
 }
 
-/* ==============================
-   TAB UNDERLINE (BRIGHTER)
-============================== */
+/* TAB UNDERLINE (VISIBLE ON BLACK) */
 .stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.6) !important;
+    background-color: rgba(56, 189, 248, 0.7) !important;
     height: 3px !important;
     border-radius: 2px !important;
 }
 
 /* ==============================
-   BASE BOXES
+   UPLOAD BOX
 ============================== */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
@@ -113,17 +96,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA BUTTON
-============================== */
-[data-testid="stCameraInput"] button,
-[data-testid="stCameraInput"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* ==============================
-   UPLOAD ICON
+   UPLOAD ICON (BLUE)
 ============================== */
 [data-testid="stFileUploader"] svg,
 [data-testid="stFileUploader"] svg * {
@@ -133,36 +106,36 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON
+   🔥 UPLOAD BUTTON TEXT FIX (IMPORTANT)
 ============================== */
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button * {
+[data-testid="stFileUploadDropzone"] button {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
-/* upload label */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label * {
+/* safety override for inner elements */
+[data-testid="stFileUploadDropzone"] button * {
     color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
 }
 
 /* ==============================
-   FILE INFO TEXT (WHITE)
+   FILE INFO (WHITE)
 ============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span,
 [data-testid="stFileUploader"] p {
     color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
 }
 
 /* ==============================
-   UPLOADED FILE NAME
+   CAMERA BUTTON
 ============================== */
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
+[data-testid="stCameraInput"] button,
+[data-testid="stCameraInput"] button * {
+    color: #38BDF8 !important;
+    font-weight: 700 !important;
 }
 
 /* ==============================
