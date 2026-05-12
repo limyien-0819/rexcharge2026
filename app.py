@@ -53,10 +53,11 @@ st.markdown("""
         font-weight: 800 !important;
     }
     
-    /* --> FIX 1: Make the 200MB Helper Text Lighter <-- */
+    /* --> FIX 1: Make the 200MB Helper Text Highly Faded & Subtle <-- */
     div[data-testid="stFileUploadDropzone"] small {
-        color: #94A3B8 !important; /* Subtle Slate Grey */
-        font-weight: 400 !important; /* Lighter font weight */
+        color: rgba(255, 255, 255, 0.4) !important; /* Faded translucent white */
+        font-weight: 400 !important; 
+        font-size: 12px !important;
     }
 
     /* --> FIX 2: Force Camera Permission Text to be Darker <-- */
@@ -64,7 +65,7 @@ st.markdown("""
     [data-testid="stCameraInput"] div[data-testid="stText"],
     [data-testid="stCameraInput"] span,
     [data-testid="stCameraInput"] a {
-        color: #000000 !important; /* Absolute Black for readability */
+        color: #000000 !important; /* Absolute Black for readability on white prompt */
         font-weight: 800 !important;
     }
 
