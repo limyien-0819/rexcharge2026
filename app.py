@@ -26,11 +26,15 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
-   GLOBAL
+   GLOBAL RESET
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
+}
+
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
 }
 
 /* ==============================
@@ -43,10 +47,27 @@ h1 {
 }
 
 /* ==============================
-   HIDE STREAMLIT DEFAULT UI
+   📸 INSTRUCTION FIX (SAFE)
 ============================== */
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
+
+/* container only */
+.stMarkdown {
+    color: #FFFFFF !important;
+}
+
+/* default text = white */
+.stMarkdown p {
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+}
+
+/* 🔥 FIRST LINE (📸 1. / 📸 2.) */
+.stMarkdown p strong {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
 }
 
 /* ==============================
@@ -81,10 +102,18 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON TEXT (BLUE)
+   UPLOAD BUTTON + TEXT (BLUE)
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* upload label */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
@@ -98,63 +127,39 @@ div[data-testid="stFileUploader"] > section,
 [data-testid="stFileUploader"] p {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
-    font-weight: 400 !important;
 }
 
 /* ==============================
-   📸 INSTRUCTION STYLING (FIXED FOR 1.57)
+   UPLOADED FILE NAME
 ============================== */
-
-/* default instruction text = white */
-.stMarkdown {
-    color: #FFFFFF !important;
-}
-
-/* all instruction text white */
-.stMarkdown * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* 🔥 FIRST LINE (📸 1. / 📸 2.) */
-.stMarkdown p strong {
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    color: #FFFFFF !important;
-}
-
-/* second line description */
-.stMarkdown p {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: #E2E8F0 !important;
-    line-height: 1.5 !important;
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   TAB TEXT
+   DISABLE DROPZONE CLICK
 ============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #64748B !important;
-    font-weight: 600 !important;
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
 }
 
-/* active tab */
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 800 !important;
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
 }
 
 /* ==============================
-   TAB UNDERLINE (LIGHTER)
+   BUTTON STYLING
 ============================== */
-.stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.25) !important;
-    height: 2px !important;
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
 }
 
 /* ==============================
-   BUTTONS
+   MAIN BUTTONS
 ============================== */
 .stButton > button {
     background: #0B1120 !important;
@@ -179,6 +184,14 @@ div[data-testid="stFileUploader"] > section,
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
     border-radius: 12px !important;
+}
+
+/* ==============================
+   TAB UNDERLINE (LIGHTER)
+============================== */
+.stTabs [data-baseweb="tab-highlight"] {
+    background-color: rgba(56, 189, 248, 0.25) !important;
+    height: 2px !important;
 }
 
 </style>
