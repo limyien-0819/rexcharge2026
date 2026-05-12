@@ -46,7 +46,7 @@ st.markdown("""
     }
 
     /* -----------------------------------------------------------
-       FORCE ALL TEXT TO LIGHT/WHITE (THE TOTAL FIX)
+       FORCE ALL TEXT TO LIGHT/WHITE
        ----------------------------------------------------------- */
 
     /* A. FORCE TABS TO BE LIGHT AND READABLE */
@@ -54,27 +54,51 @@ st.markdown("""
         color: #94A3B8 !important; /* Unselected Tab */
         font-weight: 700 !important;
     }
+
     .stTabs [aria-selected="true"] p {
         color: #F8FAFC !important; /* Selected Tab */
         font-weight: 800 !important;
     }
 
-    /* B. FORCE CAMERA & UPLOADER TEXT TO BE LIGHT */
-    /* This targets "Take Photo", "This app would like...", "200MB per file", etc. */
-    [data-testid="stCameraInput"] *, 
-    [data-testid="stFileUploader"] *,
-    [data-testid="stFileUploadDropzone"] * {
-        color: #F8FAFC !important; 
-        -webkit-text-fill-color: #F8FAFC !important;
+    /* -----------------------------------------------------------
+       CUSTOM TEXT COLORS
+       ----------------------------------------------------------- */
+
+    /* Camera permission message -> dark grey */
+    [data-testid="stCameraInput"] small,
+    [data-testid="stCameraInput"] span,
+    [data-testid="stCameraInput"] label,
+    [data-testid="stCameraInput"] div {
+        color: #475569 !important;
+        -webkit-text-fill-color: #475569 !important;
         opacity: 1 !important;
     }
 
-    /* C. SPECIFIC BUTTON TEXT FIX (e.g., the "Take Photo" button text) */
-    button p, button div {
-        color: inherit !important;
+    /* "Take Photo" button text -> light blue */
+    [data-testid="stCameraInput"] button,
+    [data-testid="stCameraInput"] button * {
+        color: #38BDF8 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+        font-weight: 700 !important;
     }
 
-    /* D. UPLOADED FILE CARD -> BLACK TEXT (Because the card is white) */
+    /* Upload button text + uploader text -> light blue */
+    [data-testid="stFileUploader"] button,
+    [data-testid="stFileUploader"] button *,
+    [data-testid="stFileUploadDropzone"] * {
+        color: #38BDF8 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+        opacity: 1 !important;
+    }
+
+    /* Upload info text */
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span {
+        color: #94A3B8 !important;
+        -webkit-text-fill-color: #94A3B8 !important;
+    }
+
+    /* Uploaded file card -> black text */
     [data-testid="stFileUploader"] [data-testid="stText"] span,
     [data-testid="stFileUploader"] .uploadedFileName {
         color: #000000 !important;
@@ -115,8 +139,19 @@ st.markdown("""
         border-radius: 12px !important;
     }
 
-    .dash-header { font-size: 18px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
-    .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
+    .dash-header { 
+        font-size: 18px; 
+        font-weight: 800; 
+        color: #F8FAFC; 
+        margin-top: 25px; 
+    }
+
+    .dash-sub { 
+        font-size: 13px; 
+        color: #94A3B8; 
+        margin-bottom: 15px; 
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
