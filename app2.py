@@ -37,7 +37,8 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 2. FIX THE UPLOADER (No more white backgrounds hiding text) */
+    /* 2. EXTREME UPLOADER & CAMERA FIX */
+    /* Target the container box */
     div[data-testid="stFileUploader"] > section {
         background-color: #0F172A !important; /* Deep Navy Background */
         border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
@@ -47,13 +48,44 @@ st.markdown("""
     }
     
     /* Force ALL text inside the uploader to be readable */
-    div[data-testid="stFileUploader"] * {
+    div[data-testid="stFileUploader"] *,
+    [data-testid="stCameraInput"] > div > div > div * { 
         color: #E2E8F0 !important;
         font-weight: 600 !important;
     }
+    
+    /* --> THE FIX FOR CAMERA PERMISSION TEXT <-- */
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] div {
+        color: #475569 !important; /* Slate grey to be visible against white backgrounds */
+    }
+    
+    /* Force the Cloud icon to be blue */
     div[data-testid="stFileUploader"] svg {
-        fill: #0EA5E9 !important; /* Make the upload icon neon blue */
+        fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
+    }
+
+    /* Style the internal "Browse files" & "Take Photo" buttons */
+    [data-testid="stFileUploader"] button,
+    [data-testid="stCameraInput"] button {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+        border: 1px solid #0EA5E9 !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+        font-weight: bold !important;
+        transition: all 0.2s ease !important;
+    }
+    [data-testid="stFileUploader"] button:hover,
+    [data-testid="stCameraInput"] button:hover {
+        background-color: #0EA5E9 !important;
+        color: #000000 !important;
+    }
+
+    /* Hide the "Drag and drop file here" subtext to keep it ultra clean */
+    [data-testid="stFileUploadDropzone"] small {
+        display: none !important;
     }
 
     /* 3. LUXURY CONTROL TILES (Replacing standard buttons) */
@@ -89,11 +121,12 @@ st.markdown("""
     .stButton > button[kind="primary"]:hover {
         background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
         transform: scale(1.02) !important;
+        color: #FFFFFF !important;
     }
 
     /* 4. DASHBOARD PANELS (Replacing Expanders) */
     [data-testid="stExpander"] {
-        background: #09090B !important; /* Extremely dark grey */
+        background: #09090B !important; 
         border: 1px solid #27272A !important;
         border-radius: 20px !important;
         box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
@@ -129,13 +162,14 @@ st.markdown("""
         font-size: 16px;
         font-weight: 800;
         color: #F8FAFC;
-        margin-top: 15px;
+        margin-top: 25px;
         margin-bottom: 5px;
     }
     .dash-sub {
-        font-size: 12px;
+        font-size: 13px;
         color: #94A3B8;
         margin-bottom: 15px;
+        font-weight: 400;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -237,7 +271,7 @@ except Exception as e:
 TEAM_DESCRIPTIONS = {
     "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
     "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
-    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current"
+    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
 }
 
 # --- 5. API CONFIGURATION ---
@@ -245,10 +279,9 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# Custom Dashboard Title
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 3rem; margin-bottom: 0px; background: -webkit-linear-gradient(#FFFFFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ RExharge</h1>
+        <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(#FFFFFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ RExharge</h1>
         <p style="color: #0EA5E9; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
@@ -256,15 +289,18 @@ st.markdown("""
 tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
 
 with tab1:
-    # Restored your requested wording with luxury styling
+    # --- Input Section 1 ---
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
+    
     label_camera = st.camera_input("Scanner", key="label_cam", label_visibility="collapsed")
     label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
     label_file = label_camera if label_camera else label_upload
 
+    # --- Input Section 2 ---
     st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
+    
     fault_camera = st.camera_input("Capture", key="fault_cam", label_visibility="collapsed")
     fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
     fault_file = fault_camera if fault_camera else fault_upload
@@ -297,11 +333,11 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
@@ -371,7 +407,6 @@ with tab2:
     if not tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        # Dashboard Overview Panel
         st.markdown("""
             <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
                 <div>
@@ -385,7 +420,7 @@ with tab2:
             </div>
         """.format(total=len(tickets), crit=len([t for t in tickets if t['status'] == "Pending Review"])), unsafe_allow_html=True)
         
-        filtered = tickets # Showing all tickets for clean dashboard view
+        filtered = tickets
         
         st.markdown('<div class="dash-header">ACTIVE WORK ORDERS</div>', unsafe_allow_html=True)
         
@@ -403,7 +438,6 @@ with tab2:
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # Extreme Atas Action Buttons
                 c1, c2, c3 = st.columns(3)
                 tid = ticket['ticket_id']
                 
