@@ -26,11 +26,15 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
-   GLOBAL BACKGROUND ONLY
+   GLOBAL RESET
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
+}
+
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
 }
 
 /* ==============================
@@ -43,7 +47,7 @@ h1 {
 }
 
 /* ==============================
-   KEEP YOUR BOXES (NO CHANGE)
+   BASE BOXES
 ============================== */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
@@ -54,7 +58,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   TAKE PHOTO (BLUE TEXT ONLY)
+   CAMERA BUTTON
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -74,7 +78,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON TEXT (BLUE ONLY)
+   UPLOAD BUTTON + TEXT (BLUE ONLY)
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button * {
@@ -83,43 +87,64 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
+/* Upload label (drag/drop text) */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
 /* ==============================
-   📁 FILE INFO TEXT (WHITE ONLY)
+   FILE INFO TEXT (WHITE ONLY)
    "200MB per file • JPG, PNG"
 ============================== */
 [data-testid="stFileUploader"] small {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 400 !important;
 }
 
-/* extra safety for Streamlit variations */
-[data-testid="stFileUploader"] small span,
-[data-testid="stFileUploader"] small p {
+/* extra safety for info line (Streamlit sometimes uses span/p) */
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] p {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 400 !important;
 }
 
 /* ==============================
-   📸 INSTRUCTION TEXT (WHITE ONLY)
-   e.g. "Scan Charger Label..."
+   UPLOADED FILE NAME
 ============================== */
-.stMarkdown p,
-.stMarkdown span {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   CARDS (UNCHANGED)
+   DISABLE DROPZONE CLICK
 ============================== */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(14, 165, 233, 0.3) !important;
-    border-radius: 12px !important;
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+}
+
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
 }
 
 /* ==============================
-   BUTTONS
+   BUTTON STYLING INSIDE BOXES
+============================== */
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
+}
+
+/* ==============================
+   MAIN BUTTONS
 ============================== */
 .stButton > button {
     background: #0B1120 !important;
@@ -135,6 +160,15 @@ div[data-testid="stFileUploader"] > section,
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
+}
+
+/* ==============================
+   CARDS
+============================== */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(14, 165, 233, 0.3) !important;
+    border-radius: 12px !important;
 }
 
 </style>
