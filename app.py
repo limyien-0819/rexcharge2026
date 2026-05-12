@@ -26,8 +26,30 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
-   GLOBAL
+   DASHBOARD INSTRUCTIONS (WHITE ONLY)
 ============================== */
+
+.stMarkdown,
+.stMarkdown * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.stMarkdown strong,
+.stMarkdown em {
+    color: #FFFFFF !important;
+}
+
+/* ==============================
+   GLOBAL RESET
+============================== */
+
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
@@ -38,59 +60,19 @@ html, body, .stApp {
 }
 
 /* ==============================
-   TITLE (LIGHT BLUE)
+   TITLE
 ============================== */
+
 h1 {
     color: #7DD3FC !important;
     font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(125,211,252,0.45);
+    text-shadow: 0 0 18px rgba(56,189,248,0.55);
 }
 
 /* ==============================
-   📸 INSTRUCTIONS (SAFE FIX)
+   BASE BOXES
 ============================== */
 
-/* default text = white ONLY */
-.stMarkdown p {
-    color: #FFFFFF !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    line-height: 1.6 !important;
-}
-
-/* FIRST LINE (📸 1. / 2.) */
-.stMarkdown p:first-child {
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    color: #FFFFFF !important;
-}
-
-/* ==============================
-   TABS (FIX VISIBILITY)
-============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;
-    font-weight: 600 !important;
-}
-
-.stTabs [aria-selected="true"] p {
-    color: #FFFFFF !important;
-    font-weight: 800 !important;
-}
-
-/* TAB UNDERLINE (LIGHTER + CLEAR) */
-.stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.55) !important;
-    height: 3px !important;
-    border-radius: 2px !important;
-}
-
-/* ==============================
-   KEEP UPLOAD ORIGINAL (IMPORTANT)
-   → NO STYLING ON UPLOAD BUTTON
-============================== */
-
-/* ONLY keep box styling */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
     background-color: #0F172A !important;
@@ -100,35 +82,114 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD ICON ONLY (SAFE)
+   CAMERA BUTTON
 ============================== */
+
+[data-testid="stCameraInput"] button,
+[data-testid="stCameraInput"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* ==============================
+   UPLOAD ICON
+============================== */
+
 [data-testid="stFileUploader"] svg,
 [data-testid="stFileUploader"] svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
+    color: #38BDF8 !important;
 }
 
 /* ==============================
-   FILE INFO (WHITE)
+   UPLOAD BUTTON + TEXT
 ============================== */
+
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploadDropzone"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* Upload label */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* ==============================
+   FILE INFO TEXT (WHITE)
+============================== */
+
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span,
 [data-testid="stFileUploader"] p {
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 400 !important;
 }
 
 /* ==============================
-   CAMERA BUTTON (OK TO STYLE)
+   UPLOADED FILE NAME
 ============================== */
-[data-testid="stCameraInput"] button,
-[data-testid="stCameraInput"] button * {
+
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* ==============================
+   DISABLE DROPZONE CLICK
+============================== */
+
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+}
+
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
+}
+
+/* ==============================
+   BUTTON STYLING INSIDE BOXES
+============================== */
+
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
+}
+
+/* ==============================
+   MAIN BUTTONS
+============================== */
+
+.stButton > button {
+    background: #0B1120 !important;
+    border: 1px solid #1E293B !important;
     color: #38BDF8 !important;
-    font-weight: 700 !important;
+    border-radius: 16px !important;
+    height: 70px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    width: 100% !important;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+    color: #FFFFFF !important;
 }
 
 /* ==============================
    CARDS
 ============================== */
+
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
