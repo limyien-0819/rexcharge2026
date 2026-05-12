@@ -26,6 +26,31 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
+   DASHBOARD INSTRUCTIONS
+============================== */
+
+/* Base instruction text = white */
+.stMarkdown,
+.stMarkdown * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* 🔥 Make ONLY "1." and "2." lines bold + larger */
+.stMarkdown p:first-child {
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    color: #FFFFFF !important;
+}
+
+/* Sub text under it */
+.stMarkdown p:not(:first-child) {
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    color: #E2E8F0 !important;
+}
+
+/* ==============================
    GLOBAL RESET
 ============================== */
 html, body, .stApp {
@@ -33,22 +58,21 @@ html, body, .stApp {
     background-color: #000000 !important;
 }
 
-/* Hide Streamlit default UI */
 #MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
 }
 
 /* ==============================
-   TITLE
+   TITLE (LIGHT BLUE FIXED)
 ============================== */
 h1 {
-    color: #7DD3FC !important;
+    color: #7DD3FC !important;   /* light blue */
     font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(56,189,248,0.55);
+    text-shadow: 0 0 18px rgba(125,211,252,0.45);
 }
 
 /* ==============================
-   BASE BOXES (UNCHANGED)
+   BASE BOXES
 ============================== */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
@@ -59,7 +83,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA BUTTON (BLUE)
+   CAMERA BUTTON
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -88,7 +112,7 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* Upload label text */
+/* Upload label */
 [data-testid="stFileUploader"] label,
 [data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
@@ -98,7 +122,6 @@ div[data-testid="stFileUploader"] > section,
 
 /* ==============================
    FILE INFO TEXT (WHITE)
-   "200MB per file • JPG, PNG"
 ============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] small *,
@@ -110,61 +133,36 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   📸 DASHBOARD INSTRUCTIONS (WHITE)
+   UPLOADED FILE NAME
 ============================== */
-.stMarkdown,
-.stMarkdown * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* Make first line (title) slightly larger + bold */
-.stMarkdown p:first-child {
-    font-weight: 800 !important;
-    font-size: 18px !important;
-    color: #FFFFFF !important;
-}
-
-/* Second line (description) */
-.stMarkdown p:not(:first-child) {
-    font-weight: 400 !important;
-    font-size: 14px !important;
-    color: #E2E8F0 !important;
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   TABS TEXT
+   DISABLE DROPZONE CLICK
 ============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #64748B !important;
-    font-weight: 600 !important;
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
 }
 
-/* Active tab */
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 800 !important;
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
 }
 
 /* ==============================
-   TAB UNDERLINE (LIGHTER)
+   BUTTON STYLING INSIDE BOXES
 ============================== */
-.stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.25) !important;
-    height: 2px !important;
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
 }
 
 /* ==============================
-   CARDS (UNCHANGED)
-============================== */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(14, 165, 233, 0.3) !important;
-    border-radius: 12px !important;
-}
-
-/* ==============================
-   BUTTONS
+   MAIN BUTTONS
 ============================== */
 .stButton > button {
     background: #0B1120 !important;
@@ -180,6 +178,23 @@ div[data-testid="stFileUploader"] > section,
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
+}
+
+/* ==============================
+   CARDS
+============================== */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(14, 165, 233, 0.3) !important;
+    border-radius: 12px !important;
+}
+
+/* ==============================
+   TAB UNDERLINE (LIGHTER FIX)
+============================== */
+.stTabs [data-baseweb="tab-highlight"] {
+    background-color: rgba(56, 189, 248, 0.25) !important;
+    height: 2px !important;
 }
 
 </style>
