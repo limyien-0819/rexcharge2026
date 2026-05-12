@@ -21,138 +21,161 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-    
-    /* 1. ABSOLUTE GLOBAL RESET */
-    html, body, .stApp {
-        font-family: 'Inter', sans-serif !important;
-        background-color: #000000 !important; 
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
-    #MainMenu, footer, header, [data-testid="stSidebar"] {
-        display: none !important;
-    }
+/* ==============================
+   GLOBAL RESET
+============================== */
+html, body, .stApp {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #000000 !important;
+}
 
-    /* 2. BASE BOX STYLING */
-    div[data-testid="stFileUploader"] > section,
-    [data-testid="stCameraInput"] > div {
-        background-color: #0F172A !important; 
-        border: 1px solid #0EA5E9 !important; 
-        border-radius: 16px !important;
-        padding: 24px !important;
-    }
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
+}
 
-    /* -----------------------------------------------------------
-       FORCE ALL TEXT TO LIGHT/WHITE
-       ----------------------------------------------------------- */
+/* ==============================
+   TITLE
+============================== */
+h1 {
+    color: #38BDF8 !important;   /* brighter neon blue */
+    font-weight: 800 !important;
+    text-shadow: 0 0 14px rgba(56,189,248,0.45);
+}
 
-    /* A. FORCE TABS TO BE LIGHT AND READABLE */
-    .stTabs [data-baseweb="tab"] p {
-        color: #94A3B8 !important; /* Unselected Tab */
-        font-weight: 700 !important;
-    }
+/* ==============================
+   BASE BOXES
+============================== */
+div[data-testid="stFileUploader"] > section,
+[data-testid="stCameraInput"] > div {
+    background-color: #0F172A !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
 
-    .stTabs [aria-selected="true"] p {
-        color: #F8FAFC !important; /* Selected Tab */
-        font-weight: 800 !important;
-    }
+/* ==============================
+   TABS
+============================== */
+.stTabs [data-baseweb="tab"] p {
+    color: #94A3B8 !important;
+    font-weight: 700 !important;
+}
 
-    /* -----------------------------------------------------------
-       CUSTOM TEXT COLORS
-       ----------------------------------------------------------- */
+.stTabs [aria-selected="true"] p {
+    color: #F8FAFC !important;
+    font-weight: 800 !important;
+}
 
-    /* Camera permission message -> dark grey */
-    [data-testid="stCameraInput"] small,
-    [data-testid="stCameraInput"] span,
-    [data-testid="stCameraInput"] label,
-    [data-testid="stCameraInput"] div {
-        color: #475569 !important;
-        -webkit-text-fill-color: #475569 !important;
-        opacity: 1 !important;
-    }
+/* ==============================
+   CAMERA MESSAGE
+============================== */
+[data-testid="stCameraInput"] small,
+[data-testid="stCameraInput"] span,
+[data-testid="stCameraInput"] label,
+[data-testid="stCameraInput"] div {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+    opacity: 1 !important;
+}
 
-    /* "Take Photo" button text -> light blue */
-    [data-testid="stCameraInput"] button,
-    [data-testid="stCameraInput"] button * {
-        color: #38BDF8 !important;
-        -webkit-text-fill-color: #38BDF8 !important;
-        font-weight: 700 !important;
-    }
+/* ==============================
+   TAKE PHOTO BUTTON
+============================== */
+[data-testid="stCameraInput"] button,
+[data-testid="stCameraInput"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
 
-    /* Upload button text + uploader text -> light blue */
-    [data-testid="stFileUploader"] button,
-    [data-testid="stFileUploader"] button *,
-    [data-testid="stFileUploadDropzone"] * {
-        color: #38BDF8 !important;
-        -webkit-text-fill-color: #38BDF8 !important;
-        opacity: 1 !important;
-    }
+/* ==============================
+   UPLOAD BUTTON + ICON
+============================== */
+[data-testid="stFileUploader"] button,
+[data-testid="stFileUploader"] button *,
+[data-testid="stFileUploader"] button svg,
+[data-testid="stFileUploader"] button path,
+[data-testid="stFileUploadDropzone"] * {
+    color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    opacity: 1 !important;
+}
 
-    /* Upload info text */
-    [data-testid="stFileUploader"] small,
-    [data-testid="stFileUploader"] span {
-        color: #94A3B8 !important;
-        -webkit-text-fill-color: #94A3B8 !important;
-    }
+/* Upload info text */
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span {
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+}
 
-    /* Uploaded file card -> black text */
-    [data-testid="stFileUploader"] [data-testid="stText"] span,
-    [data-testid="stFileUploader"] .uploadedFileName {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
+/* Uploaded filename */
+[data-testid="stFileUploader"] [data-testid="stText"] span,
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
 
-    /* ----------------------------------------------------------- */
+/* ==============================
+   BUTTONS
+============================== */
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
+}
 
-    /* Buttons inside the boxes */
-    [data-testid="stFileUploader"] button,
-    [data-testid="stCameraInput"] button {
-        background-color: #1E293B !important;
-        border: 1px solid #0EA5E9 !important;
-        border-radius: 8px !important;
-    }
+/* ==============================
+   MAIN START BUTTONS
+============================== */
+.stButton > button {
+    background: #0B1120 !important;
+    border: 1px solid #1E293B !important;
+    color: #38BDF8 !important;
+    border-radius: 16px !important;
+    height: 70px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    width: 100% !important;
+}
 
-    /* Luxury Control Tiles (Main START Buttons) */
-    .stButton > button {
-        background: #0B1120 !important;
-        border: 1px solid #1E293B !important;
-        color: #38BDF8 !important;
-        border-radius: 16px !important;
-        height: 70px !important; 
-        font-weight: 800 !important;
-        text-transform: uppercase !important;
-        width: 100% !important;
-    }
-    
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-        color: #FFFFFF !important;
-    }
+.stButton > button[kind="primary"] {
+    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+    color: #FFFFFF !important;
+}
 
-    /* Inner container cards */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background: rgba(15, 23, 42, 0.6) !important;
-        border: 1px solid rgba(14, 165, 233, 0.3) !important;
-        border-radius: 12px !important;
-    }
+/* ==============================
+   INNER CARDS
+============================== */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(14, 165, 233, 0.3) !important;
+    border-radius: 12px !important;
+}
 
-    .dash-header { 
-        font-size: 18px; 
-        font-weight: 800; 
-        color: #F8FAFC; 
-        margin-top: 25px; 
-    }
+/* ==============================
+   CUSTOM TEXT
+============================== */
+.dash-header {
+    font-size: 18px;
+    font-weight: 800;
+    color: #F8FAFC;
+    margin-top: 25px;
+}
 
-    .dash-sub { 
-        font-size: 13px; 
-        color: #94A3B8; 
-        margin-bottom: 15px; 
-    }
+.dash-sub {
+    font-size: 13px;
+    color: #94A3B8;
+    margin-bottom: 15px;
+}
 
-    </style>
+</style>
 """, unsafe_allow_html=True)
 
 # --- 2. CORE UTILITIES & OCR ---
