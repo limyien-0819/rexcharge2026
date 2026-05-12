@@ -26,53 +26,43 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
-    /* 1. FORCE ABSOLUTE DARK MODE GLOBALLY */
+    /* 1. ABSOLUTE DARK MODE OVERRIDE */
     html, body, [class*="css"], .stApp {
         font-family: 'Inter', sans-serif !important;
         background-color: #000000 !important; /* Pure OLED Black */
         color: #F8FAFC !important;
     }
 
-    /* Hide Streamlit Default Branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* 2. THE FIX FOR CAMERA & UPLOADER (Nuking the white backgrounds) */
-    /* Target every single div inside the uploader and camera to force a dark background */
-    [data-testid="stFileUploader"], 
-    [data-testid="stFileUploader"] div, 
-    [data-testid="stFileUploadDropzone"],
-    [data-testid="stCameraInput"],
-    [data-testid="stCameraInput"] div {
-        background-color: #0F172A !important; /* Deep Navy, absolutely NO white */
-        color: #F8FAFC !important; /* Force text to be white */
+    #MainMenu, footer, header, [data-testid="stSidebar"] {
+        display: none !important;
     }
 
-    /* Style the dropzone specifically */
-    [data-testid="stFileUploadDropzone"] {
-        border: 2px dashed #0EA5E9 !important; /* Neon Blue Border */
+    /* 2. FIX THE UPLOADER (No more white backgrounds hiding text) */
+    div[data-testid="stFileUploader"] > section {
+        background-color: #0F172A !important; /* Deep Navy Background */
+        border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
         border-radius: 16px !important;
         padding: 24px !important;
+        box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
+    }
+    
+    /* Force ALL text inside the uploader to be readable */
+    div[data-testid="stFileUploader"] * {
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stFileUploader"] svg {
+        fill: #0EA5E9 !important; /* Make the upload icon neon blue */
+        color: #0EA5E9 !important;
     }
 
-    /* Fix the "Browse files" and "Take Photo" default Streamlit buttons inside those boxes */
-    [data-testid="stFileUploadDropzone"] button,
-    [data-testid="stCameraInput"] button {
-        background-color: #1E293B !important;
-        color: #38BDF8 !important;
-        border: 1px solid #0EA5E9 !important;
-        border-radius: 8px !important;
-        font-weight: bold !important;
-    }
-
-    /* 3. LUXURY CONTROL TILES (Replacing standard Streamlit buttons) */
+    /* 3. LUXURY CONTROL TILES (Replacing standard buttons) */
     .stButton > button {
         background: #0B1120 !important;
         border: 1px solid #1E293B !important;
         color: #38BDF8 !important;
         border-radius: 16px !important;
-        height: 70px !important; /* Large touch target for mobile */
+        height: 70px !important; /* Large touch target */
         font-weight: 800 !important;
         font-size: 14px !important;
         letter-spacing: 2px !important;
@@ -99,7 +89,6 @@ st.markdown("""
     .stButton > button[kind="primary"]:hover {
         background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
         transform: scale(1.02) !important;
-        color: #FFFFFF !important;
     }
 
     /* 4. DASHBOARD PANELS (Replacing Expanders) */
@@ -135,9 +124,18 @@ st.markdown("""
         border-bottom: 3px solid #0EA5E9 !important; 
     }
 
-    /* Make headers pop */
-    h1, h2, h3, h4 {
-        color: #F8FAFC !important;
+    /* 6. Custom System Headers */
+    .dash-header {
+        font-size: 16px;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+    .dash-sub {
+        font-size: 12px;
+        color: #94A3B8;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -258,12 +256,15 @@ st.markdown("""
 tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
 
 with tab1:
-    st.markdown('<div class="dash-header">01 // SCAN IDENTITY ASSET</div>', unsafe_allow_html=True)
+    # Restored your requested wording with luxury styling
+    st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
     label_camera = st.camera_input("Scanner", key="label_cam", label_visibility="collapsed")
     label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
     label_file = label_camera if label_camera else label_upload
 
-    st.markdown('<div class="dash-header">02 // CAPTURE FAULT TELEMETRY</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
     fault_camera = st.camera_input("Capture", key="fault_cam", label_visibility="collapsed")
     fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
     fault_file = fault_camera if fault_camera else fault_upload
@@ -341,6 +342,8 @@ with tab1:
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results
+        
+        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
@@ -394,7 +397,7 @@ with tab2:
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown(f"**UNIT:** {ticket['brand']} / {ticket['model']}<br>**SERIAL:** `{ticket['serial']}`", unsafe_allow_html=True)
                 
-                st.markdown("<br><p style='font-size:10px; color:#0EA5E9; font-weight:800; letter-spacing:1px;'>TECHNICAL PROTOCOL</p>", unsafe_allow_html=True)
+                st.markdown("<br><p style='font-size:10px; color:#0EA5E9; font-weight:800; letter-spacing:1px; margin-bottom: 0px;'>TECHNICAL PROTOCOL</p>", unsafe_allow_html=True)
                 st.write(ticket['troubleshooting_steps'])
                 st.info(f"REQUIRED: {ticket['action_required']}")
                 
