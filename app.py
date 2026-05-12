@@ -22,16 +22,14 @@ st.set_page_config(
 )
 
 # --- THE "TESLA DASHBOARD" CSS NUKE ---
-# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
-    /* 1. GLOBAL RESET */
+    /* 1. ABSOLUTE GLOBAL RESET */
     html, body, .stApp {
         font-family: 'Inter', sans-serif !important;
         background-color: #000000 !important; 
-        color: #F8FAFC !important;
     }
 
     #MainMenu, footer, header, [data-testid="stSidebar"] {
@@ -48,41 +46,37 @@ st.markdown("""
     }
 
     /* -----------------------------------------------------------
-       FORCE TEXT COLORS (THE ULTIMATE OVERRIDE)
+       FORCE ALL TEXT TO LIGHT/WHITE (THE TOTAL FIX)
        ----------------------------------------------------------- */
 
-    /* A. CAMERA PERMISSION TEXT -> FORCE DARK GREY */
-    /* We target every single text element inside camera input to be grey */
-    [data-testid="stCameraInput"] label,
-    [data-testid="stCameraInput"] p,
-    [data-testid="stCameraInput"] span,
-    [data-testid="stCameraInput"] div {
-        color: #475569 !important; 
-        -webkit-text-fill-color: #475569 !important;
+    /* A. FORCE TABS TO BE LIGHT AND READABLE */
+    .stTabs [data-baseweb="tab"] p {
+        color: #94A3B8 !important; /* Unselected Tab */
         font-weight: 700 !important;
     }
+    .stTabs [aria-selected="true"] p {
+        color: #F8FAFC !important; /* Selected Tab */
+        font-weight: 800 !important;
+    }
 
-    /* B. FILE UPLOADER HELPER TEXT -> FORCE PURE WHITE */
-    /* This rule specifically overrides the '200MB' and 'JPG/PNG' wording */
-    [data-testid="stFileUploader"] small,
-    [data-testid="stFileUploader"] div[data-testid="stCaptionContainer"],
-    [data-testid="stFileUploadDropzone"] small {
-        color: #FFFFFF !important; 
-        -webkit-text-fill-color: #FFFFFF !important;
+    /* B. FORCE CAMERA & UPLOADER TEXT TO BE LIGHT */
+    /* This targets "Take Photo", "This app would like...", "200MB per file", etc. */
+    [data-testid="stCameraInput"] *, 
+    [data-testid="stFileUploader"] *,
+    [data-testid="stFileUploadDropzone"] * {
+        color: #F8FAFC !important; 
+        -webkit-text-fill-color: #F8FAFC !important;
         opacity: 1 !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
     }
 
-    /* C. MAIN UPLOADER INSTRUCTION -> NEON BLUE */
-    [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {
-        color: #38BDF8 !important;
-        -webkit-text-fill-color: #38BDF8 !important;
+    /* C. SPECIFIC BUTTON TEXT FIX (e.g., the "Take Photo" button text) */
+    button p, button div {
+        color: inherit !important;
     }
 
-    /* D. UPLOADED FILE NAME -> BLACK ON WHITE CARD */
-    [data-testid="stFileUploader"] .uploadedFileName,
-    [data-testid="stFileUploader"] [data-testid="stText"] span {
+    /* D. UPLOADED FILE CARD -> BLACK TEXT (Because the card is white) */
+    [data-testid="stFileUploader"] [data-testid="stText"] span,
+    [data-testid="stFileUploader"] .uploadedFileName {
         color: #000000 !important;
         -webkit-text-fill-color: #000000 !important;
     }
@@ -93,12 +87,11 @@ st.markdown("""
     [data-testid="stFileUploader"] button,
     [data-testid="stCameraInput"] button {
         background-color: #1E293B !important;
-        color: #38BDF8 !important;
         border: 1px solid #0EA5E9 !important;
         border-radius: 8px !important;
     }
-    
-    /* Luxury Control Tiles (Main Action Buttons) */
+
+    /* Luxury Control Tiles (Main START Buttons) */
     .stButton > button {
         background: #0B1120 !important;
         border: 1px solid #1E293B !important;
@@ -115,14 +108,13 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Fix for inner container white boxes */
+    /* Inner container cards */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: rgba(15, 23, 42, 0.6) !important;
         border: 1px solid rgba(14, 165, 233, 0.3) !important;
         border-radius: 12px !important;
     }
 
-    /* Headers and Subs */
     .dash-header { font-size: 18px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
     .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
     </style>
