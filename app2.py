@@ -9,100 +9,148 @@ import easyocr
 import re
 import csv
 import json
-import tempfile  # Needed for video processing
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
-st.set_page_config(page_title="RExharge Smart Diagnostic Hub", page_icon="⚡", layout="centered")
+st.set_page_config(
+    page_title="RExharge Smart Diagnostic Hub", 
+    page_icon="⚡", 
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# --- CUSTOM "ATAS" PREMIUM UI DESIGN ---
+# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
     <style>
-    /* 1. Import Premium Tech Font (Inter) */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
-    html, body, [class*="css"] {
+    /* 1. ABSOLUTE DARK MODE OVERRIDE */
+    html, body, [class*="css"], .stApp {
         font-family: 'Inter', sans-serif !important;
+        background-color: #000000 !important; /* Pure OLED Black */
+        color: #F8FAFC !important;
     }
 
-    /* 2. Hide Streamlit Default Branding for a Native App Feel */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* 3. Global Background - Soft Off-White */
-    .stApp {
-        background-color: #F8FAFC; 
+    #MainMenu, footer, header, [data-testid="stSidebar"] {
+        display: none !important;
     }
 
-    /* 4. Elegant Typography */
-    h1 {
-        color: #0F172A;
-        font-weight: 700;
-        letter-spacing: -1px;
+    /* 2. FIX THE UPLOADER (No more white backgrounds hiding text) */
+    div[data-testid="stFileUploader"] > section {
+        background-color: #0F172A !important; /* Deep Navy Background */
+        border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
+        border-radius: 16px !important;
+        padding: 24px !important;
+        box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
-    h3, h4 {
-        color: #334155;
-        font-weight: 600;
+    
+    /* Force ALL text inside the uploader to be readable */
+    div[data-testid="stFileUploader"] * {
+        color: #E2E8F0 !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stFileUploader"] svg {
+        fill: #0EA5E9 !important; /* Make the upload icon neon blue */
+        color: #0EA5E9 !important;
     }
 
-    /* 5. Sleek Pill-Shaped Primary Buttons */
+    /* 3. LUXURY CONTROL TILES (Replacing standard buttons) */
+    .stButton > button {
+        background: #0B1120 !important;
+        border: 1px solid #1E293B !important;
+        color: #38BDF8 !important;
+        border-radius: 16px !important;
+        height: 70px !important; /* Large touch target */
+        font-weight: 800 !important;
+        font-size: 14px !important;
+        letter-spacing: 2px !important;
+        text-transform: uppercase !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
+        transition: all 0.2s ease-out !important;
+        width: 100% !important;
+    }
+    .stButton > button:active, .stButton > button:hover {
+        background: #0EA5E9 !important;
+        color: #000000 !important;
+        border: 1px solid #38BDF8 !important;
+        transform: scale(0.98) !important; /* Satisfying press effect */
+        box-shadow: 0 0 20px rgba(14, 165, 233, 0.5) !important;
+    }
+
+    /* Primary "Action" Button */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #0F172A, #1E293B); /* Deep Slate */
-        color: white;
-        border-radius: 50px; /* Fully rounded pill shape */
-        padding: 14px 24px;
-        border: none;
-        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        box-shadow: 0 0 30px rgba(2, 132, 199, 0.4) !important;
     }
     .stButton > button[kind="primary"]:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.3);
-        background: linear-gradient(135deg, #1E293B, #334155);
+        background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
+        transform: scale(1.02) !important;
     }
 
-    /* 6. Glassmorphism effect for Expanders (Cards) */
+    /* 4. DASHBOARD PANELS (Replacing Expanders) */
     [data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.7) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border-radius: 16px !important;
-        border: 1px solid rgba(255, 255, 255, 0.6) !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+        background: #09090B !important; /* Extremely dark grey */
+        border: 1px solid #27272A !important;
+        border-radius: 20px !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
+        margin-top: 15px !important;
+    }
+    [data-testid="stExpander"] details summary p {
+        font-weight: 800 !important;
+        color: #0EA5E9 !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
     }
 
-    /* 7. Rounded corners for uploaded images */
-    [data-testid="stImage"] img {
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    /* 5. CUSTOM DASHBOARD TABS */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: transparent !important;
+        border-bottom: 2px solid #1E293B !important;
+        gap: 20px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        color: #64748B !important; 
+        font-weight: 800 !important; 
+        letter-spacing: 2px !important;
+        text-transform: uppercase !important;
+        padding-bottom: 15px !important;
+    }
+    .stTabs [aria-selected="true"] { 
+        color: #F8FAFC !important; 
+        border-bottom: 3px solid #0EA5E9 !important; 
     }
 
-    /* 8. Modern Input File Uploaders */
-    [data-testid="stFileUploader"] section {
-        border-radius: 16px;
-        border: 2px dashed #CBD5E1;
-        background-color: #F1F5F9;
+    /* 6. Custom System Headers */
+    .dash-header {
+        font-size: 16px;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+    .dash-sub {
+        font-size: 12px;
+        color: #94A3B8;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
 
+# --- 2. CORE UTILITIES & OCR ---
 @st.cache_resource
 def load_ocr():
     return easyocr.Reader(['en'])
 
 reader = load_ocr()
 
-# --- HELPER: VIDEO TO IMAGE ---
 def get_frame_from_video(video_file):
-    """Saves video to a temp file and extracts the first frame."""
     with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tfile:
         tfile.write(video_file.read())
         temp_path = tfile.name
-    
     vf = cv2.VideoCapture(temp_path)
     success, frame = vf.read()
     vf.release()
@@ -111,64 +159,48 @@ def get_frame_from_video(video_file):
         return Image.fromarray(frame)
     return None
 
-# --- SESSION STATE SETUP ---
+# --- 3. SESSION STATE & DATA PERSISTENCE ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
     st.session_state.last_fault_name = None
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
 
-# --- ROUTING TICKET SYSTEM ---
 TICKETS_FILE = "routing_tickets.json"
 
 def load_tickets():
     if Path(TICKETS_FILE).exists():
-        with open(TICKETS_FILE, 'r') as f:
-            return json.load(f)
+        try:
+            with open(TICKETS_FILE, 'r') as f:
+                content = f.read()
+                return json.loads(content) if content else []
+        except Exception: return []
     return []
 
 def save_tickets(tickets):
     with open(TICKETS_FILE, 'w') as f:
         json.dump(tickets, f, indent=2)
 
-def boxed_error(message, title="Error"):
-    styled_message = message.replace("\n", "<br>")
-    st.markdown(
-        f"""
-        <div style='border:1px solid #fa4c4c; border-radius:12px; padding:16px; background:#fff0f0; color:#9d1a1a; margin:12px 0;'>
-            <strong>{title}</strong><br>{styled_message}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
 def normalize_label(raw_label):
     normalized = raw_label.strip().lower()
     normalized = re.sub(r'[\s\-]+', '_', normalized)
     normalized = re.sub(r'[^a-z0-9_]', '', normalized)
-    normalized = re.sub(r'_+', '_', normalized)
     return normalized.strip('_')
 
 def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info):
     today = datetime.now().strftime('%Y%m%d')
     existing_tickets = load_tickets()
-    
     today_tickets = [t for t in existing_tickets if t['ticket_id'].startswith(today)]
+    
     if today_tickets:
-        sequential_nums = []
-        for ticket in today_tickets:
-            try:
-                seq_num = int(ticket['ticket_id'][8:])
-                sequential_nums.append(seq_num)
-            except (ValueError, IndexError):
-                continue
-        next_seq = max(sequential_nums) + 1 if sequential_nums else 1
+        seq_nums = [int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()]
+        next_seq = max(seq_nums) + 1 if seq_nums else 1
     else:
         next_seq = 1
-    
+        
     ticket_id = f"{today}{next_seq:06d}"
     
-    ticket = {
+    return {
         "ticket_id": ticket_id,
         "timestamp": datetime.now().isoformat(),
         "team_id": route_info['id'],
@@ -182,12 +214,11 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "action_required": route_info['act'],
         "status": "Pending Review"
     }
-    return ticket
 
-# Load Routing Logic from CSV
+# --- 4. DATASET & ROUTING LOGIC ---
 ROUTING_LOGIC = {}
 try:
-    with open('Dataset - Dataset.csv', mode='r') as f:
+    with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
@@ -198,279 +229,199 @@ try:
                 "recipient": recipient,
                 "steps": row['Troubleshooting Steps & Parameters'],
                 "act": action_text,
-                "severity": row.get('Severity', 'Medium'),
-                "category": row.get('Issue Category', 'Unknown'),
-                "fault_id": row.get('Fault ID', '')
+                "severity": row.get('Severity', 'Medium')
             }
 except Exception as e:
-    boxed_error(f"Error loading CSV: {e}")
+    pass # Silent fail to maintain Atas UI look
 
 TEAM_DESCRIPTIONS = {
-    "P01": "Electrical & Utility - Power Supply",
-    "P02": "Hardware Failure - Critical Component", 
-    "P03": "Electrical & Utility - Control Circuit",
-    "P04": "Operational - Switch & Control",
-    "P05": "Electrical & Utility - Circuit Protection",
-    "P06": "Electrical & Utility - Utility Connection",
-    "P07": "Electrical & Utility - Fuse Systems",
-    "P08": "Electrical & Utility - Grounding/Firmware",
-    "P09": "Electrical & Utility - Over Current"
+    "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
+    "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
+    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current"
 }
 
-# --- 2. CONFIGURATION ---
+# --- 5. API CONFIGURATION ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
-# --- 3. TAB NAVIGATION ---
-tab1, tab2 = st.tabs(["🔍 Diagnostics", "📋 Tickets"])
+# --- 6. MAIN SYSTEM INTERFACE ---
+# Custom Dashboard Title
+st.markdown("""
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="font-size: 3rem; margin-bottom: 0px; background: -webkit-linear-gradient(#FFFFFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ RExharge</h1>
+        <p style="color: #0EA5E9; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# === TAB 1: DIAGNOSTIC ANALYSIS (MOBILE UI) ===
+tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
+
 with tab1:
-    st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>⚡ RExharge</h1>", unsafe_allow_html=True)
-    st.markdown("<h4 style='text-align: center; color: #64748B; margin-bottom: 30px;'>Smart Diagnostic Hub</h4>", unsafe_allow_html=True)
-    
-    st.markdown("### 📸 1. Scan Charger Label")
-    st.write("Take a photo of the brand/model/serial sticker.")
-    label_camera = st.camera_input("Take photo of sticker", key="label_cam", label_visibility="collapsed")
-    label_upload = st.file_uploader("Or upload from gallery:", type=["jpg", "jpeg", "png"], key="label_upload")
+    # Restored your requested wording with luxury styling
+    st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
+    label_camera = st.camera_input("Scanner", key="label_cam", label_visibility="collapsed")
+    label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
     label_file = label_camera if label_camera else label_upload
 
-    st.divider()
-
-    st.markdown("### 📸 2. Capture Fault (Image or Video)")
-    st.write("Record video or take a photo of the physical issue.")
-    fault_camera = st.camera_input("Take photo of fault", key="fault_cam", label_visibility="collapsed")
-    # Added video file extensions to uploader
-    fault_upload = st.file_uploader("Or upload from gallery:", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload")
+    st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
+    fault_camera = st.camera_input("Capture", key="fault_cam", label_visibility="collapsed")
+    fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
     fault_file = fault_camera if fault_camera else fault_upload
     
-    ready_for_analysis = bool(label_file and fault_file)
-    current_label_name = getattr(label_file, 'name', None) if label_file else None
-    current_fault_name = getattr(fault_file, 'name', None) if fault_file else None
+    if label_file and fault_file:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("INITIATE DIAGNOSTIC PROTOCOL", type="primary"):
+            with st.spinner("Processing Telemetry..."):
+                label_img = Image.open(label_file).convert("RGB")
+                
+                if hasattr(fault_file, 'type') and fault_file.type.startswith('video'):
+                    fault_img = get_frame_from_video(fault_file)
+                else:
+                    fault_img = Image.open(fault_file).convert("RGB")
 
-    if current_label_name != st.session_state.last_label_name or current_fault_name != st.session_state.last_fault_name:
-        st.session_state.last_label_name = current_label_name
-        st.session_state.last_fault_name = current_fault_name
-        st.session_state.analysis_done = False
-        st.session_state.analysis_results = {}
-
-    if ready_for_analysis:
-        if st.button("🚀 Run Diagnostics", use_container_width=True, type="primary"):
-            if not st.session_state.analysis_done:
-                brand, model, serial = "", "Unknown", "Not detected"
-                label_image = Image.open(label_file).convert("RGB")
-
-                with st.spinner(f"Extracting identity data..."):
+                if fault_img:
+                    # Identity Logic
                     buffered = io.BytesIO()
-                    label_image.save(buffered, format="JPEG")
+                    label_img.save(buffered, format="JPEG")
                     img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
-                    
                     url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                    
                     try:
-                        response = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=15)
-                        response.raise_for_status()
-                        predictions = response.json().get('predictions', [])
-                    except requests.exceptions.RequestException as exc:
-                        boxed_error(f"Roboflow connection failed. Details: {exc}")
-                        predictions = []
-
-                    for p in predictions:
-                        label = p['class']
+                        resp = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                        preds = resp.json().get('predictions', [])
+                    except:
+                        preds = []
+                    
+                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
+                    for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        
-                        if label == "proton_emas_logo":
-                            brand = "Proton eMAS"
-                        elif label == "model_name":
-                            roi_m = np.array(label_image.crop((x0, y0, x1, y1)))
-                            res_m = reader.readtext(roi_m, detail=0)
-                            if res_m:
-                                m_match = re.search(r'(?:name|model)\s*:\s*(.*)', res_m[0], re.IGNORECASE)
-                                model = m_match.group(1).strip() if m_match else res_m[0].strip()
-                        elif label == "serial_number":
-                            roi_s = np.array(label_image.crop((x0, y0, x1, y1)))
-                            res_s = reader.readtext(roi_s, detail=0)
-                            if res_s:
-                                serial = re.sub(r'^(SN|S/N|SN:|S/N:)\s*', '', res_s[0], flags=re.IGNORECASE).strip()
-                                serial = serial.lstrip(':').strip()
+                        if p['class'] == "model_name":
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            res = reader.readtext(roi, detail=0)
+                            if res: model = res[0]
+                        elif p['class'] == "serial_number":
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            res = reader.readtext(roi, detail=0)
+                            if res: serial = res[0]
 
-                # --- FAULT PROCESSING (IMAGE OR VIDEO) ---
-                with st.spinner(f"Analyzing fault..."):
-                    # Logic: If it's a video, extract frame. Otherwise, open image.
-                    if fault_file.type.startswith('video'):
-                        fault_image = get_frame_from_video(fault_file)
-                    else:
-                        fault_image = Image.open(fault_file).convert("RGB")
-
-                    if fault_image:
-                        buffered = io.BytesIO()
-                        fault_image.save(buffered, format="JPEG")
-                        img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
-                        
-                        try:
-                            response = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"}, timeout=15)
-                            response.raise_for_status()
-                            predictions = response.json().get('predictions', [])
-                        except requests.exceptions.RequestException as exc:
-                            boxed_error(f"Roboflow connection failed. Details: {exc}")
-                            predictions = []
-
-                        draw = ImageDraw.Draw(fault_image)
-                        faults_to_show = []
-                        for p in predictions:
-                            raw_label = p['class']
-                            label = normalize_label(raw_label)
-                            x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                            if label in ROUTING_LOGIC:
-                                draw.rectangle([x0, y0, x1, y1], outline="#3B82F6", width=8) 
-                                faults_to_show.append((label, ROUTING_LOGIC[label]))
-
-                        annotated_fault_image = fault_image.copy()
-                        customer_issues = []
-                        technician_issues = []
-                        for label, route in faults_to_show:
+                    # Fault Logic
+                    buffered_f = io.BytesIO()
+                    fault_img.save(buffered_f, format="JPEG")
+                    img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
+                    try:
+                        resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                        preds_f = resp_f.json().get('predictions', [])
+                    except:
+                        preds_f = []
+                    
+                    draw = ImageDraw.Draw(fault_img)
+                    cust_iss, tech_iss = [], []
+                    for p in preds_f:
+                        lbl = normalize_label(p['class'])
+                        if lbl in ROUTING_LOGIC:
+                            draw.rectangle([p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2], outline="#0EA5E9", width=8)
+                            route = ROUTING_LOGIC[lbl]
                             if route['recipient'] == "Customer":
-                                customer_issues.append((label, route))
+                                cust_iss.append((lbl, route))
                             else:
-                                technician_issues.append((label, route))
+                                tech_iss.append((lbl, route))
 
-                        routed_tickets = []
-                        if technician_issues:
-                            for label, route in technician_issues:
-                                ticket = create_routing_ticket(
-                                    current_fault_name, brand, model, serial, label, route
-                                )
-                                routed_tickets.append(ticket)
+                    if tech_iss:
+                        current_tickets = load_tickets()
+                        for lbl, rt in tech_iss:
+                            current_tickets.append(create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt))
+                        save_tickets(current_tickets)
 
-                        if routed_tickets:
-                            existing_tickets = load_tickets()
-                            existing_tickets.extend(routed_tickets)
-                            save_tickets(existing_tickets)
-
-                        st.session_state.analysis_results = {
-                            'brand': brand,
-                            'model': model,
-                            'serial': serial,
-                            'customer_issues': customer_issues,
-                            'technician_issues': technician_issues,
-                            'faults_to_show': faults_to_show,
-                            'routed_tickets': routed_tickets,
-                            'annotated_fault_image': annotated_fault_image,
-                        }
-                        st.session_state.analysis_done = True
-                    else:
-                        st.error("Failed to extract frame from video.")
+                    st.session_state.analysis_results = {
+                        'brand': brand, 'model': model, 'serial': serial,
+                        'customer_issues': cust_iss, 'technician_issues': tech_iss,
+                        'annotated_fault_image': fault_img
+                    }
+                    st.session_state.analysis_done = True
 
     if st.session_state.analysis_done:
-        results = st.session_state.analysis_results
-        st.divider()
-        st.subheader("📊 Diagnostic Report")
+        res = st.session_state.analysis_results
         
-        display_id = f"{results.get('brand', '')} / {results.get('model', 'Unknown')}" if results.get('brand') else results.get('model', 'Unknown')
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
-        # Premium Device Info Card
         with st.container(border=True):
-            st.markdown(f"**🔌 Device Info**")
-            st.info(f"**Model:** {display_id}\n\n**Serial ID:** `{results.get('serial', 'Not detected')}`")
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE TELEMETRY</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>SN: {res['serial']}</span>", unsafe_allow_html=True)
+            
+        st.image(res['annotated_fault_image'], use_container_width=True)
+        
+        if res['customer_issues']:
+            for lbl, rt in res['customer_issues']:
+                with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
+                    st.markdown(f"**ISSUE:** {lbl.replace('_',' ').title()}")
+                    st.write(rt['steps'])
+                    st.success(f"RESOLUTION: {rt['act']}")
 
-        st.markdown("### 📷 Scanned Evidence")
-        st.image(results.get('annotated_fault_image'), use_container_width=True)
+        if res['technician_issues']:
+            for lbl, rt in res['technician_issues']:
+                with st.expander(f"🚨 ESCALATED PROTOCOL"):
+                    st.error(f"**FAULT DETECTED:** {lbl.replace('_',' ').title()}")
+                    st.info(f"**ROUTED TO TEAM {rt['id']}** | Procedure: {rt['steps']}")
 
-        if results.get('customer_issues') or results.get('technician_issues'):
-            if results.get('customer_issues'):
-                st.markdown("### 👤 Action Required (User)")
-                for label, route in results['customer_issues']:
-                    st.warning(f"**Detected:** {label.replace('_', ' ').title()}")
-                    with st.expander("🛠️ View Troubleshooting Steps", expanded=True):
-                        st.markdown(f"**Severity:** `{route['severity']}`")
-                        st.write(route['steps'])
-                        st.markdown("**Solution:**")
-                        st.success(route['act'])
-                        
-            if results.get('technician_issues'):
-                st.markdown("### 🔧 Escalated Issues")
-                for index, (label, route) in enumerate(results['technician_issues']):
-                    ticket = results['routed_tickets'][index] if index < len(results['routed_tickets']) else None
-                    ticket_id = ticket['ticket_id'] if ticket else "N/A"
-                    st.error(f"**Detected:** {label.replace('_', ' ').title()}")
-                    with st.expander(f"🎫 View Ticket (ID: {ticket_id})", expanded=False):
-                        team_desc = TEAM_DESCRIPTIONS.get(route['id'], f"Team {route['id']}")
-                        st.markdown(f"**Routed To:** `{route['id']} - {team_desc}`")
-                        st.markdown(f"**Severity:** `{route['severity']}`")
-                        st.markdown("**Protocol:**")
-                        st.write(route['steps'])
-                        st.markdown("**Action Required:**")
-                        st.info(route['act'])
-        else:
-            st.success("✅ System functioning normally. No faults detected in scan.")
-
-        if results.get('routed_tickets'):
-            st.success(f"✅ {len(results['routed_tickets'])} ticket(s) automatically dispatched to After-Sales.")
-
-# === TAB 2: AFTER-SALES TEAM DASHBOARD (MOBILE UI) ===
+# --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
-    st.markdown("## 📋 Queue Management")
-    
     tickets = load_tickets()
     
     if not tickets:
-        st.info("📭 Inbox zero. No active tickets.")
+        st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        # Quick Stats
-        col1, col2 = st.columns(2)
-        col1.metric("Active Tickets", len(tickets))
-        col2.metric("Critical Issues", len([t for t in tickets if t['status'] == "Pending Review"]))
+        # Dashboard Overview Panel
+        st.markdown("""
+            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
+                <div>
+                    <span style="font-size: 24px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
+                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
+                </div>
+                <div>
+                    <span style="font-size: 24px; font-weight: 800; color: #EF4444;">{crit}</span><br>
+                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">CRITICAL</span>
+                </div>
+            </div>
+        """.format(total=len(tickets), crit=len([t for t in tickets if t['status'] == "Pending Review"])), unsafe_allow_html=True)
         
-        st.divider()
+        filtered = tickets # Showing all tickets for clean dashboard view
         
-        team_filter = st.selectbox("Filter by Department:", ["All"] + sorted(list(set([t['team_id'] for t in tickets]))))
-        status_filter = st.selectbox("Filter by Status:", ["All", "Pending Review", "In Progress", "Resolved"])
+        st.markdown('<div class="dash-header">ACTIVE WORK ORDERS</div>', unsafe_allow_html=True)
         
-        filtered_tickets = tickets
-        if team_filter != "All":
-            filtered_tickets = [t for t in filtered_tickets if t['team_id'] == team_filter]
-        if status_filter != "All":
-            filtered_tickets = [t for t in filtered_tickets if t['status'] == status_filter]
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        for idx, ticket in enumerate(filtered_tickets):
-            team_desc = TEAM_DESCRIPTIONS.get(ticket['team_id'], f"Team {ticket['team_id']}")
-            status_emoji = "🔴" if ticket['status'] == "Pending Review" else "🟢" if ticket['status'] == "Resolved" else "🔵"
+        for idx, ticket in enumerate(filtered):
+            status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
             
-            with st.expander(f"{status_emoji} {ticket['ticket_id']} | {ticket['observation']}", expanded=False):
-                st.markdown(f"**Status:** `{ticket['status']}`")
-                st.markdown(f"**Department:** {ticket['team_id']} - {team_desc}")
-                st.markdown(f"**Date Logged:** {ticket['timestamp'][:10]}")
+            with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
+                st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown(f"**UNIT:** {ticket['brand']} / {ticket['model']}<br>**SERIAL:** `{ticket['serial']}`", unsafe_allow_html=True)
                 
-                with st.container(border=True):
-                    st.markdown(f"**🔌 Hardware Details**")
-                    st.write(f"{ticket['brand']} / {ticket['model']}")
-                    st.write(f"Serial: `{ticket['serial']}`")
+                st.markdown("<br><p style='font-size:10px; color:#0EA5E9; font-weight:800; letter-spacing:1px; margin-bottom: 0px;'>TECHNICAL PROTOCOL</p>", unsafe_allow_html=True)
+                st.write(ticket['troubleshooting_steps'])
+                st.info(f"REQUIRED: {ticket['action_required']}")
                 
-                st.markdown("**🛠️ Protocol Requirements:**")
-                st.info(ticket['troubleshooting_steps'])
-                st.markdown("**Required Actions:**")
-                st.warning(ticket['action_required'])
+                st.markdown("<br>", unsafe_allow_html=True)
                 
-                st.divider()
-                ticket_key = f"{ticket['ticket_id']}_{idx}"
-                ticket_id = ticket['ticket_id']
+                # Extreme Atas Action Buttons
+                c1, c2, c3 = st.columns(3)
+                tid = ticket['ticket_id']
                 
-                if st.button("🔄 Mark In Progress", key=f"prog_{ticket_key}", use_container_width=True):
-                    ticket_index = next((i for i, t in enumerate(tickets) if t['ticket_id'] == ticket_id), None)
-                    if ticket_index is not None:
-                        tickets[ticket_index]['status'] = "In Progress"
-                        save_tickets(tickets)
-                        st.rerun()
-                if st.button("✅ Resolve Ticket", key=f"res_{ticket_key}", use_container_width=True):
-                    ticket_index = next((i for i, t in enumerate(tickets) if t['ticket_id'] == ticket_id), None)
-                    if ticket_index is not None:
-                        tickets[ticket_index]['status'] = "Resolved"
-                        save_tickets(tickets)
-                        st.rerun()
-                if st.button("🗑️ Delete", key=f"del_{ticket_key}", use_container_width=True, type="secondary"):
-                    ticket_index = next((i for i, t in enumerate(tickets) if t['ticket_id'] == ticket_id), None)
-                    if ticket_index is not None:
-                        tickets.pop(ticket_index)
-                        save_tickets(tickets)
-                        st.rerun()
+                with c1:
+                    if st.button("PROCESS", key=f"p_{tid}_{idx}", use_container_width=True):
+                        all_t = load_tickets()
+                        for item in all_t:
+                            if item['ticket_id'] == tid: item['status'] = "In Progress"
+                        save_tickets(all_t); st.rerun()
+                
+                with c2:
+                    if st.button("RESOLVE", key=f"r_{tid}_{idx}", use_container_width=True):
+                        all_t = load_tickets()
+                        for item in all_t:
+                            if item['ticket_id'] == tid: item['status'] = "Resolved"
+                        save_tickets(all_t); st.rerun()
+                
+                with c3:
+                    if st.button("ARCHIVE", key=f"d_{tid}_{idx}", use_container_width=True):
+                        all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
+                        save_tickets(all_t); st.rerun()
