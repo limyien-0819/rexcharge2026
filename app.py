@@ -26,53 +26,31 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
-   DASHBOARD INSTRUCTIONS
-============================== */
-
-/* Base instruction text = white */
-.stMarkdown,
-.stMarkdown * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* 🔥 Make ONLY "1." and "2." lines bold + larger */
-.stMarkdown p:first-child {
-    font-weight: 800 !important;
-    font-size: 18px !important;
-    color: #FFFFFF !important;
-}
-
-/* Sub text under it */
-.stMarkdown p:not(:first-child) {
-    font-weight: 400 !important;
-    font-size: 14px !important;
-    color: #E2E8F0 !important;
-}
-
-/* ==============================
-   GLOBAL RESET
+   GLOBAL
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
 }
 
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
-}
-
 /* ==============================
-   TITLE (LIGHT BLUE FIXED)
+   TITLE (LIGHT BLUE)
 ============================== */
 h1 {
-    color: #7DD3FC !important;   /* light blue */
+    color: #7DD3FC !important;
     font-weight: 800 !important;
     text-shadow: 0 0 18px rgba(125,211,252,0.45);
 }
 
 /* ==============================
-   BASE BOXES
+   HIDE STREAMLIT DEFAULT UI
+============================== */
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
+}
+
+/* ==============================
+   BASE BOXES (UNCHANGED)
 ============================== */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
@@ -83,7 +61,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA BUTTON
+   CAMERA BUTTON (BLUE)
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -103,18 +81,10 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON + TEXT (BLUE)
+   UPLOAD BUTTON TEXT (BLUE)
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* Upload label */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
@@ -124,7 +94,6 @@ div[data-testid="stFileUploader"] > section,
    FILE INFO TEXT (WHITE)
 ============================== */
 [data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] small *,
 [data-testid="stFileUploader"] span,
 [data-testid="stFileUploader"] p {
     color: #FFFFFF !important;
@@ -133,36 +102,59 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOADED FILE NAME
+   📸 INSTRUCTION STYLING (FIXED FOR 1.57)
 ============================== */
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
+
+/* default instruction text = white */
+.stMarkdown {
+    color: #FFFFFF !important;
+}
+
+/* all instruction text white */
+.stMarkdown * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* 🔥 FIRST LINE (📸 1. / 📸 2.) */
+.stMarkdown p strong {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+}
+
+/* second line description */
+.stMarkdown p {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #E2E8F0 !important;
+    line-height: 1.5 !important;
 }
 
 /* ==============================
-   DISABLE DROPZONE CLICK
+   TAB TEXT
 ============================== */
-[data-testid="stFileUploadDropzone"] {
-    pointer-events: none !important;
+.stTabs [data-baseweb="tab"] p {
+    color: #64748B !important;
+    font-weight: 600 !important;
 }
 
-[data-testid="stFileUploadDropzone"] button {
-    pointer-events: auto !important;
+/* active tab */
+.stTabs [aria-selected="true"] p {
+    color: #F8FAFC !important;
+    font-weight: 800 !important;
 }
 
 /* ==============================
-   BUTTON STYLING INSIDE BOXES
+   TAB UNDERLINE (LIGHTER)
 ============================== */
-[data-testid="stFileUploader"] button,
-[data-testid="stCameraInput"] button {
-    background-color: #1E293B !important;
-    border: 1px solid #0EA5E9 !important;
-    border-radius: 8px !important;
+.stTabs [data-baseweb="tab-highlight"] {
+    background-color: rgba(56, 189, 248, 0.25) !important;
+    height: 2px !important;
 }
 
 /* ==============================
-   MAIN BUTTONS
+   BUTTONS
 ============================== */
 .stButton > button {
     background: #0B1120 !important;
@@ -187,14 +179,6 @@ div[data-testid="stFileUploader"] > section,
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
     border-radius: 12px !important;
-}
-
-/* ==============================
-   TAB UNDERLINE (LIGHTER FIX)
-============================== */
-.stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.25) !important;
-    height: 2px !important;
 }
 
 </style>
