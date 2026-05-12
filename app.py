@@ -49,8 +49,21 @@ st.markdown("""
     
     div[data-testid="stFileUploader"] *,
     [data-testid="stCameraInput"] * {
-        color: #E2E8F0 !important;
         font-weight: 600 !important;
+    }
+    
+    /* --> THE FIX FOR INVISIBLE TEXT IN WHITE BOXES <-- */
+    /* Force text inside the camera input (like "This app would like...") to be dark */
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] div[data-testid="stText"] {
+        color: #0F172A !important; /* Very dark blue/slate for visibility on white */
+    }
+
+    /* Force the uploaded file name to be dark */
+    div[data-testid="stFileUploader"] div.uploadedFileName, /* Specific Streamlit class */
+    div[data-testid="stFileUploader"] span,
+    div[data-testid="stFileUploader"] small {
+        color: #0F172A !important; 
     }
     
     div[data-testid="stFileUploader"] svg {
@@ -73,11 +86,6 @@ st.markdown("""
     [data-testid="stCameraInput"] button:hover {
         background-color: #0EA5E9 !important;
         color: #000000 !important;
-    }
-
-    /* Target the uploaded filename text to make it darker */
-    div[data-testid="stFileUploader"] div[data-testid="stText"] {
-        color: #94A3B8 !important; /* Darker Slate Grey */
     }
 
     /* 3. LUXURY CONTROL TILES */
@@ -253,7 +261,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
         "status": "Pending Review",
-        "severity": route_info.get('severity', 'High') # Ensure severity is captured
+        "severity": route_info.get('severity', 'High') 
     }
 
 # --- 4. DATASET & ROUTING LOGIC ---
@@ -286,7 +294,6 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# Updated Title styling for maximum contrast
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0EA5E9, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 10px rgba(14, 165, 233, 0.3);">⚡ RExharge</h1>
@@ -323,9 +330,7 @@ with tab1:
 
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
-        # Button wording changed
         if st.button("START DIAGNOSTIC", type="primary"):
-            # Spinner wording changed
             with st.spinner("Processing..."):
                 label_img = Image.open(label_file).convert("RGB")
                 
@@ -351,7 +356,7 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
@@ -374,7 +379,6 @@ with tab1:
                     for p in preds_f:
                         lbl = normalize_label(p['class'])
                         if lbl in ROUTING_LOGIC:
-                            # Drawing highly visible Red boxes around faults
                             x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
                             x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
                             draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
