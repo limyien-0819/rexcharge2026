@@ -26,17 +26,11 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
-   GLOBAL
+   GLOBAL BACKGROUND ONLY
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
-    color: #FFFFFF !important;
-}
-
-/* Default text everywhere = WHITE */
-p, span, div, small, label {
-    color: #FFFFFF !important;
 }
 
 /* ==============================
@@ -49,7 +43,18 @@ h1 {
 }
 
 /* ==============================
-   CAMERA BUTTON (BLUE ONLY)
+   KEEP YOUR BOXES (NO CHANGE)
+============================== */
+div[data-testid="stFileUploader"] > section,
+[data-testid="stCameraInput"] > div {
+    background-color: #0F172A !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
+
+/* ==============================
+   TAKE PHOTO (BLUE TEXT ONLY)
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -69,7 +74,7 @@ h1 {
 }
 
 /* ==============================
-   UPLOAD BUTTON + LABEL (BLUE ONLY)
+   UPLOAD BUTTON TEXT (BLUE ONLY)
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button * {
@@ -78,38 +83,34 @@ h1 {
     font-weight: 700 !important;
 }
 
-/* Upload drag/drop label */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
 /* ==============================
-   FILE INFO TEXT (WHITE ONLY)
+   📁 FILE INFO TEXT (WHITE ONLY)
    "200MB per file • JPG, PNG"
 ============================== */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] small *,
-[data-testid="stFileUploader"] span,
-[data-testid="stFileUploader"] p {
+[data-testid="stFileUploader"] small {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
-    font-weight: 400 !important;
+}
+
+/* extra safety for Streamlit variations */
+[data-testid="stFileUploader"] small span,
+[data-testid="stFileUploader"] small p {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }
 
 /* ==============================
-   OTHER APP TEXT (📸 INSTRUCTIONS)
-   FORCE WHITE ALWAYS
+   📸 INSTRUCTION TEXT (WHITE ONLY)
+   e.g. "Scan Charger Label..."
 ============================== */
-.stMarkdown, .stMarkdown * {
+.stMarkdown p,
+.stMarkdown span {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
 /* ==============================
-   CARDS / BOXES
+   CARDS (UNCHANGED)
 ============================== */
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
