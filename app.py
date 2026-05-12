@@ -53,27 +53,27 @@ st.markdown("""
         font-weight: 800 !important;
     }
     
-    /* --> FIX 1: Make the 200MB Helper Text White <-- */
+    /* --> FIX 1: Make the 200MB Helper Text Bright White <-- */
     div[data-testid="stFileUploadDropzone"] small {
-        color: #FFFFFF !important; /* Pure White */
-        font-weight: 500 !important; 
+        color: #FFFFFF !important; /* Pure White for maximum visibility */
+        font-weight: 600 !important; /* Bolder so it stands out */
         font-size: 13px !important;
     }
 
-    /* --> FIX 2: Force Camera Permission Text to be Dark Grey <-- */
+    /* --> FIX 2: Force Camera Permission Text to be Darker <-- */
     [data-testid="stCameraInput"] p, 
     [data-testid="stCameraInput"] div[data-testid="stText"],
     [data-testid="stCameraInput"] span,
     [data-testid="stCameraInput"] a {
-        color: #334155 !important; /* Dark Grey for readability on white prompt */
-        font-weight: 700 !important;
+        color: #000000 !important; /* Absolute Black for readability on white prompt */
+        font-weight: 800 !important;
     }
 
-    /* Force Uploaded File Name to be Darker */
+    /* --> FIX 3: Force Uploaded File Name to be Darker <-- */
     div[data-testid="stFileUploader"] div.uploadedFileName, 
     div[data-testid="stFileUploader"] div[data-testid="stText"] span,
     div[data-testid="stFileUploader"] span[data-testid="stText"] {
-        color: #0F172A !important; /* Deep Navy for the white file card */
+        color: #000000 !important; /* Absolute Black for the white file card */
         font-weight: 800 !important;
     }
     
