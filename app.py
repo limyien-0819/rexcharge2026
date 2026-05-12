@@ -24,7 +24,31 @@ st.set_page_config(
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+/* ==============================
+   DASHBOARD INSTRUCTIONS (WHITE ONLY)
+   📸 1. Scan Charger Label etc.
+============================== */
 
+/* Force markdown blocks (your steps) to white */
+.stMarkdown,
+.stMarkdown * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* Extra safety for rendered paragraph text */
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* Prevent any accidental blue inheritance */
+.stMarkdown strong,
+.stMarkdown em {
+    color: #FFFFFF !important;
+}
+            
 /* ==============================
    GLOBAL RESET
 ============================== */
