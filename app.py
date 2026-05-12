@@ -27,8 +27,8 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
     
-    /* 1. ABSOLUTE DARK MODE OVERRIDE */
-    html, body, [class*="css"], .stApp {
+    /* 1. GLOBAL RESET */
+    html, body, .stApp {
         font-family: 'Inter', sans-serif !important;
         background-color: #000000 !important; 
         color: #F8FAFC !important;
@@ -38,7 +38,7 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 2. BASE BOX STYLING (NAVY PANELS) */
+    /* 2. BASE BOX STYLING */
     div[data-testid="stFileUploader"] > section,
     [data-testid="stCameraInput"] > div {
         background-color: #0F172A !important; 
@@ -51,52 +51,43 @@ st.markdown("""
        FORCE TEXT COLORS (THE ULTIMATE OVERRIDE)
        ----------------------------------------------------------- */
 
-    /* A. FILE UPLOADER HELPER TEXT -> FORCE PURE BRIGHT WHITE */
-    /* Targets "200MB per file • JPG, PNG" specifically */
+    /* A. CAMERA PERMISSION TEXT -> FORCE DARK GREY */
+    /* We target every single text element inside camera input to be grey */
+    [data-testid="stCameraInput"] label,
+    [data-testid="stCameraInput"] p,
+    [data-testid="stCameraInput"] span,
+    [data-testid="stCameraInput"] div {
+        color: #475569 !important; 
+        -webkit-text-fill-color: #475569 !important;
+        font-weight: 700 !important;
+    }
+
+    /* B. FILE UPLOADER HELPER TEXT -> FORCE PURE WHITE */
+    /* This rule specifically overrides the '200MB' and 'JPG/PNG' wording */
     [data-testid="stFileUploader"] small,
-    [data-testid="stFileUploadDropzone"] small,
-    [data-testid="stFileUploader"] div[data-testid="stCaptionContainer"] {
+    [data-testid="stFileUploader"] div[data-testid="stCaptionContainer"],
+    [data-testid="stFileUploadDropzone"] small {
         color: #FFFFFF !important; 
         -webkit-text-fill-color: #FFFFFF !important;
         opacity: 1 !important;
         font-weight: 700 !important;
         font-size: 14px !important;
-        display: block !important;
     }
 
-    /* B. CAMERA PERMISSION TEXT -> FORCE SOLID DARK GREY */
-    /* Targets "This app would like to use your camera" */
-    [data-testid="stCameraInput"] div div div p,
-    [data-testid="stCameraInput"] div div div span,
-    [data-testid="stCameraInput"] label {
-        color: #475569 !important; /* Slate Dark Grey */
-        -webkit-text-fill-color: #475569 !important;
-        font-weight: 800 !important;
-        opacity: 1 !important;
-    }
-
-    /* C. UPLOADED FILE NAME -> FORCE BLACK ON WHITE CARD */
-    /* When a file is uploaded, a white card appears. This forces the text on that card to be black. */
-    [data-testid="stFileUploader"] div[data-testid="stText"] span,
-    [data-testid="stFileUploader"] .uploadedFileName {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        font-weight: 800 !important;
-    }
-
-    /* D. MAIN INSTRUCTION ("Drag and drop file here") -> NEON BLUE */
+    /* C. MAIN UPLOADER INSTRUCTION -> NEON BLUE */
     [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {
         color: #38BDF8 !important;
-        font-weight: 800 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+    }
+
+    /* D. UPLOADED FILE NAME -> BLACK ON WHITE CARD */
+    [data-testid="stFileUploader"] .uploadedFileName,
+    [data-testid="stFileUploader"] [data-testid="stText"] span {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
     }
 
     /* ----------------------------------------------------------- */
-
-    /* Force Cloud Icon to stay Neon Blue */
-    div[data-testid="stFileUploader"] svg {
-        fill: #0EA5E9 !important; 
-        color: #0EA5E9 !important;
-    }
 
     /* Buttons inside the boxes */
     [data-testid="stFileUploader"] button,
@@ -106,8 +97,8 @@ st.markdown("""
         border: 1px solid #0EA5E9 !important;
         border-radius: 8px !important;
     }
-
-    /* LUXURY CONTROL TILES (Big Buttons) */
+    
+    /* Luxury Control Tiles (Main Action Buttons) */
     .stButton > button {
         background: #0B1120 !important;
         border: 1px solid #1E293B !important;
@@ -117,27 +108,21 @@ st.markdown("""
         font-weight: 800 !important;
         text-transform: uppercase !important;
         width: 100% !important;
-        transition: all 0.2s ease !important;
     }
     
     .stButton > button[kind="primary"] {
         background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
         color: #FFFFFF !important;
-        border: none !important;
     }
 
-    /* Fix the inner container boxes (Device Info / Action Plan) */
+    /* Fix for inner container white boxes */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: rgba(15, 23, 42, 0.6) !important;
         border: 1px solid rgba(14, 165, 233, 0.3) !important;
         border-radius: 12px !important;
     }
 
-    /* Tab Styling */
-    .stTabs [data-baseweb="tab-list"] { background-color: transparent !important; }
-    .stTabs [aria-selected="true"] { color: #F8FAFC !important; border-bottom: 3px solid #0EA5E9 !important; }
-
-    /* Custom Headers */
+    /* Headers and Subs */
     .dash-header { font-size: 18px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
     .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
     </style>
