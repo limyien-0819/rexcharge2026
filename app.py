@@ -21,224 +21,133 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- THE ULTIMATE ATAS CSS NUKE ---
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    
+    /* 1. GLOBAL RESET */
+    html, body, .stApp {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #000000 !important; 
+    }
 
-/* ==============================
-   GLOBAL RESET
-============================== */
-html, body, .stApp {
-    font-family: 'Inter', sans-serif !important;
-    background-color: #000000 !important;
-}
+    #MainMenu, footer, header, [data-testid="stSidebar"] {
+        display: none !important;
+    }
 
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
-}
+    /* 2. BASE BOX STYLING (NAVY PANELS) */
+    div[data-testid="stFileUploader"] > section,
+    [data-testid="stCameraInput"] > div {
+        background-color: #0F172A !important; 
+        border: 1px solid #0EA5E9 !important; 
+        border-radius: 16px !important;
+        padding: 24px !important;
+    }
 
-/* ==============================
-   TITLE
-============================== */
-h1 {
-    color: #7DD3FC !important;
-    font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(56,189,248,0.55);
-}
+    /* -----------------------------------------------------------
+       UPLOAD AREA: DISABLE RECTANGLE CLICK & STYLE BUTTON
+       ----------------------------------------------------------- */
 
-/* ==============================
-   BASE BOXES
-============================== */
-div[data-testid="stFileUploader"] > section,
-[data-testid="stCameraInput"] > div {
-    background-color: #0F172A !important;
-    border: 1px solid #0EA5E9 !important;
-    border-radius: 16px !important;
-    padding: 24px !important;
-}
+    /* Make the entire rectangle NOT clickable */
+    [data-testid="stFileUploadDropzone"] {
+        pointer-events: none !important;
+        cursor: default !important;
+    }
 
-/* ==============================
-   DISABLE BIG RECTANGLE CLICK
-============================== */
+    /* Re-enable clicking ONLY for the actual button */
+    [data-testid="stFileUploadDropzone"] button {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        background-color: #1E293B !important;
+        border: 1px solid #0EA5E9 !important;
+        border-radius: 8px !important;
+    }
 
-/* Entire upload area NOT clickable */
-[data-testid="stFileUploadDropzone"] {
-    pointer-events: none !important;
-    cursor: default !important;
-}
+    /* Force the "Browse files" text and Cloud Icon to Light Blue */
+    [data-testid="stFileUploadDropzone"] button *, 
+    [data-testid="stFileUploadDropzone"] svg,
+    [data-testid="stFileUploadDropzone"] path {
+        color: #38BDF8 !important;
+        fill: #38BDF8 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+        font-weight: 700 !important;
+    }
 
-/* ONLY upload button clickable */
-[data-testid="stFileUploadDropzone"] button {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
+    /* -----------------------------------------------------------
+       FIX TEXT VISIBILITY (LIGHT VS DARK)
+       ----------------------------------------------------------- */
 
-/* Prevent hidden file input covering rectangle */
-[data-testid="stFileUploadDropzone"] input[type="file"] {
-    display: none !important;
-    pointer-events: none !important;
-}
+    /* A. UPLOADER INFO TEXT (200MB etc.) -> Bright White */
+    div[data-testid="stFileUploader"] small,
+    div[data-testid="stFileUploadDropzone"] small {
+        color: #FFFFFF !important; 
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 500 !important;
+        opacity: 1 !important;
+    }
 
-/* ==============================
-   TABS
-============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;
-    font-weight: 700 !important;
-}
+    /* B. CAMERA PERMISSION TEXT -> Dark Grey for white prompt visibility */
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] span,
+    [data-testid="stCameraInput"] label {
+        color: #475569 !important; 
+        -webkit-text-fill-color: #475569 !important;
+        font-weight: 700 !important;
+    }
 
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 800 !important;
-}
+    /* C. TAKE PHOTO BUTTON TEXT -> Light Blue */
+    [data-testid="stCameraInput"] button * {
+        color: #38BDF8 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+    }
 
-/* ==============================
-   CAMERA MESSAGE
-============================== */
-[data-testid="stCameraInput"] small,
-[data-testid="stCameraInput"] span,
-[data-testid="stCameraInput"] label,
-[data-testid="stCameraInput"] div {
-    color: #475569 !important;
-    -webkit-text-fill-color: #475569 !important;
-    opacity: 1 !important;
-}
+    /* D. TABS -> High Contrast */
+    .stTabs [data-baseweb="tab"] p {
+        color: #94A3B8 !important; 
+        font-weight: 700 !important;
+    }
+    .stTabs [aria-selected="true"] p {
+        color: #F8FAFC !important; 
+        font-weight: 800 !important;
+    }
 
-/* ==============================
-   TAKE PHOTO BUTTON
-============================== */
-[data-testid="stCameraInput"] button,
-[data-testid="stCameraInput"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
+    /* E. UPLOADED FILE NAME -> Black text (Because the card is white) */
+    [data-testid="stFileUploader"] [data-testid="stText"] span,
+    [data-testid="stFileUploader"] .uploadedFileName {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
 
-/* ==============================
-   UPLOAD BUTTON TEXT
-============================== */
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button span,
-[data-testid="stFileUploadDropzone"] button p,
-[data-testid="stFileUploadDropzone"] button div {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
+    /* 3. MAIN INTERFACE ELEMENTS */
+    .stButton > button {
+        background: #0B1120 !important;
+        border: 1px solid #1E293B !important;
+        color: #38BDF8 !important;
+        border-radius: 16px !important;
+        height: 70px !important; 
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        width: 100% !important;
+    }
+    
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+        color: #FFFFFF !important;
+    }
 
-/* ==============================
-   FORCE ICON LIGHT BLUE
-============================== */
+    /* Inner cards (Device Info / Action Plan) */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(14, 165, 233, 0.3) !important;
+        border-radius: 12px !important;
+    }
 
-/* SVG container */
-[data-testid="stFileUploadDropzone"] button svg {
-    color: #38BDF8 !important;
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-}
-
-/* ALL SVG PARTS */
-[data-testid="stFileUploadDropzone"] button svg * {
-    color: #38BDF8 !important;
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-}
-
-/* Upload arrow specifically */
-[data-testid="stFileUploadDropzone"] path {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-}
-
-/* ==============================
-   UPLOAD INFO TEXT
-============================== */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span {
-    color: #94A3B8 !important;
-    -webkit-text-fill-color: #94A3B8 !important;
-}
-
-/* Uploaded filename */
-[data-testid="stFileUploader"] [data-testid="stText"] span,
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
-
-/* ==============================
-   BUTTONS INSIDE BOXES
-============================== */
-[data-testid="stFileUploader"] button,
-[data-testid="stCameraInput"] button {
-    background-color: #1E293B !important;
-    border: 1px solid #0EA5E9 !important;
-    border-radius: 8px !important;
-}
-
-/* ==============================
-   MAIN START BUTTONS
-============================== */
-.stButton > button {
-    background: #0B1120 !important;
-    border: 1px solid #1E293B !important;
-    color: #38BDF8 !important;
-    border-radius: 16px !important;
-    height: 70px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    width: 100% !important;
-}
-
-.stButton > button[kind="primary"] {
-    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-    color: #FFFFFF !important;
-}
-
-/* ==============================
-   INNER CARDS
-============================== */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(14, 165, 233, 0.3) !important;
-    border-radius: 12px !important;
-}
-
-/* ==============================
-   CUSTOM TEXT
-============================== */
-.dash-header {
-    font-size: 18px;
-    font-weight: 800;
-    color: #F8FAFC;
-    margin-top: 25px;
-}
-
-.dash-sub {
-    font-size: 13px;
-    color: #94A3B8;
-    margin-bottom: 15px;
-}
-
-/* ==============================
-   DATA LABELS
-============================== */
-.data-label {
-    color: #64748B;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-    margin-top: 12px;
-}
-
-.data-value {
-    color: #F8FAFC;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-</style>
+    .dash-header { font-size: 18px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
+    .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
+    .data-label { color: #0EA5E9; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+    .data-value { color: #F8FAFC; font-size: 14px; margin-bottom: 15px; }
+    </style>
 """, unsafe_allow_html=True)
 
 # --- 2. CORE UTILITIES & OCR ---
@@ -260,7 +169,7 @@ def get_frame_from_video(video_file):
         return Image.fromarray(frame)
     return None
 
-# --- 3. SESSION STATE & DATA PERSISTENCE ---
+# --- 3. SESSION STATE ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
     st.session_state.last_fault_name = None
@@ -273,9 +182,8 @@ def load_tickets():
     if Path(TICKETS_FILE).exists():
         try:
             with open(TICKETS_FILE, 'r') as f:
-                content = f.read()
-                return json.loads(content) if content else []
-        except Exception: return []
+                return json.load(f)
+        except: return []
     return []
 
 def save_tickets(tickets):
@@ -283,23 +191,13 @@ def save_tickets(tickets):
         json.dump(tickets, f, indent=2)
 
 def normalize_label(raw_label):
-    normalized = raw_label.strip().lower()
-    normalized = re.sub(r'[\s\-]+', '_', normalized)
-    normalized = re.sub(r'[^a-z0-9_]', '', normalized)
-    return normalized.strip('_')
+    return re.sub(r'[^a-z0-9_]', '', raw_label.strip().lower().replace(' ', '_')).strip('_')
 
 def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info):
     today = datetime.now().strftime('%Y%m%d')
-    existing_tickets = load_tickets()
-    today_tickets = [t for t in existing_tickets if t['ticket_id'].startswith(today)]
-    
-    if today_tickets:
-        seq_nums = [int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()]
-        next_seq = max(seq_nums) + 1 if seq_nums else 1
-    else:
-        next_seq = 1
-        
-    ticket_id = f"{today}{next_seq:06d}"
+    existing = load_tickets()
+    today_count = len([t for t in existing if t['ticket_id'].startswith(today)])
+    ticket_id = f"{today}{today_count + 1:06d}"
     
     return {
         "ticket_id": ticket_id,
@@ -309,7 +207,6 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "brand": brand,
         "model": model,
         "serial": serial,
-        "fault_label": fault_label,
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
@@ -317,36 +214,29 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "severity": route_info.get('severity', 'High') 
     }
 
-# --- 4. DATASET & ROUTING LOGIC ---
+# --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
     with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
-            action_text = row['Action Required'].strip()
-            recipient = "After-Sales Team" if "Technician" in action_text else "Customer"
             ROUTING_LOGIC[label] = {
                 "id": row['Evidence'],
-                "recipient": recipient,
                 "steps": row['Troubleshooting Steps & Parameters'],
-                "act": action_text,
+                "act": row['Action Required'],
+                "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
                 "severity": row.get('Severity', 'Medium')
             }
-except Exception as e:
-    pass 
+except: pass 
 
-TEAM_DESCRIPTIONS = {
-    "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
-    "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
-    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
-}
+TEAM_DESCRIPTIONS = {"P01": "Power Unit", "P02": "Hardware", "P03": "Control", "P04": "Switch", "P05": "Protection", "P06": "Utility", "P07": "Fuse", "P08": "Grounding", "P09": "Over Current"}
 
-# --- 5. API CONFIGURATION ---
+# --- 5. API CONFIG ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
-# --- 6. MAIN SYSTEM INTERFACE ---
+# --- 6. UI LAYOUT ---
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0EA5E9, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 10px rgba(14, 165, 233, 0.3);">⚡ RExharge</h1>
@@ -359,41 +249,28 @@ tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
 with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
-    
-    label_camera = st.camera_input("Scanner", key="label_cam", label_visibility="collapsed")
-    label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
-    label_file = label_camera if label_camera else label_upload
+    l_cam = st.camera_input("Scanner", key="l_cam", label_visibility="collapsed")
+    l_up = st.file_uploader("Up1", type=["jpg","png"], key="l_up", label_visibility="collapsed")
+    l_file = l_cam if l_cam else l_up
 
     st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
+    f_cam = st.camera_input("Capture", key="f_cam", label_visibility="collapsed")
+    f_up = st.file_uploader("Up2", type=["jpg","png","mp4"], key="f_up", label_visibility="collapsed")
+    f_file = f_cam if f_cam else f_up
     
-    fault_camera = st.camera_input("Capture", key="fault_cam", label_visibility="collapsed")
-    fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
-    fault_file = fault_camera if fault_camera else fault_upload
-    
-    ready_for_analysis = bool(label_file and fault_file)
-    current_label_name = getattr(label_file, 'name', None) if label_file else None
-    current_fault_name = getattr(fault_file, 'name', None) if fault_file else None
-
-    if current_label_name != st.session_state.last_label_name or current_fault_name != st.session_state.last_fault_name:
-        st.session_state.last_label_name = current_label_name
-        st.session_state.last_fault_name = current_fault_name
-        st.session_state.analysis_done = False
-        st.session_state.analysis_results = {}
-
-    if ready_for_analysis:
+    if l_file and f_file:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("START DIAGNOSTIC", type="primary"):
             with st.spinner("Processing..."):
-                label_img = Image.open(label_file).convert("RGB")
-                
-                if hasattr(fault_file, 'type') and fault_file.type.startswith('video'):
-                    fault_img = get_frame_from_video(fault_file)
+                label_img = Image.open(l_file).convert("RGB")
+                if hasattr(f_file, 'type') and f_file.type.startswith('video'):
+                    fault_img = get_frame_from_video(f_file)
                 else:
-                    fault_img = Image.open(fault_file).convert("RGB")
+                    fault_img = Image.open(f_file).convert("RGB")
 
                 if fault_img:
-                    # Identity Logic
+                    # Roboflow Logic 
                     buffered = io.BytesIO()
                     label_img.save(buffered, format="JPEG")
                     img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
@@ -402,177 +279,99 @@ with tab1:
                     try:
                         resp = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"})
                         preds = resp.json().get('predictions', [])
-                    except:
-                        preds = []
+                    except: preds = []
                     
                     brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
-                    # Fault Logic
+                    # Fault Detect
                     buffered_f = io.BytesIO()
                     fault_img.save(buffered_f, format="JPEG")
                     img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
                     try:
                         resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
                         preds_f = resp_f.json().get('predictions', [])
-                    except:
-                        preds_f = []
+                    except: preds_f = []
                     
                     draw = ImageDraw.Draw(fault_img)
                     cust_iss, tech_iss = [], []
                     for p in preds_f:
                         lbl = normalize_label(p['class'])
                         if lbl in ROUTING_LOGIC:
-                            x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
-                            x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
+                            x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                             draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
                             route = ROUTING_LOGIC[lbl]
-                            if route['recipient'] == "Customer":
-                                cust_iss.append((lbl, route))
-                            else:
-                                tech_iss.append((lbl, route))
+                            if route['recipient'] == "Customer": cust_iss.append((lbl, route))
+                            else: tech_iss.append((lbl, route))
 
                     routed_tickets = []
                     if tech_iss:
-                        current_tickets = load_tickets()
+                        current_t = load_tickets()
                         for lbl, rt in tech_iss:
-                            new_ticket = create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt)
-                            current_tickets.append(new_ticket)
-                            routed_tickets.append(new_ticket)
-                        save_tickets(current_tickets)
+                            new_t = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt)
+                            current_t.append(new_t); routed_tickets.append(new_t)
+                        save_tickets(current_t)
 
                     st.session_state.analysis_results = {
                         'brand': brand, 'model': model, 'serial': serial,
                         'customer_issues': cust_iss, 'technician_issues': tech_iss,
-                        'annotated_fault_image': fault_img,
-                        'routed_tickets': routed_tickets
+                        'annotated_fault_image': fault_img, 'routed_tickets': routed_tickets
                     }
                     st.session_state.analysis_done = True
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results
-        
-        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
-        
         with st.container(border=True):
             st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE TELEMETRY</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>SN: {res['serial']}</span>", unsafe_allow_html=True)
-            
         st.image(res['annotated_fault_image'], use_container_width=True)
         
-        if res['customer_issues']:
-            for lbl, rt in res['customer_issues']:
-                with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
-                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#F59E0B;">{rt.get("severity", "Medium")}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#10B981;">{rt["act"]}</p>', unsafe_allow_html=True)
+        for lbl, rt in res['customer_issues']:
+            with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
+                st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value" style="color:#10B981;">{rt["act"]}</p>', unsafe_allow_html=True)
 
-        if res['technician_issues']:
-            for index, (lbl, rt) in enumerate(res['technician_issues']):
-                ticket = res['routed_tickets'][index] if index < len(res['routed_tickets']) else None
-                ticket_id = ticket['ticket_id'] if ticket else "PENDING"
-                team_desc = TEAM_DESCRIPTIONS.get(rt['id'], f"Team {rt['id']}")
-                
-                with st.expander(f"🚨 ESCALATED PROTOCOL"):
-                    st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["id"]} - {team_desc}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt["act"]}</p>', unsafe_allow_html=True)
+        for i, (lbl, rt) in enumerate(res['technician_issues']):
+            t_id = res['routed_tickets'][i]['ticket_id']
+            with st.expander(f"🚨 ESCALATED PROTOCOL"):
+                st.markdown(f'<p class="data-label">TICKET ID: {t_id}</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()} (Severity: {rt["severity"]})</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt["act"]}</p>', unsafe_allow_html=True)
 
-# --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
     tickets = load_tickets()
-    
     if not tickets:
-        st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center; color:#94A3B8; font-weight:800; margin-top:50px;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        st.markdown("""
-            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
-                <div>
-                    <span style="font-size: 24px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
-                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
-                </div>
-                <div>
-                    <span style="font-size: 24px; font-weight: 800; color: #EF4444;">{crit}</span><br>
-                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">CRITICAL</span>
-                </div>
-            </div>
-        """.format(total=len(tickets), crit=len([t for t in tickets if t['status'] == "Pending Review"])), unsafe_allow_html=True)
-        
-        filtered = tickets
-        
-        st.markdown('<div class="dash-header">ACTIVE WORK ORDERS</div>', unsafe_allow_html=True)
-        
-        for idx, ticket in enumerate(filtered):
-            status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
-            team_desc = TEAM_DESCRIPTIONS.get(ticket['team_id'], f"Team {ticket['team_id']}")
-            
-            with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
-                st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} (SN: {ticket["serial"]})</p>', unsafe_allow_html=True)
-                
-                st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket["team_id"]} - {team_desc}</p>', unsafe_allow_html=True)
-                
-                st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket["troubleshooting_steps"]}</p>', unsafe_allow_html=True)
-                
-                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value" style="color:#EF4444;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
+        st.markdown(f"""<div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
+                <div><span style="font-size: 24px; font-weight: 800; color: #F8FAFC;">{len(tickets)}</span><br><span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">TOTAL</span></div>
+                <div><span style="font-size: 24px; font-weight: 800; color: #EF4444;">{len([t for t in tickets if t['status'] == "Pending Review"])}</span><br><span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">CRITICAL</span></div>
+            </div>""", unsafe_allow_html=True)
+        for idx, ticket in enumerate(tickets):
+            with st.expander(f"🎫 {ticket['ticket_id']} — {ticket['observation']}"):
+                st.markdown(f"**UNIT:** {ticket['brand']} / {ticket['model']} (SN: {ticket['serial']})")
+                st.info(f"**PROTOCOL:** {ticket['troubleshooting_steps']}")
+                st.error(f"**ACTION:** {ticket['action_required']}")
                 c1, c2, c3 = st.columns(3)
-                tid = ticket['ticket_id']
-                
-                with c1:
-                    if st.button("PROCESS", key=f"p_{tid}_{idx}", use_container_width=True):
-                        all_t = load_tickets()
-                        for item in all_t:
-                            if item['ticket_id'] == tid: item['status'] = "In Progress"
-                        save_tickets(all_t); st.rerun()
-                
-                with c2:
-                    if st.button("RESOLVE", key=f"r_{tid}_{idx}", use_container_width=True):
-                        all_t = load_tickets()
-                        for item in all_t:
-                            if item['ticket_id'] == tid: item['status'] = "Resolved"
-                        save_tickets(all_t); st.rerun()
-                
-                with c3:
-                    if st.button("ARCHIVE", key=f"d_{tid}_{idx}", use_container_width=True):
-                        all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
-                        save_tickets(all_t); st.rerun()
+                if c1.button("PROCESS", key=f"p_{idx}"):
+                    ticket['status'] = "In Progress"; save_tickets(tickets); st.rerun()
+                if c2.button("RESOLVE", key=f"r_{idx}"):
+                    ticket['status'] = "Resolved"; save_tickets(tickets); st.rerun()
+                if c3.button("ARCHIVE", key=f"d_{idx}"):
+                    tickets.pop(idx); save_tickets(tickets); st.rerun()

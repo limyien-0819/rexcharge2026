@@ -21,157 +21,224 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-    
-    /* 1. ABSOLUTE DARK MODE OVERRIDE */
-    html, body, [class*="css"], .stApp {
-        font-family: 'Inter', sans-serif !important;
-        background-color: #000000 !important; /* Pure OLED Black */
-        color: #F8FAFC !important;
-    }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
-    #MainMenu, footer, header, [data-testid="stSidebar"] {
-        display: none !important;
-    }
+/* ==============================
+   GLOBAL RESET
+============================== */
+html, body, .stApp {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #000000 !important;
+}
 
-    /* 2. EXTREME UPLOADER & CAMERA FIX */
-    /* Target the container box */
-    div[data-testid="stFileUploader"] > section {
-        background-color: #0F172A !important; /* Deep Navy Background */
-        border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
-        border-radius: 16px !important;
-        padding: 24px !important;
-        box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
-    }
-    
-    /* Force ALL text inside the uploader to be readable */
-    div[data-testid="stFileUploader"] *,
-    [data-testid="stCameraInput"] > div > div > div * { 
-        color: #E2E8F0 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* --> THE FIX FOR CAMERA PERMISSION TEXT <-- */
-    [data-testid="stCameraInput"] p, 
-    [data-testid="stCameraInput"] div {
-        color: #475569 !important; /* Slate grey to be visible against white backgrounds */
-    }
-    
-    /* Force the Cloud icon to be blue */
-    div[data-testid="stFileUploader"] svg {
-        fill: #0EA5E9 !important; 
-        color: #0EA5E9 !important;
-    }
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
+}
 
-    /* Style the internal "Browse files" & "Take Photo" buttons */
-    [data-testid="stFileUploader"] button,
-    [data-testid="stCameraInput"] button {
-        background-color: #1E293B !important;
-        color: #38BDF8 !important;
-        border: 1px solid #0EA5E9 !important;
-        border-radius: 8px !important;
-        padding: 8px 16px !important;
-        font-weight: bold !important;
-        transition: all 0.2s ease !important;
-    }
-    [data-testid="stFileUploader"] button:hover,
-    [data-testid="stCameraInput"] button:hover {
-        background-color: #0EA5E9 !important;
-        color: #000000 !important;
-    }
+/* ==============================
+   TITLE
+============================== */
+h1 {
+    color: #7DD3FC !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 18px rgba(56,189,248,0.55);
+}
 
-    /* Hide the "Drag and drop file here" subtext to keep it ultra clean */
-    [data-testid="stFileUploadDropzone"] small {
-        display: none !important;
-    }
+/* ==============================
+   BASE BOXES
+============================== */
+div[data-testid="stFileUploader"] > section,
+[data-testid="stCameraInput"] > div {
+    background-color: #0F172A !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
 
-    /* 3. LUXURY CONTROL TILES (Replacing standard buttons) */
-    .stButton > button {
-        background: #0B1120 !important;
-        border: 1px solid #1E293B !important;
-        color: #38BDF8 !important;
-        border-radius: 16px !important;
-        height: 70px !important; /* Large touch target */
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
-        transition: all 0.2s ease-out !important;
-        width: 100% !important;
-    }
-    .stButton > button:active, .stButton > button:hover {
-        background: #0EA5E9 !important;
-        color: #000000 !important;
-        border: 1px solid #38BDF8 !important;
-        transform: scale(0.98) !important; /* Satisfying press effect */
-        box-shadow: 0 0 20px rgba(14, 165, 233, 0.5) !important;
-    }
+/* ==============================
+   DISABLE BIG RECTANGLE CLICK
+============================== */
 
-    /* Primary "Action" Button */
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-        color: #FFFFFF !important;
-        border: none !important;
-        box-shadow: 0 0 30px rgba(2, 132, 199, 0.4) !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
-        transform: scale(1.02) !important;
-        color: #FFFFFF !important;
-    }
+/* Entire upload area NOT clickable */
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+    cursor: default !important;
+}
 
-    /* 4. DASHBOARD PANELS (Replacing Expanders) */
-    [data-testid="stExpander"] {
-        background: #09090B !important; 
-        border: 1px solid #27272A !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
-        margin-top: 15px !important;
-    }
-    [data-testid="stExpander"] details summary p {
-        font-weight: 800 !important;
-        color: #0EA5E9 !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important;
-    }
+/* ONLY upload button clickable */
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
 
-    /* 5. CUSTOM DASHBOARD TABS */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: transparent !important;
-        border-bottom: 2px solid #1E293B !important;
-        gap: 20px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        color: #64748B !important; 
-        font-weight: 800 !important; 
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        padding-bottom: 15px !important;
-    }
-    .stTabs [aria-selected="true"] { 
-        color: #F8FAFC !important; 
-        border-bottom: 3px solid #0EA5E9 !important; 
-    }
+/* Prevent hidden file input covering rectangle */
+[data-testid="stFileUploadDropzone"] input[type="file"] {
+    display: none !important;
+    pointer-events: none !important;
+}
 
-    /* 6. Custom System Headers */
-    .dash-header {
-        font-size: 16px;
-        font-weight: 800;
-        color: #F8FAFC;
-        margin-top: 25px;
-        margin-bottom: 5px;
-    }
-    .dash-sub {
-        font-size: 13px;
-        color: #94A3B8;
-        margin-bottom: 15px;
-        font-weight: 400;
-    }
-    </style>
+/* ==============================
+   TABS
+============================== */
+.stTabs [data-baseweb="tab"] p {
+    color: #94A3B8 !important;
+    font-weight: 700 !important;
+}
+
+.stTabs [aria-selected="true"] p {
+    color: #F8FAFC !important;
+    font-weight: 800 !important;
+}
+
+/* ==============================
+   CAMERA MESSAGE
+============================== */
+[data-testid="stCameraInput"] small,
+[data-testid="stCameraInput"] span,
+[data-testid="stCameraInput"] label,
+[data-testid="stCameraInput"] div {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+    opacity: 1 !important;
+}
+
+/* ==============================
+   TAKE PHOTO BUTTON
+============================== */
+[data-testid="stCameraInput"] button,
+[data-testid="stCameraInput"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* ==============================
+   UPLOAD BUTTON TEXT
+============================== */
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploadDropzone"] button span,
+[data-testid="stFileUploadDropzone"] button p,
+[data-testid="stFileUploadDropzone"] button div {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* ==============================
+   FORCE ICON LIGHT BLUE
+============================== */
+
+/* SVG container */
+[data-testid="stFileUploadDropzone"] button svg {
+    color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+}
+
+/* ALL SVG PARTS */
+[data-testid="stFileUploadDropzone"] button svg * {
+    color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+}
+
+/* Upload arrow specifically */
+[data-testid="stFileUploadDropzone"] path {
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+}
+
+/* ==============================
+   UPLOAD INFO TEXT
+============================== */
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span {
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+}
+
+/* Uploaded filename */
+[data-testid="stFileUploader"] [data-testid="stText"] span,
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* ==============================
+   BUTTONS INSIDE BOXES
+============================== */
+[data-testid="stFileUploader"] button,
+[data-testid="stCameraInput"] button {
+    background-color: #1E293B !important;
+    border: 1px solid #0EA5E9 !important;
+    border-radius: 8px !important;
+}
+
+/* ==============================
+   MAIN START BUTTONS
+============================== */
+.stButton > button {
+    background: #0B1120 !important;
+    border: 1px solid #1E293B !important;
+    color: #38BDF8 !important;
+    border-radius: 16px !important;
+    height: 70px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    width: 100% !important;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+    color: #FFFFFF !important;
+}
+
+/* ==============================
+   INNER CARDS
+============================== */
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(14, 165, 233, 0.3) !important;
+    border-radius: 12px !important;
+}
+
+/* ==============================
+   CUSTOM TEXT
+============================== */
+.dash-header {
+    font-size: 18px;
+    font-weight: 800;
+    color: #F8FAFC;
+    margin-top: 25px;
+}
+
+.dash-sub {
+    font-size: 13px;
+    color: #94A3B8;
+    margin-bottom: 15px;
+}
+
+/* ==============================
+   DATA LABELS
+============================== */
+.data-label {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
+.data-value {
+    color: #F8FAFC;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+</style>
 """, unsafe_allow_html=True)
 
 # --- 2. CORE UTILITIES & OCR ---
@@ -246,7 +313,8 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
-        "status": "Pending Review"
+        "status": "Pending Review",
+        "severity": route_info.get('severity', 'High') 
     }
 
 # --- 4. DATASET & ROUTING LOGIC ---
@@ -266,7 +334,7 @@ try:
                 "severity": row.get('Severity', 'Medium')
             }
 except Exception as e:
-    pass # Silent fail to maintain Atas UI look
+    pass 
 
 TEAM_DESCRIPTIONS = {
     "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
@@ -281,15 +349,14 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(#FFFFFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ RExharge</h1>
-        <p style="color: #0EA5E9; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
+        <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0EA5E9, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 10px rgba(14, 165, 233, 0.3);">⚡ RExharge</h1>
+        <p style="color: #38BDF8; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
 
 with tab1:
-    # --- Input Section 1 ---
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
     
@@ -297,7 +364,6 @@ with tab1:
     label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
     label_file = label_camera if label_camera else label_upload
 
-    # --- Input Section 2 ---
     st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
     
@@ -305,10 +371,20 @@ with tab1:
     fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
     fault_file = fault_camera if fault_camera else fault_upload
     
-    if label_file and fault_file:
+    ready_for_analysis = bool(label_file and fault_file)
+    current_label_name = getattr(label_file, 'name', None) if label_file else None
+    current_fault_name = getattr(fault_file, 'name', None) if fault_file else None
+
+    if current_label_name != st.session_state.last_label_name or current_fault_name != st.session_state.last_fault_name:
+        st.session_state.last_label_name = current_label_name
+        st.session_state.last_fault_name = current_fault_name
+        st.session_state.analysis_done = False
+        st.session_state.analysis_results = {}
+
+    if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("INITIATE DIAGNOSTIC PROTOCOL", type="primary"):
-            with st.spinner("Processing Telemetry..."):
+        if st.button("START DIAGNOSTIC", type="primary"):
+            with st.spinner("Processing..."):
                 label_img = Image.open(label_file).convert("RGB")
                 
                 if hasattr(fault_file, 'type') and fault_file.type.startswith('video'):
@@ -356,23 +432,29 @@ with tab1:
                     for p in preds_f:
                         lbl = normalize_label(p['class'])
                         if lbl in ROUTING_LOGIC:
-                            draw.rectangle([p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2], outline="#0EA5E9", width=8)
+                            x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
+                            x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
+                            draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
                             route = ROUTING_LOGIC[lbl]
                             if route['recipient'] == "Customer":
                                 cust_iss.append((lbl, route))
                             else:
                                 tech_iss.append((lbl, route))
 
+                    routed_tickets = []
                     if tech_iss:
                         current_tickets = load_tickets()
                         for lbl, rt in tech_iss:
-                            current_tickets.append(create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt))
+                            new_ticket = create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt)
+                            current_tickets.append(new_ticket)
+                            routed_tickets.append(new_ticket)
                         save_tickets(current_tickets)
 
                     st.session_state.analysis_results = {
                         'brand': brand, 'model': model, 'serial': serial,
                         'customer_issues': cust_iss, 'technician_issues': tech_iss,
-                        'annotated_fault_image': fault_img
+                        'annotated_fault_image': fault_img,
+                        'routed_tickets': routed_tickets
                     }
                     st.session_state.analysis_done = True
 
@@ -390,15 +472,42 @@ with tab1:
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
-                    st.markdown(f"**ISSUE:** {lbl.replace('_',' ').title()}")
-                    st.write(rt['steps'])
-                    st.success(f"RESOLUTION: {rt['act']}")
+                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#F59E0B;">{rt.get("severity", "Medium")}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#10B981;">{rt["act"]}</p>', unsafe_allow_html=True)
 
         if res['technician_issues']:
-            for lbl, rt in res['technician_issues']:
+            for index, (lbl, rt) in enumerate(res['technician_issues']):
+                ticket = res['routed_tickets'][index] if index < len(res['routed_tickets']) else None
+                ticket_id = ticket['ticket_id'] if ticket else "PENDING"
+                team_desc = TEAM_DESCRIPTIONS.get(rt['id'], f"Team {rt['id']}")
+                
                 with st.expander(f"🚨 ESCALATED PROTOCOL"):
-                    st.error(f"**FAULT DETECTED:** {lbl.replace('_',' ').title()}")
-                    st.info(f"**ROUTED TO TEAM {rt['id']}** | Procedure: {rt['steps']}")
+                    st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{rt["id"]} - {team_desc}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                    
+                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt["act"]}</p>', unsafe_allow_html=True)
 
 # --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
@@ -426,15 +535,23 @@ with tab2:
         
         for idx, ticket in enumerate(filtered):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
+            team_desc = TEAM_DESCRIPTIONS.get(ticket['team_id'], f"Team {ticket['team_id']}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown(f"**UNIT:** {ticket['brand']} / {ticket['model']}<br>**SERIAL:** `{ticket['serial']}`", unsafe_allow_html=True)
                 
-                st.markdown("<br><p style='font-size:10px; color:#0EA5E9; font-weight:800; letter-spacing:1px; margin-bottom: 0px;'>TECHNICAL PROTOCOL</p>", unsafe_allow_html=True)
-                st.write(ticket['troubleshooting_steps'])
-                st.info(f"REQUIRED: {ticket['action_required']}")
+                st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} (SN: {ticket["serial"]})</p>', unsafe_allow_html=True)
+                
+                st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{ticket["team_id"]} - {team_desc}</p>', unsafe_allow_html=True)
+                
+                st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{ticket["troubleshooting_steps"]}</p>', unsafe_allow_html=True)
+                
+                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value" style="color:#EF4444;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
