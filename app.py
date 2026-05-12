@@ -60,20 +60,16 @@ div[data-testid="stFileUploader"] > section,
 /* ==============================
    DISABLE BIG RECTANGLE CLICK
 ============================== */
-
-/* Entire upload area NOT clickable */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
     cursor: default !important;
 }
 
-/* ONLY upload button clickable */
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
     cursor: pointer !important;
 }
 
-/* Prevent hidden file input covering rectangle */
 [data-testid="stFileUploadDropzone"] input[type="file"] {
     display: none !important;
     pointer-events: none !important;
@@ -115,36 +111,28 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON
-   SAME COLOR AS TAKE PHOTO
+   UPLOAD BUTTON + TEXT + ICON (FIXED)
 ============================== */
+
+/* Button */
 [data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button *,
-[data-testid="stFileUploadDropzone"] button span,
-[data-testid="stFileUploadDropzone"] button p,
-[data-testid="stFileUploadDropzone"] button div {
+[data-testid="stFileUploadDropzone"] button * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
-/* ==============================
-   FORCE UPLOAD ICON SAME COLOR
-============================== */
-
-/* Main SVG */
-[data-testid="stFileUploadDropzone"] svg {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
+/* Instruction text (THIS FIXES YOUR ISSUE) */
+[data-testid="stFileUploadDropzoneInstructions"],
+[data-testid="stFileUploadDropzoneInstructions"] * {
     color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
 }
 
-/* ALL SVG PARTS */
-[data-testid="stFileUploadDropzone"] svg *,
-[data-testid="stFileUploadDropzone"] path,
-[data-testid="stFileUploadDropzone"] line,
-[data-testid="stFileUploadDropzone"] polyline,
-[data-testid="stFileUploadDropzone"] circle {
+/* Icon (SVG) */
+[data-testid="stFileUploadDropzoneInstructions"] svg,
+[data-testid="stFileUploadDropzoneInstructions"] svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
