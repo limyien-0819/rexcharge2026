@@ -32,6 +32,15 @@ st.markdown("""
         color: #F8FAFC !important; 
     }
 
+    /* Target specific Streamlit elements that resist global changes */
+    .st-emotion-cache-1wivap2, /* Typical uploader label class */
+    [data-testid="stFileUploadDropzone"] div, 
+    [data-testid="stFileUploadDropzone"] p,
+    [data-testid="stFileUploadDropzone"] small,
+    [data-testid="stFileUploadDropzone"] button {
+        color: #F8FAFC !important;
+    }
+
     /* 2. Deep Midnight Background */
     .stApp {
         background-color: #0B1120 !important; 
@@ -104,10 +113,16 @@ st.markdown("""
     }
 
     /* 6. Mobile Upload Zones */
-    [data-testid="stFileUploader"] section {
+    [data-testid="stFileUploadDropzone"] {
         border-radius: 20px !important;
-        border: 2px dashed #334155 !important;
-        background-color: rgba(30, 41, 59, 0.4) !important;
+        border: 2px dashed rgba(56, 189, 248, 0.5) !important;
+        background-color: rgba(15, 23, 42, 0.5) !important;
+        padding: 20px !important;
+    }
+    
+    [data-testid="stFileUploadDropzone"]:hover {
+        border-color: #38BDF8 !important;
+        background-color: rgba(30, 41, 59, 0.8) !important;
     }
 
     /* 7. Tab Styling */
@@ -240,22 +255,16 @@ with tab1:
     st.markdown("<p style='text-align: center; color: #38BDF8 !important; font-weight: 700; letter-spacing: 2px; font-size: 11px; margin-top:-15px;'>SMART DIAGNOSTIC HUB</p>", unsafe_allow_html=True)
     
     st.markdown("### 📸 1. Scan Charger Label")
-    st.write("Take a photo of the brand/model/serial sticker.")
     label_camera = st.camera_input("Label Camera", key="label_cam", label_visibility="collapsed")
-    if not label_camera:
-        label_file = st.file_uploader("Or upload image", type=["jpg", "jpeg", "png"], key="label_upload")
-    else:
-        label_file = label_camera
+    label_upload = st.file_uploader("Or upload image", type=["jpg", "jpeg", "png"], key="label_upload")
+    label_file = label_camera if label_camera else label_upload
 
     st.divider()
 
     st.markdown("### 🎥 2. Capture Fault")
-    st.write("Record video or take a photo of the physical issue.")
     fault_camera = st.camera_input("Fault Camera", key="fault_cam", label_visibility="collapsed")
-    if not fault_camera:
-        fault_file = st.file_uploader("Or upload image/video", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload")
-    else:
-        fault_file = fault_camera
+    fault_upload = st.file_uploader("Or upload image/video", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload")
+    fault_file = fault_camera if fault_camera else fault_upload
     
     if label_file and fault_file:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -272,7 +281,7 @@ with tab1:
                 if fault_img:
                     # Identity Logic
                     buffered = io.BytesIO()
-                    label_img.save(buffered, format="JPEG")
+                    label_image.save(buffered, format="JPEG")
                     img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
                     url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
                     
@@ -283,11 +292,11 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
