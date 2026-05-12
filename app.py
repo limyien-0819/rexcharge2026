@@ -115,9 +115,11 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON TEXT
+   UPLOAD BUTTON
+   SAME COLOR AS TAKE PHOTO
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploadDropzone"] button *,
 [data-testid="stFileUploadDropzone"] button span,
 [data-testid="stFileUploadDropzone"] button p,
 [data-testid="stFileUploadDropzone"] button div {
@@ -127,27 +129,25 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   FORCE UPLOAD ICON LIGHT BLUE
+   FORCE UPLOAD ICON SAME COLOR
 ============================== */
 
-/* SVG container */
-[data-testid="stFileUploadDropzone"] button svg {
+/* Main SVG */
+[data-testid="stFileUploadDropzone"] svg {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
 }
 
-/* ALL SVG ELEMENTS */
-[data-testid="stFileUploadDropzone"] button svg * {
+/* ALL SVG PARTS */
+[data-testid="stFileUploadDropzone"] svg *,
+[data-testid="stFileUploadDropzone"] path,
+[data-testid="stFileUploadDropzone"] line,
+[data-testid="stFileUploadDropzone"] polyline,
+[data-testid="stFileUploadDropzone"] circle {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
-}
-
-/* Path fix */
-[data-testid="stFileUploadDropzone"] path {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
 }
 
 /* ==============================
