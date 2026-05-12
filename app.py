@@ -16,38 +16,76 @@ from pathlib import Path
 # --- 1. SETUP & PAGE CONFIGURATION ---
 st.set_page_config(page_title="RExharge Smart Diagnostic Hub", page_icon="⚡", layout="centered")
 
+# --- CUSTOM "ATAS" PREMIUM UI DESIGN ---
 st.markdown("""
     <style>
-    /* Clean background and premium font styles */
+    /* 1. Import Premium Tech Font (Inter) */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* 2. Hide Streamlit Default Branding for a Native App Feel */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* 3. Global Background - Soft Off-White */
     .stApp {
         background-color: #F8FAFC; 
     }
-    h1, h2, h3 {
+
+    /* 4. Elegant Typography */
+    h1 {
         color: #0F172A;
-        font-family: 'Helvetica Neue', sans-serif;
         font-weight: 700;
+        letter-spacing: -1px;
     }
-    /* Style the Primary Buttons to look like a modern mobile app */
+    h3, h4 {
+        color: #334155;
+        font-weight: 600;
+    }
+
+    /* 5. Sleek Pill-Shaped Primary Buttons */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #0EA5E9, #2563EB);
+        background: linear-gradient(135deg, #0F172A, #1E293B); /* Deep Slate */
         color: white;
-        border-radius: 12px;
-        padding: 10px 24px;
+        border-radius: 50px; /* Fully rounded pill shape */
+        padding: 14px 24px;
         border: none;
-        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        font-weight: bold;
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .stButton > button[kind="primary"]:hover {
-        box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.3);
+        background: linear-gradient(135deg, #1E293B, #334155);
     }
-    /* Style expanders for a cleaner card look */
+
+    /* 6. Glassmorphism effect for Expanders (Cards) */
     [data-testid="stExpander"] {
-        background-color: white;
-        border-radius: 12px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    /* 7. Rounded corners for uploaded images */
+    [data-testid="stImage"] img {
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    /* 8. Modern Input File Uploaders */
+    [data-testid="stFileUploader"] section {
+        border-radius: 16px;
+        border: 2px dashed #CBD5E1;
+        background-color: #F1F5F9;
     }
     </style>
 """, unsafe_allow_html=True)
