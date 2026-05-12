@@ -29,7 +29,7 @@ st.markdown("""
     /* 1. ABSOLUTE DARK MODE OVERRIDE */
     html, body, [class*="css"], .stApp {
         font-family: 'Inter', sans-serif !important;
-        background-color: #000000 !important; /* Pure OLED Black */
+        background-color: #000000 !important; 
         color: #F8FAFC !important;
     }
 
@@ -38,6 +38,7 @@ st.markdown("""
     }
 
     /* 2. EXTREME UPLOADER & CAMERA FIX */
+    /* Base Box Styling */
     div[data-testid="stFileUploader"] > section,
     [data-testid="stCameraInput"] > div {
         background-color: #0F172A !important; 
@@ -46,42 +47,54 @@ st.markdown("""
         padding: 24px !important;
         box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
+
+    /* -----------------------------------------------------------
+       CRITICAL FIX: CAMERA TEXT (DARK GREY) vs UPLOADER TEXT (WHITE)
+       ----------------------------------------------------------- */
+
+    /* A. CAMERA INPUT TEXT -> Force to Dark Grey */
+    [data-testid="stCameraInput"] *,
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] span,
+    [data-testid="stCameraInput"] a,
+    [data-testid="stCameraInput"] div {
+        color: #334155 !important; /* Slate Dark Grey */
+        font-weight: 700 !important;
+    }
     
-    /* Default text inside uploader (Drag and drop...) */
+    /* Ensure the camera button text is still readable (blue) */
+    [data-testid="stCameraInput"] button * {
+        color: #38BDF8 !important;
+    }
+
+    /* B. UPLOADER TEXT -> Force to White/Light */
+    /* Main instruction text */
     div[data-testid="stFileUploader"] div[data-testid="stText"] {
         color: #E2E8F0 !important;
         font-weight: 800 !important;
     }
     
-    /* --> FIX 1: Make the 200MB Helper Text Bright White <-- */
+    /* Helper Text ("Limit 200MB per file") -> Force to Pure White */
     div[data-testid="stFileUploadDropzone"] small {
-        color: #FFFFFF !important; /* Pure White for maximum visibility */
-        font-weight: 600 !important; /* Bolder so it stands out */
+        color: #FFFFFF !important; 
+        font-weight: 600 !important; 
         font-size: 13px !important;
     }
 
-    /* --> FIX 2: Force Camera Permission Text to be Darker <-- */
-    [data-testid="stCameraInput"] p, 
-    [data-testid="stCameraInput"] div[data-testid="stText"],
-    [data-testid="stCameraInput"] span,
-    [data-testid="stCameraInput"] a {
-        color: #000000 !important; /* Absolute Black for readability on white prompt */
+    /* Uploaded File Name -> Force to Darker for contrast on the white card */
+    div[data-testid="stFileUploader"] div.uploadedFileName, 
+    div[data-testid="stFileUploader"] span[data-testid="stText"] {
+        color: #0F172A !important; 
         font-weight: 800 !important;
     }
 
-    /* --> FIX 3: Force Uploaded File Name to be Darker <-- */
-    div[data-testid="stFileUploader"] div.uploadedFileName, 
-    div[data-testid="stFileUploader"] div[data-testid="stText"] span,
-    div[data-testid="stFileUploader"] span[data-testid="stText"] {
-        color: #000000 !important; /* Absolute Black for the white file card */
-        font-weight: 800 !important;
-    }
-    
-    /* Force the Cloud SVG Icon to be blue */
+    /* Cloud Icon */
     div[data-testid="stFileUploader"] svg {
         fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
     }
+
+    /* ----------------------------------------------------------- */
 
     /* Uploader & Camera Default Buttons */
     [data-testid="stFileUploader"] button,
