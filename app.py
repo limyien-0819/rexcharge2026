@@ -58,7 +58,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   DISABLE BIG RECTANGLE CLICK
+   DISABLE BIG DROPZONE CLICK
 ============================== */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
@@ -68,11 +68,6 @@ div[data-testid="stFileUploader"] > section,
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
     cursor: pointer !important;
-}
-
-[data-testid="stFileUploadDropzone"] input[type="file"] {
-    display: none !important;
-    pointer-events: none !important;
 }
 
 /* ==============================
@@ -89,7 +84,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA MESSAGE
+   CAMERA TEXT
 ============================== */
 [data-testid="stCameraInput"] small,
 [data-testid="stCameraInput"] span,
@@ -97,7 +92,6 @@ div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] div {
     color: #475569 !important;
     -webkit-text-fill-color: #475569 !important;
-    opacity: 1 !important;
 }
 
 /* ==============================
@@ -111,7 +105,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON + TEXT + ICON (FIXED)
+   UPLOAD BUTTON + TEXT + ICON (STREAMLIT 1.57 FIX)
 ============================== */
 
 /* Button */
@@ -122,40 +116,46 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* Instruction text (THIS FIXES YOUR ISSUE) */
-[data-testid="stFileUploadDropzoneInstructions"],
-[data-testid="stFileUploadDropzoneInstructions"] * {
+/* Label + text inside uploader */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label *,
+[data-testid="stFileUploader"] span {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
 /* Icon (SVG) */
-[data-testid="stFileUploadDropzoneInstructions"] svg,
-[data-testid="stFileUploadDropzoneInstructions"] svg * {
+[data-testid="stFileUploader"] svg,
+[data-testid="stFileUploader"] svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
 }
 
+/* Extra safety for dropzone text blocks */
+[data-testid="stFileUploadDropzone"] div,
+[data-testid="stFileUploadDropzone"] div * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+}
+
 /* ==============================
-   UPLOAD INFO TEXT
+   UPLOADED FILE TEXT
 ============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span {
     color: #94A3B8 !important;
-    -webkit-text-fill-color: #94A3B8 !important;
 }
 
 /* Uploaded filename */
-[data-testid="stFileUploader"] [data-testid="stText"] span,
 [data-testid="stFileUploader"] .uploadedFileName {
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   BUTTONS INSIDE BOXES
+   BUTTON STYLES
 ============================== */
 [data-testid="stFileUploader"] button,
 [data-testid="stCameraInput"] button {
@@ -165,7 +165,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   MAIN START BUTTONS
+   MAIN BUTTONS
 ============================== */
 .stButton > button {
     background: #0B1120 !important;
@@ -184,7 +184,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   INNER CARDS
+   CARDS
 ============================== */
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
@@ -199,13 +199,11 @@ div[data-testid="stFileUploader"] > section,
     font-size: 18px;
     font-weight: 800;
     color: #F8FAFC;
-    margin-top: 25px;
 }
 
 .dash-sub {
     font-size: 13px;
     color: #94A3B8;
-    margin-bottom: 15px;
 }
 
 /* ==============================
@@ -216,8 +214,6 @@ div[data-testid="stFileUploader"] > section,
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1px;
-    margin-bottom: 4px;
-    margin-top: 12px;
 }
 
 .data-value {
