@@ -47,23 +47,18 @@ st.markdown("""
         box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
     
-    div[data-testid="stFileUploader"] *,
+    /* Make the main drag-and-drop text readable */
+    div[data-testid="stFileUploader"] div[data-testid="stText"],
     [data-testid="stCameraInput"] * {
+        color: #E2E8F0 !important;
         font-weight: 600 !important;
     }
-    
-    /* --> THE FIX FOR INVISIBLE TEXT IN WHITE BOXES <-- */
-    /* Force text inside the camera input (like "This app would like...") to be dark */
-    [data-testid="stCameraInput"] p, 
-    [data-testid="stCameraInput"] div[data-testid="stText"] {
-        color: #0F172A !important; /* Very dark blue/slate for visibility on white */
-    }
 
-    /* Force the uploaded file name to be dark */
-    div[data-testid="stFileUploader"] div.uploadedFileName, /* Specific Streamlit class */
-    div[data-testid="stFileUploader"] span,
-    div[data-testid="stFileUploader"] small {
-        color: #0F172A !important; 
+    /* --> FIX: Keep the 200MB helper text subtle <-- */
+    div[data-testid="stFileUploadDropzone"] small {
+        color: #64748B !important; /* Lighter slate gray */
+        font-weight: 400 !important;
+        display: block !important; /* Ensure it stays visible */
     }
     
     div[data-testid="stFileUploader"] svg {
@@ -86,6 +81,11 @@ st.markdown("""
     [data-testid="stCameraInput"] button:hover {
         background-color: #0EA5E9 !important;
         color: #000000 !important;
+    }
+
+    /* Target the uploaded filename text to make it darker */
+    div[data-testid="stFileUploader"] div[data-testid="stText"] {
+        color: #94A3B8 !important; /* Darker Slate Grey */
     }
 
     /* 3. LUXURY CONTROL TILES */
