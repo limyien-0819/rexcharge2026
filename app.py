@@ -41,9 +41,9 @@ html, body, .stApp {
    TITLE
 ============================== */
 h1 {
-    color: #38BDF8 !important;   /* brighter neon blue */
+    color: #7DD3FC !important;
     font-weight: 800 !important;
-    text-shadow: 0 0 14px rgba(56,189,248,0.45);
+    text-shadow: 0 0 18px rgba(56,189,248,0.55);
 }
 
 /* ==============================
@@ -55,6 +55,21 @@ div[data-testid="stFileUploader"] > section,
     border: 1px solid #0EA5E9 !important;
     border-radius: 16px !important;
     padding: 24px !important;
+}
+
+/* ==============================
+   DISABLE WHOLE DROPZONE CLICK
+============================== */
+
+/* Disable click on large upload area */
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+}
+
+/* Re-enable ONLY upload button */
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
 /* ==============================
@@ -93,18 +108,25 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON + ICON
+   UPLOAD BUTTON
 ============================== */
+
+/* Upload button text */
 [data-testid="stFileUploader"] button,
-[data-testid="stFileUploader"] button *,
-[data-testid="stFileUploader"] button svg,
-[data-testid="stFileUploader"] button path,
-[data-testid="stFileUploadDropzone"] * {
+[data-testid="stFileUploader"] button * {
     color: #38BDF8 !important;
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
-    opacity: 1 !important;
+    font-weight: 700 !important;
+}
+
+/* Upload icon */
+[data-testid="stFileUploader"] button svg,
+[data-testid="stFileUploader"] button svg path,
+[data-testid="stFileUploader"] button svg line,
+[data-testid="stFileUploader"] button svg polyline {
+    stroke: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    color: #38BDF8 !important;
 }
 
 /* Upload info text */
@@ -122,7 +144,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   BUTTONS
+   BUTTONS INSIDE BOXES
 ============================== */
 [data-testid="stFileUploader"] button,
 [data-testid="stCameraInput"] button {
@@ -173,6 +195,24 @@ div[data-testid="stFileUploader"] > section,
     font-size: 13px;
     color: #94A3B8;
     margin-bottom: 15px;
+}
+
+/* ==============================
+   DATA LABELS
+============================== */
+.data-label {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
+.data-value {
+    color: #F8FAFC;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 </style>
