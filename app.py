@@ -22,6 +22,7 @@ st.set_page_config(
 )
 
 # --- THE "TESLA DASHBOARD" CSS NUKE ---
+# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -37,87 +38,70 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 2. EXTREME UPLOADER & CAMERA FIX */
-    /* Base Box Styling */
+    /* 2. BASE BOX STYLING */
     div[data-testid="stFileUploader"] > section,
     [data-testid="stCameraInput"] > div {
         background-color: #0F172A !important; 
         border: 1px solid #0EA5E9 !important; 
         border-radius: 16px !important;
         padding: 24px !important;
-        box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
 
     /* -----------------------------------------------------------
-       CRITICAL FIX: ISOLATED TARGETING
+       FORCE TEXT COLORS (THE ULTIMATE OVERRIDE)
        ----------------------------------------------------------- */
 
-    /* A. CAMERA INPUT TEXT -> Force to Dark Grey */
-    [data-testid="stCameraInput"] *,
-    [data-testid="stCameraInput"] p, 
-    [data-testid="stCameraInput"] span,
-    [data-testid="stCameraInput"] a,
-    [data-testid="stCameraInput"] div {
-        color: #334155 !important; 
-        font-weight: 700 !important;
-    }
-    
-    /* Ensure the camera button text is still readable (blue) */
-    [data-testid="stCameraInput"] button * {
-        color: #38BDF8 !important;
+    /* A. FILE UPLOADER HELPER TEXT -> FORCE PURE WHITE */
+    /* This targets the '200MB per file' wording specifically */
+    [data-testid="stFileUploadDropzone"] small, 
+    [data-testid="stFileUploader"] section div div small {
+        color: #FFFFFF !important; 
+        fill: #FFFFFF !important;
+        opacity: 1 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        visibility: visible !important;
     }
 
-    /* B. UPLOADER INSTRUCTION TEXT -> Force to White/Light */
-    div[data-testid="stFileUploader"] div[data-testid="stText"] {
+    /* B. CAMERA PERMISSION TEXT -> FORCE DARK GREY */
+    /* Targets the 'This app would like to use your camera' wording */
+    [data-testid="stCameraInput"] div div div div p,
+    [data-testid="stCameraInput"] div div div div span {
+        color: #475569 !important; /* Elegant Slate Dark Grey */
+        font-weight: 700 !important;
+        opacity: 1 !important;
+    }
+
+    /* C. UPLOADED FILE CARD -> FORCE BLACK TEXT ON WHITE CARD */
+    /* When a file is uploaded, Streamlit makes a white card. We need black text there. */
+    [data-testid="stFileUploader"] section[role="button"] + div * {
+        color: #000000 !important;
+    }
+
+    /* D. MAIN INSTRUCTIONS (Drag and drop...) -> LIGHT BLUE */
+    [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {
         color: #E2E8F0 !important;
         font-weight: 800 !important;
     }
-    
-    /* C. UPLOADER HELPER TEXT ("Limit 200MB") -> ABSOLUTE WHITE */
-    /* This rule is now isolated and bulletproof */
-    div[data-testid="stFileUploader"] small,
-    div[data-testid="stFileUploadDropzone"] small,
-    [data-testid="stFileUploadDropzone"] div small {
-        color: #FFFFFF !important; 
-        font-weight: 600 !important; 
-        font-size: 13px !important;
-        opacity: 1 !important; /* Force it to not be transparent */
-        display: block !important;
-    }
 
-    /* D. UPLOADED FILE NAME -> Force to Darker for contrast */
-    div[data-testid="stFileUploader"] div.uploadedFileName, 
-    div[data-testid="stFileUploader"] span[data-testid="stText"] {
-        color: #0F172A !important; 
-        font-weight: 800 !important;
-    }
+    /* ----------------------------------------------------------- */
 
-    /* Cloud Icon */
+    /* Force Icon Visibility */
     div[data-testid="stFileUploader"] svg {
         fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
     }
 
-    /* ----------------------------------------------------------- */
-
-    /* Uploader & Camera Default Buttons */
+    /* Buttons inside the boxes */
     [data-testid="stFileUploader"] button,
     [data-testid="stCameraInput"] button {
         background-color: #1E293B !important;
         color: #38BDF8 !important;
         border: 1px solid #0EA5E9 !important;
         border-radius: 8px !important;
-        padding: 8px 16px !important;
-        font-weight: bold !important;
-        transition: all 0.2s ease !important;
-    }
-    [data-testid="stFileUploader"] button:hover,
-    [data-testid="stCameraInput"] button:hover {
-        background-color: #0EA5E9 !important;
-        color: #000000 !important;
     }
 
-    /* 3. LUXURY CONTROL TILES */
+    /* LUXURY CONTROL TILES (Big Buttons) */
     .stButton > button {
         background: #0B1120 !important;
         border: 1px solid #1E293B !important;
@@ -125,95 +109,23 @@ st.markdown("""
         border-radius: 16px !important;
         height: 70px !important; 
         font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 2px !important;
         text-transform: uppercase !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
-        transition: all 0.2s ease-out !important;
         width: 100% !important;
     }
-    .stButton > button:active, .stButton > button:hover {
-        background: #0EA5E9 !important;
-        color: #000000 !important;
-        border: 1px solid #38BDF8 !important;
-        transform: scale(0.98) !important; 
-        box-shadow: 0 0 20px rgba(14, 165, 233, 0.5) !important;
-    }
-
+    
     .stButton > button[kind="primary"] {
         background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
         color: #FFFFFF !important;
         border: none !important;
-        box-shadow: 0 0 30px rgba(2, 132, 199, 0.4) !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
-        transform: scale(1.02) !important;
-        color: #FFFFFF !important;
     }
 
-    /* 4. DASHBOARD PANELS */
-    [data-testid="stExpander"] {
-        background: #09090B !important; 
-        border: 1px solid #27272A !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
-        margin-top: 15px !important;
-    }
-    [data-testid="stExpander"] details summary p {
-        font-weight: 800 !important;
-        color: #0EA5E9 !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important;
-    }
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] { background-color: transparent !important; }
+    .stTabs [aria-selected="true"] { color: #F8FAFC !important; border-bottom: 3px solid #0EA5E9 !important; }
 
-    /* 5. CUSTOM DASHBOARD TABS */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: transparent !important;
-        border-bottom: 2px solid #1E293B !important;
-        gap: 20px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        color: #64748B !important; 
-        font-weight: 800 !important; 
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        padding-bottom: 15px !important;
-    }
-    .stTabs [aria-selected="true"] { 
-        color: #F8FAFC !important; 
-        border-bottom: 3px solid #0EA5E9 !important; 
-    }
-
-    /* 6. Custom System Headers */
-    .dash-header {
-        font-size: 16px;
-        font-weight: 800;
-        color: #F8FAFC;
-        margin-top: 25px;
-        margin-bottom: 5px;
-    }
-    .dash-sub {
-        font-size: 13px;
-        color: #94A3B8;
-        margin-bottom: 15px;
-        font-weight: 400;
-    }
-    
-    /* 7. Diagnostic Data Labels */
-    .data-label {
-        font-size: 10px;
-        color: #0EA5E9;
-        font-weight: 800;
-        letter-spacing: 1px;
-        margin-bottom: 0px;
-        text-transform: uppercase;
-    }
-    .data-value {
-        font-size: 14px;
-        color: #F8FAFC;
-        margin-bottom: 15px;
-    }
+    /* Custom Headers */
+    .dash-header { font-size: 16px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
+    .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
