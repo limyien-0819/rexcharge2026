@@ -43,29 +43,30 @@ html, body, .stApp {
 h1 {
     color: #7DD3FC !important;
     font-weight: 800 !important;
+    text-shadow: 0 0 18px rgba(125,211,252,0.45);
 }
 
 /* ==============================
-   📸 INSTRUCTIONS (SAFE + BOLD FIX)
+   📸 INSTRUCTIONS (SAFE FIX)
 ============================== */
 
-/* only markdown container */
+/* default text = white ONLY */
 .stMarkdown p {
-    color: #E2E8F0 !important;
+    color: #FFFFFF !important;
     font-size: 14px !important;
     font-weight: 400 !important;
     line-height: 1.6 !important;
 }
 
-/* FIRST LINE BOLD (reliable Streamlit selector) */
+/* FIRST LINE (📸 1. / 2.) */
 .stMarkdown p:first-child {
     font-size: 18px !important;
-    font-weight: 900 !important;
+    font-weight: 800 !important;
     color: #FFFFFF !important;
 }
 
 /* ==============================
-   TABS (VISIBLE FIX)
+   TABS (FIX VISIBILITY)
 ============================== */
 .stTabs [data-baseweb="tab"] p {
     color: #94A3B8 !important;
@@ -77,16 +78,19 @@ h1 {
     font-weight: 800 !important;
 }
 
-/* TAB UNDERLINE (VISIBLE ON BLACK) */
+/* TAB UNDERLINE (LIGHTER + CLEAR) */
 .stTabs [data-baseweb="tab-highlight"] {
-    background-color: rgba(56, 189, 248, 0.7) !important;
+    background-color: rgba(56, 189, 248, 0.55) !important;
     height: 3px !important;
     border-radius: 2px !important;
 }
 
 /* ==============================
-   UPLOAD BOX
+   KEEP UPLOAD ORIGINAL (IMPORTANT)
+   → NO STYLING ON UPLOAD BUTTON
 ============================== */
+
+/* ONLY keep box styling */
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
     background-color: #0F172A !important;
@@ -96,28 +100,12 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD ICON (BLUE)
+   UPLOAD ICON ONLY (SAFE)
 ============================== */
 [data-testid="stFileUploader"] svg,
 [data-testid="stFileUploader"] svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
-    color: #38BDF8 !important;
-}
-
-/* ==============================
-   🔥 UPLOAD BUTTON TEXT FIX (IMPORTANT)
-============================== */
-[data-testid="stFileUploadDropzone"] button {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* safety override for inner elements */
-[data-testid="stFileUploadDropzone"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
 }
 
 /* ==============================
@@ -130,31 +118,12 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA BUTTON
+   CAMERA BUTTON (OK TO STYLE)
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
     color: #38BDF8 !important;
     font-weight: 700 !important;
-}
-
-/* ==============================
-   BUTTONS
-============================== */
-.stButton > button {
-    background: #0B1120 !important;
-    border: 1px solid #1E293B !important;
-    color: #38BDF8 !important;
-    border-radius: 16px !important;
-    height: 70px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    width: 100% !important;
-}
-
-.stButton > button[kind="primary"] {
-    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-    color: #FFFFFF !important;
 }
 
 /* ==============================
