@@ -58,7 +58,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   DISABLE BIG DROPZONE CLICK
+   DISABLE DROPZONE CLICK
 ============================== */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
@@ -95,7 +95,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   TAKE PHOTO BUTTON
+   TAKE PHOTO BUTTON (BLUE)
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -105,10 +105,10 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON + TEXT + ICON (STREAMLIT 1.57 FIX)
+   UPLOAD BUTTON + LABEL + ICON (BLUE ONLY)
 ============================== */
 
-/* Button */
+/* Button text */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button * {
     color: #38BDF8 !important;
@@ -116,16 +116,15 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* Label + text inside uploader */
+/* Upload label text only */
 [data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label *,
-[data-testid="stFileUploader"] span {
+[data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
-/* Icon (SVG) */
+/* Upload icon */
 [data-testid="stFileUploader"] svg,
 [data-testid="stFileUploader"] svg * {
     fill: #38BDF8 !important;
@@ -133,29 +132,29 @@ div[data-testid="stFileUploader"] > section,
     color: #38BDF8 !important;
 }
 
-/* Extra safety for dropzone text blocks */
-[data-testid="stFileUploadDropzone"] div,
-[data-testid="stFileUploadDropzone"] div * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
+/* ==============================
+   FILE INFO TEXT (GRAY ONLY)
+   "200MB per file • JPG, PNG"
+============================== */
+
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] p,
+[data-testid="stFileUploader"] div[data-testid="stMarkdownContainer"] p {
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+    font-weight: 400 !important;
 }
 
 /* ==============================
-   UPLOADED FILE TEXT
+   UPLOADED FILE NAME
 ============================== */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span {
-    color: #94A3B8 !important;
-}
-
-/* Uploaded filename */
 [data-testid="stFileUploader"] .uploadedFileName {
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   BUTTON STYLES
+   BUTTON STYLING INSIDE BOXES
 ============================== */
 [data-testid="stFileUploader"] button,
 [data-testid="stCameraInput"] button {
