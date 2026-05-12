@@ -58,44 +58,7 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   DISABLE DROPZONE CLICK
-============================== */
-[data-testid="stFileUploadDropzone"] {
-    pointer-events: none !important;
-    cursor: default !important;
-}
-
-[data-testid="stFileUploadDropzone"] button {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-
-/* ==============================
-   TABS
-============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;
-    font-weight: 700 !important;
-}
-
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 800 !important;
-}
-
-/* ==============================
-   CAMERA TEXT
-============================== */
-[data-testid="stCameraInput"] small,
-[data-testid="stCameraInput"] span,
-[data-testid="stCameraInput"] label,
-[data-testid="stCameraInput"] div {
-    color: #475569 !important;
-    -webkit-text-fill-color: #475569 !important;
-}
-
-/* ==============================
-   TAKE PHOTO BUTTON (BLUE)
+   CAMERA BUTTON
 ============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
@@ -105,26 +68,8 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON + LABEL + ICON (BLUE ONLY)
+   UPLOAD ICON (BLUE ONLY)
 ============================== */
-
-/* Button text */
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* Upload label text only */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* Upload icon */
 [data-testid="stFileUploader"] svg,
 [data-testid="stFileUploader"] svg * {
     fill: #38BDF8 !important;
@@ -133,15 +78,39 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   FILE INFO TEXT (GRAY ONLY)
+   UPLOAD BUTTON + TEXT (BLUE ONLY)
+============================== */
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploadDropzone"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* Upload label (drag/drop text) */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* ==============================
+   FILE INFO TEXT (WHITE ONLY)
    "200MB per file • JPG, PNG"
 ============================== */
+[data-testid="stFileUploader"] small {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 400 !important;
+}
 
+/* extra safety for info line (Streamlit sometimes uses span/p) */
 [data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] p,
-[data-testid="stFileUploader"] div[data-testid="stMarkdownContainer"] p {
-    color: #94A3B8 !important;
-    -webkit-text-fill-color: #94A3B8 !important;
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] p {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
     font-weight: 400 !important;
 }
 
@@ -151,6 +120,17 @@ div[data-testid="stFileUploader"] > section,
 [data-testid="stFileUploader"] .uploadedFileName {
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
+}
+
+/* ==============================
+   DISABLE DROPZONE CLICK
+============================== */
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+}
+
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
 }
 
 /* ==============================
@@ -189,36 +169,6 @@ div[data-testid="stFileUploader"] > section,
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
     border-radius: 12px !important;
-}
-
-/* ==============================
-   CUSTOM TEXT
-============================== */
-.dash-header {
-    font-size: 18px;
-    font-weight: 800;
-    color: #F8FAFC;
-}
-
-.dash-sub {
-    font-size: 13px;
-    color: #94A3B8;
-}
-
-/* ==============================
-   DATA LABELS
-============================== */
-.data-label {
-    color: #64748B;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.data-value {
-    color: #F8FAFC;
-    font-size: 15px;
-    font-weight: 600;
 }
 
 </style>
