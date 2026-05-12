@@ -58,18 +58,28 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   DISABLE WHOLE DROPZONE CLICK
+   DISABLE BIG RECTANGLE CLICK
 ============================== */
 
-/* Disable click on large upload area */
+/* Entire upload area */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
+    cursor: default !important;
 }
 
-/* Re-enable ONLY upload button */
+/* Only Upload button clickable */
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
     cursor: pointer !important;
+}
+
+/* Prevent hidden input covering entire box */
+[data-testid="stFileUploadDropzone"] input[type="file"] {
+    width: 0px !important;
+    height: 0px !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
 }
 
 /* ==============================
@@ -108,28 +118,36 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON
+   UPLOAD BUTTON TEXT
 ============================== */
-
-/* Upload button text */
-[data-testid="stFileUploader"] button,
-[data-testid="stFileUploader"] button * {
+[data-testid="stFileUploadDropzone"] button,
+[data-testid="stFileUploadDropzone"] button * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
-/* Upload icon */
-[data-testid="stFileUploader"] button svg,
-[data-testid="stFileUploader"] button svg path,
-[data-testid="stFileUploader"] button svg line,
-[data-testid="stFileUploader"] button svg polyline {
-    stroke: #38BDF8 !important;
-    fill: #38BDF8 !important;
+/* ==============================
+   FORCE ICON LIGHT BLUE
+============================== */
+
+/* SVG itself */
+[data-testid="stFileUploadDropzone"] button svg {
     color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
 }
 
-/* Upload info text */
+/* All SVG inner parts */
+[data-testid="stFileUploadDropzone"] button svg * {
+    color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+}
+
+/* ==============================
+   UPLOAD INFO TEXT
+============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span {
     color: #94A3B8 !important;
