@@ -49,7 +49,7 @@ st.markdown("""
     }
 
     /* -----------------------------------------------------------
-       CRITICAL FIX: CAMERA TEXT (DARK GREY) vs UPLOADER TEXT (WHITE)
+       CRITICAL FIX: ISOLATED TARGETING
        ----------------------------------------------------------- */
 
     /* A. CAMERA INPUT TEXT -> Force to Dark Grey */
@@ -58,7 +58,7 @@ st.markdown("""
     [data-testid="stCameraInput"] span,
     [data-testid="stCameraInput"] a,
     [data-testid="stCameraInput"] div {
-        color: #334155 !important; /* Slate Dark Grey */
+        color: #334155 !important; 
         font-weight: 700 !important;
     }
     
@@ -67,21 +67,25 @@ st.markdown("""
         color: #38BDF8 !important;
     }
 
-    /* B. UPLOADER TEXT -> Force to White/Light */
-    /* Main instruction text */
+    /* B. UPLOADER INSTRUCTION TEXT -> Force to White/Light */
     div[data-testid="stFileUploader"] div[data-testid="stText"] {
         color: #E2E8F0 !important;
         font-weight: 800 !important;
     }
     
-    /* Helper Text ("Limit 200MB per file") -> Force to Pure White */
-    div[data-testid="stFileUploadDropzone"] small {
+    /* C. UPLOADER HELPER TEXT ("Limit 200MB") -> ABSOLUTE WHITE */
+    /* This rule is now isolated and bulletproof */
+    div[data-testid="stFileUploader"] small,
+    div[data-testid="stFileUploadDropzone"] small,
+    [data-testid="stFileUploadDropzone"] div small {
         color: #FFFFFF !important; 
         font-weight: 600 !important; 
         font-size: 13px !important;
+        opacity: 1 !important; /* Force it to not be transparent */
+        display: block !important;
     }
 
-    /* Uploaded File Name -> Force to Darker for contrast on the white card */
+    /* D. UPLOADED FILE NAME -> Force to Darker for contrast */
     div[data-testid="stFileUploader"] div.uploadedFileName, 
     div[data-testid="stFileUploader"] span[data-testid="stText"] {
         color: #0F172A !important; 
