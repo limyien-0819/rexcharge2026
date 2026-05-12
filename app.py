@@ -37,9 +37,9 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 2. FIX THE UPLOADER (No more white backgrounds hiding text) */
-    div[data-testid="stFileUploader"] > section,
-    [data-testid="stCameraInput"] > div {
+    /* 2. EXTREME UPLOADER & CAMERA FIX */
+    /* Target the container box */
+    div[data-testid="stFileUploader"] > section {
         background-color: #0F172A !important; /* Deep Navy Background */
         border: 1px solid #0EA5E9 !important; /* Neon Blue Border */
         border-radius: 16px !important;
@@ -47,15 +47,21 @@ st.markdown("""
         box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.1) !important;
     }
     
-    /* Force ALL text inside to be readable */
+    /* Force ALL text inside the uploader to be readable */
     div[data-testid="stFileUploader"] *,
-    [data-testid="stCameraInput"] * {
+    [data-testid="stCameraInput"] > div > div > div * { 
         color: #E2E8F0 !important;
         font-weight: 600 !important;
     }
     
+    /* --> THE FIX FOR CAMERA PERMISSION TEXT <-- */
+    [data-testid="stCameraInput"] p, 
+    [data-testid="stCameraInput"] div {
+        color: #475569 !important; /* Slate grey to be visible against white backgrounds */
+    }
+    
     /* Force the Cloud icon to be blue */
-    div[data-testid="stFileUploader"] section svg {
+    div[data-testid="stFileUploader"] svg {
         fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
     }
@@ -115,11 +121,12 @@ st.markdown("""
     .stButton > button[kind="primary"]:hover {
         background: linear-gradient(90deg, #38BDF8, #2563EB) !important;
         transform: scale(1.02) !important;
+        color: #FFFFFF !important;
     }
 
     /* 4. DASHBOARD PANELS (Replacing Expanders) */
     [data-testid="stExpander"] {
-        background: #09090B !important; /* Extremely dark grey */
+        background: #09090B !important; 
         border: 1px solid #27272A !important;
         border-radius: 20px !important;
         box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
@@ -130,13 +137,6 @@ st.markdown("""
         color: #0EA5E9 !important;
         letter-spacing: 1px !important;
         text-transform: uppercase !important;
-    }
-
-    /* 4b. FIX THE INNER CONTAINERS (The white boxes) */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background: rgba(15, 23, 42, 0.5) !important; /* Dark Slate, not white */
-        border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Subtle blue border */
-        border-radius: 12px !important;
     }
 
     /* 5. CUSTOM DASHBOARD TABS */
@@ -162,13 +162,14 @@ st.markdown("""
         font-size: 16px;
         font-weight: 800;
         color: #F8FAFC;
-        margin-top: 15px;
+        margin-top: 25px;
         margin-bottom: 5px;
     }
     .dash-sub {
-        font-size: 12px;
+        font-size: 13px;
         color: #94A3B8;
         margin-bottom: 15px;
+        font-weight: 400;
     }
     </style>
 """, unsafe_allow_html=True)
