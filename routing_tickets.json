@@ -40,5 +40,19 @@
     "troubleshooting_steps": "Turn off power immediately. Check inside for melted or discolored parts.",
     "action_required": "Technician: Replace damaged components; Rewire if necessary",
     "status": "Pending Review"
+  },
+  {
+    "ticket_id": "20260507000003",
+    "timestamp": "2026-05-07T19:49:16.497914",
+    "team_id": "P02",
+    "file_name": "burnt_mark_issue (4).jpg",
+    "brand": "",
+    "model": "Unknown",
+    "serial": "260100505",
+    "fault_label": "burnt_mark_issue",
+    "observation": "Burnt Mark Issue",
+    "troubleshooting_steps": "Turn off power immediately. Check inside for melted or discolored parts.",
+    "action_required": "Technician: Replace damaged components; Rewire if necessary",
+    "status": "Pending Review"
   }
 ]
