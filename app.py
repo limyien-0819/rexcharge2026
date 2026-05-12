@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- THE "TESLA DASHBOARD" CSS NUKE ---
+# --- THE DASHBOARD
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
@@ -53,27 +53,27 @@ st.markdown("""
         font-weight: 800 !important;
     }
     
-    /* --> FIX 1: Make the 200MB Helper Text Highly Faded & Subtle <-- */
+    /* --> THE FIX: Make the 200MB Helper Text Lighter and Readable <-- */
     div[data-testid="stFileUploadDropzone"] small {
-        color: rgba(255, 255, 255, 0.4) !important; /* Faded translucent white */
-        font-weight: 400 !important; 
-        font-size: 12px !important;
+        color: #94A3B8 !important; /* Muted Slate Grey, much brighter than 0.4 opacity */
+        font-weight: 500 !important; 
+        font-size: 13px !important;
     }
 
-    /* --> FIX 2: Force Camera Permission Text to be Darker <-- */
+    /* Force Camera Permission Text to be Darker */
     [data-testid="stCameraInput"] p, 
     [data-testid="stCameraInput"] div[data-testid="stText"],
     [data-testid="stCameraInput"] span,
     [data-testid="stCameraInput"] a {
-        color: #000000 !important; /* Absolute Black for readability on white prompt */
+        color: #000000 !important; 
         font-weight: 800 !important;
     }
 
-    /* --> FIX 3: Force Uploaded File Name to be Darker <-- */
+    /* Force Uploaded File Name to be Darker */
     div[data-testid="stFileUploader"] div.uploadedFileName, 
     div[data-testid="stFileUploader"] div[data-testid="stText"] span,
     div[data-testid="stFileUploader"] span[data-testid="stText"] {
-        color: #000000 !important; /* Absolute Black for the white file card */
+        color: #000000 !important; 
         font-weight: 800 !important;
     }
     
