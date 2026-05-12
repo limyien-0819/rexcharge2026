@@ -38,7 +38,7 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 2. BASE BOX STYLING */
+    /* 2. BASE BOX STYLING (NAVY PANELS) */
     div[data-testid="stFileUploader"] > section,
     [data-testid="stCameraInput"] > div {
         background-color: #0F172A !important; 
@@ -51,42 +51,48 @@ st.markdown("""
        FORCE TEXT COLORS (THE ULTIMATE OVERRIDE)
        ----------------------------------------------------------- */
 
-    /* A. FILE UPLOADER HELPER TEXT -> FORCE PURE WHITE */
-    /* This targets the '200MB per file' wording specifically */
-    [data-testid="stFileUploadDropzone"] small, 
-    [data-testid="stFileUploader"] section div div small {
+    /* A. FILE UPLOADER HELPER TEXT -> FORCE PURE BRIGHT WHITE */
+    /* Targets "200MB per file • JPG, PNG" specifically */
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploadDropzone"] small,
+    [data-testid="stFileUploader"] div[data-testid="stCaptionContainer"] {
         color: #FFFFFF !important; 
-        fill: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
         opacity: 1 !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        visibility: visible !important;
-    }
-
-    /* B. CAMERA PERMISSION TEXT -> FORCE DARK GREY */
-    /* Targets the 'This app would like to use your camera' wording */
-    [data-testid="stCameraInput"] div div div div p,
-    [data-testid="stCameraInput"] div div div div span {
-        color: #475569 !important; /* Elegant Slate Dark Grey */
         font-weight: 700 !important;
+        font-size: 14px !important;
+        display: block !important;
+    }
+
+    /* B. CAMERA PERMISSION TEXT -> FORCE SOLID DARK GREY */
+    /* Targets "This app would like to use your camera" */
+    [data-testid="stCameraInput"] div div div p,
+    [data-testid="stCameraInput"] div div div span,
+    [data-testid="stCameraInput"] label {
+        color: #475569 !important; /* Slate Dark Grey */
+        -webkit-text-fill-color: #475569 !important;
+        font-weight: 800 !important;
         opacity: 1 !important;
     }
 
-    /* C. UPLOADED FILE CARD -> FORCE BLACK TEXT ON WHITE CARD */
-    /* When a file is uploaded, Streamlit makes a white card. We need black text there. */
-    [data-testid="stFileUploader"] section[role="button"] + div * {
+    /* C. UPLOADED FILE NAME -> FORCE BLACK ON WHITE CARD */
+    /* When a file is uploaded, a white card appears. This forces the text on that card to be black. */
+    [data-testid="stFileUploader"] div[data-testid="stText"] span,
+    [data-testid="stFileUploader"] .uploadedFileName {
         color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        font-weight: 800 !important;
     }
 
-    /* D. MAIN INSTRUCTIONS (Drag and drop...) -> LIGHT BLUE */
+    /* D. MAIN INSTRUCTION ("Drag and drop file here") -> NEON BLUE */
     [data-testid="stFileUploadDropzone"] div[data-testid="stText"] {
-        color: #E2E8F0 !important;
+        color: #38BDF8 !important;
         font-weight: 800 !important;
     }
 
     /* ----------------------------------------------------------- */
 
-    /* Force Icon Visibility */
+    /* Force Cloud Icon to stay Neon Blue */
     div[data-testid="stFileUploader"] svg {
         fill: #0EA5E9 !important; 
         color: #0EA5E9 !important;
@@ -111,6 +117,7 @@ st.markdown("""
         font-weight: 800 !important;
         text-transform: uppercase !important;
         width: 100% !important;
+        transition: all 0.2s ease !important;
     }
     
     .stButton > button[kind="primary"] {
@@ -119,12 +126,19 @@ st.markdown("""
         border: none !important;
     }
 
+    /* Fix the inner container boxes (Device Info / Action Plan) */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(14, 165, 233, 0.3) !important;
+        border-radius: 12px !important;
+    }
+
     /* Tab Styling */
     .stTabs [data-baseweb="tab-list"] { background-color: transparent !important; }
     .stTabs [aria-selected="true"] { color: #F8FAFC !important; border-bottom: 3px solid #0EA5E9 !important; }
 
     /* Custom Headers */
-    .dash-header { font-size: 16px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
+    .dash-header { font-size: 18px; font-weight: 800; color: #F8FAFC; margin-top: 25px; }
     .dash-sub { font-size: 13px; color: #94A3B8; margin-bottom: 15px; }
     </style>
 """, unsafe_allow_html=True)
