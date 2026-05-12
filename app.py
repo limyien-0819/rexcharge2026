@@ -61,24 +61,21 @@ div[data-testid="stFileUploader"] > section,
    DISABLE BIG RECTANGLE CLICK
 ============================== */
 
-/* Entire upload area */
+/* Entire upload area NOT clickable */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
     cursor: default !important;
 }
 
-/* Only Upload button clickable */
+/* ONLY upload button clickable */
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
     cursor: pointer !important;
 }
 
-/* Prevent hidden input covering entire box */
+/* Prevent hidden file input covering rectangle */
 [data-testid="stFileUploadDropzone"] input[type="file"] {
-    width: 0px !important;
-    height: 0px !important;
-    opacity: 0 !important;
-    position: absolute !important;
+    display: none !important;
     pointer-events: none !important;
 }
 
@@ -121,7 +118,9 @@ div[data-testid="stFileUploader"] > section,
    UPLOAD BUTTON TEXT
 ============================== */
 [data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button * {
+[data-testid="stFileUploadDropzone"] button span,
+[data-testid="stFileUploadDropzone"] button p,
+[data-testid="stFileUploadDropzone"] button div {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
@@ -131,16 +130,22 @@ div[data-testid="stFileUploader"] > section,
    FORCE ICON LIGHT BLUE
 ============================== */
 
-/* SVG itself */
+/* SVG container */
 [data-testid="stFileUploadDropzone"] button svg {
     color: #38BDF8 !important;
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
 }
 
-/* All SVG inner parts */
+/* ALL SVG PARTS */
 [data-testid="stFileUploadDropzone"] button svg * {
     color: #38BDF8 !important;
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+}
+
+/* Upload arrow specifically */
+[data-testid="stFileUploadDropzone"] path {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
 }
