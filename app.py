@@ -115,9 +115,8 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON TEXT & ICON (LIGHT BLUE FIX)
+   UPLOAD BUTTON TEXT
 ============================== */
-/* This targets the "Browse files" button text and icon inside the uploader */
 [data-testid="stFileUploadDropzone"] button,
 [data-testid="stFileUploadDropzone"] button span,
 [data-testid="stFileUploadDropzone"] button p,
@@ -127,11 +126,28 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* Force the SVG Icon (Cloud/Arrow) to Light Blue */
-[data-testid="stFileUploadDropzone"] svg, 
+/* ==============================
+   FORCE UPLOAD ICON LIGHT BLUE
+============================== */
+
+/* SVG container */
+[data-testid="stFileUploadDropzone"] button svg {
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+    color: #38BDF8 !important;
+}
+
+/* ALL SVG ELEMENTS */
+[data-testid="stFileUploadDropzone"] button svg * {
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+    color: #38BDF8 !important;
+}
+
+/* Path fix */
 [data-testid="stFileUploadDropzone"] path {
     fill: #38BDF8 !important;
-    color: #38BDF8 !important;
+    stroke: #38BDF8 !important;
 }
 
 /* ==============================
