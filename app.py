@@ -311,10 +311,11 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
 # --- 6. MAIN SYSTEM INTERFACE ---
 # We assign the class "gradient-title" to the h1 so our CSS can target it
+# We also ensure the subtitle is explicitly white here.
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 class="gradient-title">⚡ RExharge</h1>
-        <p style="color: #38BDF8; -webkit-text-fill-color: #38BDF8 !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
+        <p style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
