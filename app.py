@@ -60,14 +60,9 @@ html, body, .stApp {
 }
 
 /* ==============================
-   TITLE
+   TITLE (REMOVED SOLID COLOR HERE)
 ============================== */
-
-h1 {
-    color: #7DD3FC !important;
-    font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(56,189,248,0.55);
-}
+/* We remove the solid color rule because we will apply the gradient inline below */
 
 /* ==============================
    BASE BOXES
@@ -305,9 +300,10 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# THE GRADIENT LIGHT BLUE FIX
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0EA5E9, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 10px rgba(14, 165, 233, 0.3);">⚡ RExharge</h1>
+        <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4);">⚡ RExharge</h1>
         <p style="color: #38BDF8; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
@@ -367,11 +363,11 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 

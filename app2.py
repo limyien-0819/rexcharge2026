@@ -26,8 +26,30 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
+   DASHBOARD INSTRUCTIONS (WHITE ONLY)
+============================== */
+
+.stMarkdown,
+.stMarkdown * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.stMarkdown strong,
+.stMarkdown em {
+    color: #FFFFFF !important;
+}
+
+/* ==============================
    GLOBAL RESET
 ============================== */
+
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
@@ -40,6 +62,7 @@ html, body, .stApp {
 /* ==============================
    TITLE
 ============================== */
+
 h1 {
     color: #7DD3FC !important;
     font-weight: 800 !important;
@@ -49,6 +72,7 @@ h1 {
 /* ==============================
    BASE BOXES
 ============================== */
+
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
     background-color: #0F172A !important;
@@ -58,55 +82,9 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   DISABLE BIG RECTANGLE CLICK
+   CAMERA BUTTON
 ============================== */
 
-/* Entire upload area NOT clickable */
-[data-testid="stFileUploadDropzone"] {
-    pointer-events: none !important;
-    cursor: default !important;
-}
-
-/* ONLY upload button clickable */
-[data-testid="stFileUploadDropzone"] button {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-
-/* Prevent hidden file input covering rectangle */
-[data-testid="stFileUploadDropzone"] input[type="file"] {
-    display: none !important;
-    pointer-events: none !important;
-}
-
-/* ==============================
-   TABS
-============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;
-    font-weight: 700 !important;
-}
-
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 800 !important;
-}
-
-/* ==============================
-   CAMERA MESSAGE
-============================== */
-[data-testid="stCameraInput"] small,
-[data-testid="stCameraInput"] span,
-[data-testid="stCameraInput"] label,
-[data-testid="stCameraInput"] div {
-    color: #475569 !important;
-    -webkit-text-fill-color: #475569 !important;
-    opacity: 1 !important;
-}
-
-/* ==============================
-   TAKE PHOTO BUTTON
-============================== */
 [data-testid="stCameraInput"] button,
 [data-testid="stCameraInput"] button * {
     color: #38BDF8 !important;
@@ -115,60 +93,72 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOAD BUTTON TEXT
+   UPLOAD ICON
 ============================== */
+
+[data-testid="stFileUploader"] svg,
+[data-testid="stFileUploader"] svg * {
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+    color: #38BDF8 !important;
+}
+
+/* ==============================
+   UPLOAD BUTTON + TEXT
+============================== */
+
 [data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button span,
-[data-testid="stFileUploadDropzone"] button p,
-[data-testid="stFileUploadDropzone"] button div {
+[data-testid="stFileUploadDropzone"] button * {
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    font-weight: 700 !important;
+}
+
+/* Upload label */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
     -webkit-text-fill-color: #38BDF8 !important;
     font-weight: 700 !important;
 }
 
 /* ==============================
-   FORCE ICON LIGHT BLUE
+   FILE INFO TEXT (WHITE)
 ============================== */
 
-/* SVG container */
-[data-testid="stFileUploadDropzone"] button svg {
-    color: #38BDF8 !important;
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-}
-
-/* ALL SVG PARTS */
-[data-testid="stFileUploadDropzone"] button svg * {
-    color: #38BDF8 !important;
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-}
-
-/* Upload arrow specifically */
-[data-testid="stFileUploadDropzone"] path {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] p {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-weight: 400 !important;
 }
 
 /* ==============================
-   UPLOAD INFO TEXT
+   UPLOADED FILE NAME
 ============================== */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span {
-    color: #94A3B8 !important;
-    -webkit-text-fill-color: #94A3B8 !important;
-}
 
-/* Uploaded filename */
-[data-testid="stFileUploader"] [data-testid="stText"] span,
 [data-testid="stFileUploader"] .uploadedFileName {
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
 }
 
 /* ==============================
-   BUTTONS INSIDE BOXES
+   DISABLE DROPZONE CLICK
 ============================== */
+
+[data-testid="stFileUploadDropzone"] {
+    pointer-events: none !important;
+}
+
+[data-testid="stFileUploadDropzone"] button {
+    pointer-events: auto !important;
+}
+
+/* ==============================
+   BUTTON STYLING INSIDE BOXES
+============================== */
+
 [data-testid="stFileUploader"] button,
 [data-testid="stCameraInput"] button {
     background-color: #1E293B !important;
@@ -177,8 +167,9 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   MAIN START BUTTONS
+   MAIN BUTTONS
 ============================== */
+
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -196,46 +187,13 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   INNER CARDS
+   CARDS
 ============================== */
+
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
     border-radius: 12px !important;
-}
-
-/* ==============================
-   CUSTOM TEXT
-============================== */
-.dash-header {
-    font-size: 18px;
-    font-weight: 800;
-    color: #F8FAFC;
-    margin-top: 25px;
-}
-
-.dash-sub {
-    font-size: 13px;
-    color: #94A3B8;
-    margin-bottom: 15px;
-}
-
-/* ==============================
-   DATA LABELS
-============================== */
-.data-label {
-    color: #64748B;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-    margin-top: 12px;
-}
-
-.data-value {
-    color: #F8FAFC;
-    font-size: 15px;
-    font-weight: 600;
 }
 
 </style>
@@ -409,11 +367,11 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
