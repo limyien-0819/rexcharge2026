@@ -26,17 +26,32 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
+   TITLE GRADIENT FIX
+============================== */
+/* We target the specific h1 class we created so it ignores the white override */
+h1.gradient-title {
+    background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
+    font-size: 3.5rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0px !important;
+}
+
+/* ==============================
    DASHBOARD INSTRUCTIONS (WHITE ONLY)
 ============================== */
 
-.stMarkdown,
-.stMarkdown * {
+/* Apply white text to markdown elements, BUT explicitly exclude our h1 gradient title */
+.stMarkdown:not(:has(h1.gradient-title)),
+.stMarkdown:not(:has(h1.gradient-title)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
-[data-testid="stMarkdownContainer"],
-[data-testid="stMarkdownContainer"] * {
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)),
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
@@ -58,11 +73,6 @@ html, body, .stApp {
 #MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
 }
-
-/* ==============================
-   TITLE (REMOVED SOLID COLOR HERE)
-============================== */
-/* We remove the solid color rule because we will apply the gradient inline below */
 
 /* ==============================
    BASE BOXES
@@ -300,11 +310,11 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# THE GRADIENT LIGHT BLUE FIX
+# We assign the class "gradient-title" to the h1 so our CSS can target it
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4);">⚡ RExharge</h1>
-        <p style="color: #38BDF8; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
+        <h1 class="gradient-title">⚡ RExharge</h1>
+        <p style="color: #38BDF8; -webkit-text-fill-color: #38BDF8 !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
