@@ -310,8 +310,7 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# We assign the class "gradient-title" to the h1 so our CSS can target it
-# We also ensure the subtitle is explicitly white here.
+# THE FIX: Explicitly forcing the subtitle paragraph to be white with inline !important overrides
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 class="gradient-title">⚡ RExharge</h1>
