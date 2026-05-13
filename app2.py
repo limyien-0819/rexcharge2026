@@ -26,17 +26,32 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
 
 /* ==============================
+   TITLE GRADIENT FIX
+============================== */
+/* We target the specific h1 class we created so it ignores the white override */
+h1.gradient-title {
+    background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
+    font-size: 3.5rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 0px !important;
+}
+
+/* ==============================
    DASHBOARD INSTRUCTIONS (WHITE ONLY)
 ============================== */
 
-.stMarkdown,
-.stMarkdown * {
+/* Apply white text to markdown elements, BUT explicitly exclude our h1 gradient title */
+.stMarkdown:not(:has(h1.gradient-title)),
+.stMarkdown:not(:has(h1.gradient-title)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
-[data-testid="stMarkdownContainer"],
-[data-testid="stMarkdownContainer"] * {
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)),
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
@@ -57,16 +72,6 @@ html, body, .stApp {
 
 #MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
-}
-
-/* ==============================
-   TITLE
-============================== */
-
-h1 {
-    color: #7DD3FC !important;
-    font-weight: 800 !important;
-    text-shadow: 0 0 18px rgba(56,189,248,0.55);
 }
 
 /* ==============================
@@ -305,10 +310,11 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# THE FIX: Explicitly forcing the subtitle paragraph to be white with inline !important overrides
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 3.5rem; margin-bottom: 0px; background: -webkit-linear-gradient(45deg, #0EA5E9, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0px 0px 10px rgba(14, 165, 233, 0.3);">⚡ RExharge</h1>
-        <p style="color: #38BDF8; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
+        <h1 class="gradient-title">⚡ RExharge</h1>
+        <p style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -367,11 +373,11 @@ with tab1:
                     for p in preds:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
