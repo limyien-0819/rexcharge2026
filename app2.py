@@ -174,17 +174,14 @@ img {
 /* ==============================
    MULTISELECT FILTER TAGS (GREY)
 ============================== */
-/* Target the selected tags in the multiselect boxes */
 span[data-baseweb="tag"] {
-    background-color: #334155 !important; /* Slate grey background */
-    color: #F8FAFC !important; /* White text */
+    background-color: #334155 !important; 
+    color: #F8FAFC !important; 
 }
 
-/* Optional: Make the close icon on the tag visible */
 span[data-baseweb="tag"] svg {
     fill: #94A3B8 !important;
 }
-
 
 /* ==============================
    MAIN BUTTONS & CARDS
@@ -215,7 +212,6 @@ span[data-baseweb="tag"] svg {
     transform: scale(0.98) !important; 
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
-
 
 /* PREMIUM "ATAS" PRIMARY BUTTON STYLING (Start Diagnostic) */
 .stButton > button[kind="primary"] {
@@ -570,15 +566,23 @@ with tab2:
     if not all_tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        # --- SIMPLIFIED TOP METRIC ---
-        st.markdown("""
-            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px;">
-                <span style="font-size: 32px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
-                <span style="font-size: 12px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
-            </div>
-        """.format(total=len(all_tickets)), unsafe_allow_html=True)
+        # --- NEW DASHBOARD METRIC: TOTAL & IN PROGRESS ---
+        in_progress_count = len([t for t in all_tickets if t.get('status') == "In Progress"])
         
-        # --- FILTERING SYSTEM (Defaults to Empty / Show All) ---
+        st.markdown("""
+            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
+                <div>
+                    <span style="font-size: 24px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
+                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
+                </div>
+                <div>
+                    <span style="font-size: 24px; font-weight: 800; color: #0EA5E9;">{in_prog}</span><br>
+                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">IN PROGRESS</span>
+                </div>
+            </div>
+        """.format(total=len(all_tickets), in_prog=in_progress_count), unsafe_allow_html=True)
+        
+        # --- FILTERING SYSTEM ---
         st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
         available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in all_tickets if 'timestamp' in t])), reverse=True)
@@ -586,25 +590,20 @@ with tab2:
         
         fc1, fc2 = st.columns(2)
         with fc1:
-            # Empty default. If empty, show all dates.
             selected_dates = st.multiselect("Date", available_dates, default=[], label_visibility="collapsed", placeholder="Select Date(s)...")
         with fc2:
-            # Empty default. If empty, show all departments.
             selected_teams = st.multiselect("Department", available_teams, default=[], label_visibility="collapsed", placeholder="Select Department(s)...")
             
         st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
-        # --- Apply the filters (Show all if list is empty) ---
         filtered_tickets = []
         for t in all_tickets:
-            # Check Date
             try:
                 ticket_date = datetime.fromisoformat(t['timestamp']).date()
                 date_match = (len(selected_dates) == 0) or (ticket_date in selected_dates)
             except:
                 date_match = True 
                 
-            # Check Team
             ticket_team_string = f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}"
             team_match = (len(selected_teams) == 0) or (ticket_team_string in selected_teams)
             

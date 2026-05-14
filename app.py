@@ -426,7 +426,7 @@ with tab1:
         
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
-                with st.spinner("Processing Telemetry..."):
+                with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
                     buffered_l = io.BytesIO()
@@ -511,8 +511,9 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
+        # --- CHANGED: Header to DEVICE DETAILS and SN to Serial Number ---
         with st.container(border=True):
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE TELEMETRY</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>SN: {res['serial']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
@@ -537,7 +538,7 @@ with tab1:
                 ticket = res['routed_tickets'][index] if index < len(res['routed_tickets']) else None
                 ticket_id = ticket['ticket_id'] if ticket else "PENDING"
                 
-                with st.expander(f"🚨 ESCALATED PROTOCOL"):
+                with st.expander(f"🚨 ESCALATED TICKETS"):
                     st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
                     
@@ -566,7 +567,6 @@ with tab2:
     if not all_tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        # --- NEW DASHBOARD METRIC: TOTAL & IN PROGRESS ---
         in_progress_count = len([t for t in all_tickets if t.get('status') == "In Progress"])
         
         st.markdown("""
@@ -582,7 +582,6 @@ with tab2:
             </div>
         """.format(total=len(all_tickets), in_prog=in_progress_count), unsafe_allow_html=True)
         
-        # --- FILTERING SYSTEM ---
         st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
         available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in all_tickets if 'timestamp' in t])), reverse=True)
