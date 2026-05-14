@@ -21,166 +21,192 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- THE "TESLA DASHBOARD" CSS NUKE ---
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
 
-/* ==============================
-   TITLE GRADIENT FIX
-============================== */
-h1.gradient-title {
-    background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
-    font-size: 3.5rem !important;
-    font-weight: 800 !important;
-    margin-bottom: 0px !important;
-}
+    /* ==============================
+       TITLE GRADIENT FIX
+    ============================== */
+    h1.gradient-title {
+        background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 0px !important;
+    }
 
-/* ==============================
-   DASHBOARD INSTRUCTIONS (WHITE ONLY)
-============================== */
-.stMarkdown:not(:has(h1.gradient-title)),
-.stMarkdown:not(:has(h1.gradient-title)) * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-}
+    /* ==============================
+       DASHBOARD INSTRUCTIONS (WHITE ONLY)
+    ============================== */
+    .stMarkdown:not(:has(h1.gradient-title)),
+    .stMarkdown:not(:has(h1.gradient-title)) * {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
 
-[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)),
-[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)) * {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-}
+    [data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)),
+    [data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)) * {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
 
-/* ==============================
-   GLOBAL RESET
-============================== */
-html, body, .stApp {
-    font-family: 'Inter', sans-serif !important;
-    background-color: #000000 !important;
-}
+    /* ==============================
+       GLOBAL RESET
+    ============================== */
+    html, body, .stApp {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #000000 !important;
+    }
 
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
-}
+    #MainMenu, footer, header, [data-testid="stSidebar"] {
+        display: none !important;
+    }
 
-/* ==============================
-   BASE BOXES
-============================== */
-div[data-testid="stFileUploader"] > section,
-[data-testid="stCameraInput"] > div {
-    background-color: #0F172A !important;
-    border: 1px solid #0EA5E9 !important;
-    border-radius: 16px !important;
-    padding: 24px !important;
-}
+    /* ==============================
+       BASE BOXES (NAVY)
+    ============================== */
+    div[data-testid="stFileUploader"] > section,
+    [data-testid="stCameraInput"] > div {
+        background-color: #0F172A !important;
+        border: 1px solid #0EA5E9 !important;
+        border-radius: 16px !important;
+        padding: 24px !important;
+    }
 
-/* ==============================
-   UPLOAD & CAMERA BUTTONS
-============================== */
-[data-testid="stCameraInput"] button,
-[data-testid="stCameraInput"] button *,
-[data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button *,
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
+    /* ==============================
+       UPLOAD & CAMERA BUTTONS
+    ============================== */
+    [data-testid="stCameraInput"] button,
+    [data-testid="stCameraInput"] button *,
+    [data-testid="stFileUploadDropzone"] button,
+    [data-testid="stFileUploadDropzone"] button *,
+    [data-testid="stFileUploader"] label,
+    [data-testid="stFileUploader"] label * {
+        color: #38BDF8 !important;
+        -webkit-text-fill-color: #38BDF8 !important;
+        font-weight: 700 !important;
+    }
 
-[data-testid="stFileUploader"] svg,
-[data-testid="stFileUploader"] svg * {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-    color: #38BDF8 !important;
-}
+    /* ==============================
+       PRECISION ICON TARGETING
+    ============================== */
+    /* Target ONLY the Cloud Upload Icon to be Blue */
+    [data-testid="stFileUploadDropzone"] > section > svg,
+    [data-testid="stFileUploadDropzone"] > section > svg * {
+        fill: #38BDF8 !important;
+        stroke: #38BDF8 !important;
+        color: #38BDF8 !important;
+    }
 
-/* ==============================
-   FILE INFO TEXT
-============================== */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] span,
-[data-testid="stFileUploader"] p {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    font-weight: 400 !important;
-}
+    /* ==============================
+       UPLOADED FILE CARD (WHITE BOX FIX)
+    ============================== */
+    /* 1. Force the file card background to be pure white */
+    [data-testid="stFileUploader"] section[role="button"] + div {
+        background-color: #FFFFFF !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+    }
 
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
+    /* 2. Force the text inside the white card to be black */
+    [data-testid="stFileUploader"] section[role="button"] + div *,
+    [data-testid="stFileUploader"] .uploadedFileName {
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        font-weight: 700 !important;
+    }
 
-/* ==============================
-   DISABLE DROPZONE CLICK
-============================== */
-[data-testid="stFileUploadDropzone"] {
-    pointer-events: none !important;
-}
+    /* 3. Force the "Delete Cross" button inside the card to be Neutral/Grey */
+    [data-testid="stFileUploader"] section[role="button"] + div button svg,
+    [data-testid="stFileUploader"] section[role="button"] + div button svg * {
+        fill: #475569 !important; /* Slate Grey */
+        stroke: #475569 !important;
+        color: #475569 !important;
+    }
 
-[data-testid="stFileUploadDropzone"] button {
-    pointer-events: auto !important;
-}
+    /* ==============================
+       FILE INFO TEXT (Outside the card)
+    ============================== */
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] p {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 400 !important;
+    }
 
-/* ==============================
-   MAIN BUTTONS & CARDS
-============================== */
-.stButton > button {
-    background: #0B1120 !important;
-    border: 1px solid #1E293B !important;
-    color: #38BDF8 !important;
-    border-radius: 16px !important;
-    height: 70px !important;
-    font-weight: 800 !important;
-    text-transform: uppercase !important;
-    width: 100% !important;
-}
+    /* ==============================
+       DISABLE DROPZONE CLICK
+    ============================== */
+    [data-testid="stFileUploadDropzone"] {
+        pointer-events: none !important;
+    }
 
-.stButton > button[kind="primary"] {
-    background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
-    color: #FFFFFF !important;
-}
+    [data-testid="stFileUploadDropzone"] button {
+        pointer-events: auto !important;
+    }
 
-[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(15, 23, 42, 0.6) !important;
-    border: 1px solid rgba(14, 165, 233, 0.3) !important;
-    border-radius: 12px !important;
-}
+    /* ==============================
+       MAIN BUTTONS & CARDS
+    ============================== */
+    .stButton > button {
+        background: #0B1120 !important;
+        border: 1px solid #1E293B !important;
+        color: #38BDF8 !important;
+        border-radius: 16px !important;
+        height: 70px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        width: 100% !important;
+    }
 
-/* ==============================
-   SECTION HEADERS (BOLD & LARGER)
-============================== */
-.dash-header {
-    font-size: 22px !important; /* Slightly larger */
-    font-weight: 900 !important; /* Extra bold */
-    color: #F8FAFC !important;
-    margin-top: 30px !important;
-    margin-bottom: 5px !important;
-    letter-spacing: -0.5px;
-}
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
+        color: #FFFFFF !important;
+    }
 
-.dash-sub {
-    font-size: 14px !important;
-    color: #94A3B8 !important;
-    margin-bottom: 20px !important;
-}
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(14, 165, 233, 0.3) !important;
+        border-radius: 12px !important;
+    }
 
-/* ==============================
-   TABS STYLING
-============================== */
-.stTabs [data-baseweb="tab"] p {
-    color: #94A3B8 !important;
-    font-weight: 500 !important;
-}
+    /* ==============================
+       SECTION HEADERS
+    ============================== */
+    .dash-header {
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        color: #F8FAFC !important;
+        margin-top: 30px !important;
+        margin-bottom: 5px !important;
+        letter-spacing: -0.5px;
+    }
 
-.stTabs [aria-selected="true"] p {
-    color: #F8FAFC !important;
-    font-weight: 900 !important;
-}
+    .dash-sub {
+        font-size: 14px !important;
+        color: #94A3B8 !important;
+        margin-bottom: 20px !important;
+    }
 
-</style>
+    /* ==============================
+       TABS STYLING
+    ============================== */
+    .stTabs [data-baseweb="tab"] p {
+        color: #94A3B8 !important;
+        font-weight: 500 !important;
+    }
+
+    .stTabs [aria-selected="true"] p {
+        color: #F8FAFC !important;
+        font-weight: 900 !important;
+    }
+
+    </style>
 """, unsafe_allow_html=True)
 
 # --- 2. CORE UTILITIES & OCR ---
