@@ -10,7 +10,7 @@ import re
 import csv
 import json
 import tempfile
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
@@ -170,6 +170,21 @@ img {
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
 }
+
+/* ==============================
+   MULTISELECT FILTER TAGS (GREY)
+============================== */
+/* Target the selected tags in the multiselect boxes */
+span[data-baseweb="tag"] {
+    background-color: #334155 !important; /* Slate grey background */
+    color: #F8FAFC !important; /* White text */
+}
+
+/* Optional: Make the close icon on the tag visible */
+span[data-baseweb="tag"] svg {
+    fill: #94A3B8 !important;
+}
+
 
 /* ==============================
    MAIN BUTTONS & CARDS
@@ -550,35 +565,70 @@ with tab1:
 
 # --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
-    tickets = load_tickets()
+    all_tickets = load_tickets()
     
-    if not tickets:
+    if not all_tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
+        # --- SIMPLIFIED TOP METRIC ---
         st.markdown("""
-            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
-                <div>
-                    <span style="font-size: 24px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
-                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
-                </div>
-                <div>
-                    <span style="font-size: 24px; font-weight: 800; color: #EF4444;">{crit}</span><br>
-                    <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">CRITICAL</span>
-                </div>
+            <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 32px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
+                <span style="font-size: 12px; color: #64748B; letter-spacing: 2px;">TOTAL TICKETS</span>
             </div>
-        """.format(total=len(tickets), crit=len([t for t in tickets if t['status'] == "Pending Review"])), unsafe_allow_html=True)
+        """.format(total=len(all_tickets)), unsafe_allow_html=True)
         
-        filtered = tickets
+        # --- FILTERING SYSTEM (Defaults to Empty / Show All) ---
+        st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
-        st.markdown('<div class="dash-header">ACTIVE TICKETS</div>', unsafe_allow_html=True)
+        available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in all_tickets if 'timestamp' in t])), reverse=True)
+        available_teams = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in all_tickets])))
         
-        for idx, ticket in enumerate(filtered):
+        fc1, fc2 = st.columns(2)
+        with fc1:
+            # Empty default. If empty, show all dates.
+            selected_dates = st.multiselect("Date", available_dates, default=[], label_visibility="collapsed", placeholder="Select Date(s)...")
+        with fc2:
+            # Empty default. If empty, show all departments.
+            selected_teams = st.multiselect("Department", available_teams, default=[], label_visibility="collapsed", placeholder="Select Department(s)...")
+            
+        st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+
+        # --- Apply the filters (Show all if list is empty) ---
+        filtered_tickets = []
+        for t in all_tickets:
+            # Check Date
+            try:
+                ticket_date = datetime.fromisoformat(t['timestamp']).date()
+                date_match = (len(selected_dates) == 0) or (ticket_date in selected_dates)
+            except:
+                date_match = True 
+                
+            # Check Team
+            ticket_team_string = f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}"
+            team_match = (len(selected_teams) == 0) or (ticket_team_string in selected_teams)
+            
+            if date_match and team_match:
+                filtered_tickets.append(t)
+        
+        st.markdown('<div class="dash-header" style="margin-top: 0px !important;">ACTIVE TICKETS</div>', unsafe_allow_html=True)
+        
+        if not filtered_tickets:
+            st.markdown("<p style='text-align:center; color:#94A3B8; margin-top:20px;'>No tickets match the selected filters.</p>", unsafe_allow_html=True)
+            
+        for idx, ticket in enumerate(filtered_tickets):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
             team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
+                
+                if 'timestamp' in ticket:
+                    try:
+                        formatted_time = datetime.fromisoformat(ticket['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+                        st.markdown(f'<p class="data-value" style="color: #64748B; font-size: 11px;">Logged: {formatted_time}</p>', unsafe_allow_html=True)
+                    except: pass
                 
                 st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
                 st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} (SN: {ticket["serial"]})</p>', unsafe_allow_html=True)
@@ -599,19 +649,19 @@ with tab2:
                 
                 with c1:
                     if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
-                        all_t = load_tickets()
-                        for item in all_t:
+                        current_t = load_tickets()
+                        for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
-                        save_tickets(all_t); st.rerun()
+                        save_tickets(current_t); st.rerun()
                 
                 with c2:
                     if st.button("RESOLVED", key=f"r_{tid}_{idx}", use_container_width=True):
-                        all_t = load_tickets()
-                        for item in all_t:
+                        current_t = load_tickets()
+                        for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
-                        save_tickets(all_t); st.rerun()
+                        save_tickets(current_t); st.rerun()
                 
                 with c3:
                     if st.button("DELETE", key=f"d_{tid}_{idx}", use_container_width=True):
-                        all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
-                        save_tickets(all_t); st.rerun()
+                        current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
+                        save_tickets(current_t); st.rerun()
