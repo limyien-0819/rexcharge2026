@@ -10,7 +10,6 @@ import re
 import csv
 import json
 import tempfile
-# --- FIX: Imported timezone and timedelta to handle Malaysia Time ---
 from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
@@ -375,7 +374,6 @@ def normalize_label(raw_label):
     return normalized.strip('_')
 
 def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info):
-    # --- FIX: Set specific timezone to Malaysia (UTC+8) ---
     my_timezone = timezone(timedelta(hours=8))
     current_time = datetime.now(my_timezone)
     
@@ -387,7 +385,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
     
     return {
         "ticket_id": ticket_id,
-        "timestamp": current_time.isoformat(), # Uses the timezone-aware Malaysia time
+        "timestamp": current_time.isoformat(), 
         "team_id": route_info['id'],
         "file_name": file_name,
         "brand": brand,
@@ -434,7 +432,8 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS"])
+# --- ADDED THIRD TAB FOR HISTORY ---
+tab1, tab2, tab3 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS", "TICKET HISTORY"])
 
 with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
@@ -609,14 +608,17 @@ with tab1:
                     st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("act", "")}</p>', unsafe_allow_html=True)
 
-# --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
+# --- 7. TAB 2: ACTIVE SERVICE TICKETS ---
 with tab2:
     all_tickets = load_tickets()
     
-    if not all_tickets:
+    # FILTER TO SHOW ONLY ACTIVE TICKETS IN TAB 2
+    active_tickets = [t for t in all_tickets if t.get('status') in ["Pending Review", "In Progress"]]
+    
+    if not active_tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        in_progress_count = len([t for t in all_tickets if t.get('status') == "In Progress"])
+        in_progress_count = len([t for t in active_tickets if t.get('status') == "In Progress"])
         
         st.markdown("""
             <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px;">
@@ -629,12 +631,12 @@ with tab2:
                     <span style="font-size: 10px; color: #64748B; letter-spacing: 2px;">IN PROGRESS</span>
                 </div>
             </div>
-        """.format(total=len(all_tickets), in_prog=in_progress_count), unsafe_allow_html=True)
+        """.format(total=len(active_tickets), in_prog=in_progress_count), unsafe_allow_html=True)
         
         st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
-        available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in all_tickets if 'timestamp' in t])), reverse=True)
-        available_teams = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in all_tickets])))
+        available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in active_tickets if 'timestamp' in t])), reverse=True)
+        available_teams = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in active_tickets])))
         
         fc1, fc2 = st.columns(2)
         with fc1:
@@ -645,7 +647,7 @@ with tab2:
         st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
         filtered_tickets = []
-        for t in all_tickets:
+        for t in active_tickets:
             try:
                 ticket_date = datetime.fromisoformat(t['timestamp']).date()
                 date_match = (len(selected_dates) == 0) or (ticket_date in selected_dates)
@@ -697,24 +699,109 @@ with tab2:
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                btn_c1, btn_c2, btn_c3 = st.columns(3)
+                btn_c1, btn_c2 = st.columns(2)
                 tid = ticket['ticket_id']
                 
+                # NOTE: Deleted "DELETE" button from active tickets since they should be resolved.
                 with btn_c1:
-                    if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
+                    if st.button("MARK IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
                         save_tickets(current_t); st.rerun()
                 
                 with btn_c2:
-                    if st.button("RESOLVED", key=f"r_{tid}_{idx}", use_container_width=True):
+                    if st.button("RESOLVE TICKET", key=f"r_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(current_t); st.rerun()
+
+# --- 8. TAB 3: RESOLVED TICKET HISTORY ---
+with tab3:
+    all_tickets = load_tickets()
+    
+    # FILTER TO SHOW ONLY RESOLVED TICKETS IN TAB 3
+    resolved_tickets = [t for t in all_tickets if t.get('status') == "Resolved"]
+    
+    if not resolved_tickets:
+        st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>NO RESOLVED TICKETS FOUND.</p>", unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <div style="background: #09090B; border: 1px solid #10B981; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 32px; font-weight: 800; color: #10B981;">{total}</span><br>
+                <span style="font-size: 12px; color: #64748B; letter-spacing: 2px;">TOTAL RESOLVED</span>
+            </div>
+        """.format(total=len(resolved_tickets)), unsafe_allow_html=True)
+        
+        st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER HISTORY BY</div>', unsafe_allow_html=True)
+        
+        available_dates_hist = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in resolved_tickets if 'timestamp' in t])), reverse=True)
+        available_teams_hist = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in resolved_tickets])))
+        
+        fc1_h, fc2_h = st.columns(2)
+        with fc1_h:
+            selected_dates_hist = st.multiselect("Date", available_dates_hist, default=[], key="date_hist", label_visibility="collapsed", placeholder="Select Date(s)...")
+        with fc2_h:
+            selected_teams_hist = st.multiselect("Department", available_teams_hist, default=[], key="dept_hist", label_visibility="collapsed", placeholder="Select Department(s)...")
+            
+        st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+
+        filtered_history = []
+        for t in resolved_tickets:
+            try:
+                ticket_date = datetime.fromisoformat(t['timestamp']).date()
+                date_match = (len(selected_dates_hist) == 0) or (ticket_date in selected_dates_hist)
+            except:
+                date_match = True 
                 
-                with btn_c3:
-                    if st.button("DELETE", key=f"d_{tid}_{idx}", use_container_width=True):
-                        current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
-                        save_tickets(current_t); st.rerun()
+            ticket_team_string = f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}"
+            team_match = (len(selected_teams_hist) == 0) or (ticket_team_string in selected_teams_hist)
+            
+            if date_match and team_match:
+                filtered_history.append(t)
+        
+        st.markdown('<div class="dash-header" style="margin-top: 0px !important;">ARCHIVED TICKETS</div>', unsafe_allow_html=True)
+        
+        if not filtered_history:
+            st.markdown("<p style='text-align:center; color:#94A3B8; margin-top:20px;'>No history matches the selected filters.</p>", unsafe_allow_html=True)
+            
+        for idx, ticket in enumerate(filtered_history):
+            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
+            
+            with st.expander(f"✅ TICKET {ticket['ticket_id']} — {ticket['observation']}"):
+                
+                header_col1, header_col2 = st.columns([1, 1])
+                with header_col1:
+                    st.markdown(f'<span style="background-color: #10B981; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">RESOLVED</span>', unsafe_allow_html=True)
+                with header_col2:
+                    if 'timestamp' in ticket:
+                        try:
+                            formatted_time = datetime.fromisoformat(ticket['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+                            st.markdown(f'<p style="color: #64748B; font-size: 11px; text-align: right; margin-top: 5px;">Logged: {formatted_time}</p>', unsafe_allow_html=True)
+                        except: pass
+                
+                st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                with c2:
+                    st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
+                
+                st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{ticket["troubleshooting_steps"]}</p>', unsafe_allow_html=True)
+                
+                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value" style="color:#10B981;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                tid = ticket['ticket_id']
+                
+                # Only keep the delete button in the history tab to clear old records.
+                if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
+                    current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
+                    save_tickets(current_t); st.rerun()
