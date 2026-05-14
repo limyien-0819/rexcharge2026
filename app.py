@@ -287,7 +287,6 @@ span[data-baseweb="tag"] svg {
 }
 
 /* --- MANUAL ESCALATION BUTTON STYLING --- */
-/* Target only the manual review button by identifying it as secondary */
 button[kind="secondary"] {
     background: #1E293B !important;
     color: #F8FAFC !important;
@@ -361,6 +360,19 @@ def get_frame_from_video(video_file):
         return Image.fromarray(frame)
     return None
 
+# --- NEW: Function to encode PIL Image to Base64 ---
+def image_to_base64(img):
+    buffered = io.BytesIO()
+    # Save with lower quality to keep JSON file size manageable
+    img.save(buffered, format="JPEG", quality=60)
+    return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+# --- NEW: Function to decode Base64 back to PIL Image ---
+def base64_to_image(b64_string):
+    img_data = base64.b64decode(b64_string)
+    img = Image.open(io.BytesIO(img_data))
+    return img
+
 # --- 3. SESSION STATE ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
@@ -391,7 +403,8 @@ def normalize_label(raw_label):
     normalized = re.sub(r'[^a-z0-9_]', '', normalized)
     return normalized.strip('_')
 
-def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info):
+# --- FIX: Updated to accept an image_base64 parameter ---
+def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info, image_base64=None):
     my_timezone = timezone(timedelta(hours=8))
     current_time = datetime.now(my_timezone)
     
@@ -413,7 +426,8 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
         "status": "Pending Review",
-        "severity": route_info.get('severity', 'High') 
+        "severity": route_info.get('severity', 'High'),
+        "image_data": image_base64 # Save the encoded image string
     }
 
 # --- 4. DATASET LOGIC ---
@@ -554,9 +568,13 @@ with tab1:
                                     else:
                                         if lbl not in [i[0] for i in all_tech_iss]:
                                             all_tech_iss.append((lbl, route))
+                                            
+                                            # --- FIX: Encode the annotated image and attach to ticket ---
+                                            encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
                                             rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
-                                            new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
+                                            new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback, encoded_img)
+                                            
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
                                             save_tickets(current_tickets)
@@ -588,10 +606,8 @@ with tab1:
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
-        # --- Handling Zero Faults & Manual Escalation ---
         if not res['customer_issues'] and not res['technician_issues']:
             if not st.session_state.force_escalated:
-                # --- FIX: Inlined style to force centering ---
                 st.markdown("""
                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
                         <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>
@@ -602,7 +618,6 @@ with tab1:
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
                 
-                # --- FIX: Removed the 'help' parameter so no tooltip shows ---
                 btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
                 with btn_col2:
                     if st.button("REQUEST MANUAL REVIEW", key="force_esc", use_container_width=True):
@@ -612,7 +627,13 @@ with tab1:
                             "act": "Dispatch Technician for manual inspection.", 
                             "severity": "Unknown"
                         }
-                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback)
+                        
+                        # --- FIX: Grab the first uploaded image (if any) to attach to manual ticket ---
+                        fallback_img_data = None
+                        if res['annotated_fault_images']:
+                             fallback_img_data = image_to_base64(res['annotated_fault_images'][0])
+                             
+                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback, fallback_img_data)
                         
                         current_tickets = load_tickets()
                         current_tickets.append(new_ticket)
@@ -747,6 +768,14 @@ with tab2:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
+                # --- FIX: Display stored image inside the active ticket ---
+                if ticket.get("image_data"):
+                    try:
+                        decoded_img = base64_to_image(ticket["image_data"])
+                        st.markdown('<p class="data-label">DIAGNOSTIC CAPTURE</p>', unsafe_allow_html=True)
+                        st.image(decoded_img, use_container_width=True)
+                    except: pass
+                
                 display_serial_t2 = ticket["serial"]
                 if display_serial_t2.lower().startswith('sn:'): display_serial_t2 = display_serial_t2[3:].strip()
                 elif display_serial_t2.lower().startswith('sn '): display_serial_t2 = display_serial_t2[3:].strip()
@@ -852,6 +881,14 @@ with tab3:
                         except: pass
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
+                
+                # --- FIX: Display stored image inside the archived ticket ---
+                if ticket.get("image_data"):
+                    try:
+                        decoded_img = base64_to_image(ticket["image_data"])
+                        st.markdown('<p class="data-label">DIAGNOSTIC CAPTURE</p>', unsafe_allow_html=True)
+                        st.image(decoded_img, use_container_width=True)
+                    except: pass
                 
                 display_serial_t3 = ticket["serial"]
                 if display_serial_t3.lower().startswith('sn:'): display_serial_t3 = display_serial_t3[3:].strip()

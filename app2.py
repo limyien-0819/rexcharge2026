@@ -286,6 +286,22 @@ span[data-baseweb="tag"] svg {
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
 
+/* --- MANUAL ESCALATION BUTTON STYLING --- */
+/* Target only the manual review button by identifying it as secondary */
+button[kind="secondary"] {
+    background: #1E293B !important;
+    color: #F8FAFC !important;
+    -webkit-text-fill-color: #F8FAFC !important;
+    border: 1px solid #475569 !important;
+    height: 50px !important;
+    margin-top: 10px !important;
+}
+button[kind="secondary"]:hover {
+    border-color: #F59E0B !important;
+    color: #F59E0B !important;
+    -webkit-text-fill-color: #F59E0B !important;
+}
+
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
@@ -351,6 +367,8 @@ if 'last_label_name' not in st.session_state:
     st.session_state.last_fault_names = []
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
+if 'force_escalated' not in st.session_state:
+    st.session_state.force_escalated = False
 
 TICKETS_FILE = "routing_tickets.json"
 
@@ -432,7 +450,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- ADDED THIRD TAB FOR HISTORY ---
 tab1, tab2, tab3 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS", "TICKET HISTORY"])
 
 with tab1:
@@ -464,6 +481,7 @@ with tab1:
         st.session_state.last_label_name = current_label_name
         st.session_state.last_fault_names = current_fault_names
         st.session_state.analysis_done = False
+        st.session_state.force_escalated = False
         st.session_state.analysis_results = {}
 
     if ready_for_analysis:
@@ -473,6 +491,7 @@ with tab1:
         
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
+                st.session_state.force_escalated = False 
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
@@ -559,11 +578,53 @@ with tab1:
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
+            display_serial = res['serial']
+            if display_serial.lower().startswith('sn:'): display_serial = display_serial[3:].strip()
+            elif display_serial.lower().startswith('sn '): display_serial = display_serial[3:].strip()
+            elif display_serial.lower().startswith('sn'): display_serial = display_serial[2:].strip()
+
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {display_serial}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
+        # --- Handling Zero Faults & Manual Escalation ---
+        if not res['customer_issues'] and not res['technician_issues']:
+            if not st.session_state.force_escalated:
+                # --- FIX: Inlined style to force centering ---
+                st.markdown("""
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
+                        <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>
+                        <p style="color: #94A3B8; font-size: 12px; margin-top: 5px; text-align: center;">The scan did not identify any known faults requiring action.</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
+                
+                # --- FIX: Removed the 'help' parameter so no tooltip shows ---
+                btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
+                with btn_col2:
+                    if st.button("REQUEST MANUAL REVIEW", key="force_esc", use_container_width=True):
+                        route_fallback = {
+                            "id": "Unknown", 
+                            "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
+                            "act": "Dispatch Technician for manual inspection.", 
+                            "severity": "Unknown"
+                        }
+                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback)
+                        
+                        current_tickets = load_tickets()
+                        current_tickets.append(new_ticket)
+                        save_tickets(current_tickets)
+                        
+                        st.session_state.force_escalated = True
+                        res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
+                        res['routed_tickets'].append(new_ticket)
+                        st.rerun()
+            else:
+                st.success("Manual review ticket has been created and routed to the technical team.")
+            
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
@@ -597,7 +658,7 @@ with tab1:
                         st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
                         team_info = "Unknown Team"
-                        if 'id' in rt:
+                        if 'id' in rt and rt['id'] != "Unknown":
                              team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
                         st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
@@ -612,7 +673,6 @@ with tab1:
 with tab2:
     all_tickets = load_tickets()
     
-    # FILTER TO SHOW ONLY ACTIVE TICKETS IN TAB 2
     active_tickets = [t for t in all_tickets if t.get('status') in ["Pending Review", "In Progress"]]
     
     if not active_tickets:
@@ -667,7 +727,11 @@ with tab2:
             
         for idx, ticket in enumerate(filtered_tickets):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
-            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
+            
+            if ticket.get('team_id') == "Unknown":
+                team_desc = "Manual Review Required"
+            else:
+                team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 
@@ -683,10 +747,15 @@ with tab2:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
+                display_serial_t2 = ticket["serial"]
+                if display_serial_t2.lower().startswith('sn:'): display_serial_t2 = display_serial_t2[3:].strip()
+                elif display_serial_t2.lower().startswith('sn '): display_serial_t2 = display_serial_t2[3:].strip()
+                elif display_serial_t2.lower().startswith('sn'): display_serial_t2 = display_serial_t2[2:].strip()
+
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t2}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -702,7 +771,6 @@ with tab2:
                 btn_c1, btn_c2 = st.columns(2)
                 tid = ticket['ticket_id']
                 
-                # NOTE: Deleted "DELETE" button from active tickets since they should be resolved.
                 with btn_c1:
                     if st.button("MARK IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
@@ -721,7 +789,6 @@ with tab2:
 with tab3:
     all_tickets = load_tickets()
     
-    # FILTER TO SHOW ONLY RESOLVED TICKETS IN TAB 3
     resolved_tickets = [t for t in all_tickets if t.get('status') == "Resolved"]
     
     if not resolved_tickets:
@@ -767,7 +834,10 @@ with tab3:
             st.markdown("<p style='text-align:center; color:#94A3B8; margin-top:20px;'>No history matches the selected filters.</p>", unsafe_allow_html=True)
             
         for idx, ticket in enumerate(filtered_history):
-            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
+            if ticket.get('team_id') == "Unknown":
+                team_desc = "Manual Review Required"
+            else:
+                team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"✅ TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 
@@ -783,10 +853,15 @@ with tab3:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
+                display_serial_t3 = ticket["serial"]
+                if display_serial_t3.lower().startswith('sn:'): display_serial_t3 = display_serial_t3[3:].strip()
+                elif display_serial_t3.lower().startswith('sn '): display_serial_t3 = display_serial_t3[3:].strip()
+                elif display_serial_t3.lower().startswith('sn'): display_serial_t3 = display_serial_t3[2:].strip()
+
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t3}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -801,7 +876,6 @@ with tab3:
                 
                 tid = ticket['ticket_id']
                 
-                # Only keep the delete button in the history tab to clear old records.
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t); st.rerun()
