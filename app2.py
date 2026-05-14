@@ -23,7 +23,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
    TITLE GRADIENT FIX
@@ -110,7 +110,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 }
 
 /* ==============================
-   UPLOADED FILE CARD FRAME
+   NEW FIX: UPLOADED FILE CARD FRAME (WHITE BOX)
 ============================== */
 [data-testid="stUploadedFile"] {
     background-color: #FFFFFF !important;
@@ -155,6 +155,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
+/* General Button Base */
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -166,28 +167,30 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     width: 100% !important;
 }
 
+/* PREMIUM "ATAS" PRIMARY BUTTON STYLING */
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important; /* Force white text */
     border: none !important;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important;
-    height: 75px !important; 
-    letter-spacing: 2px !important; 
+    border-radius: 20px !important; /* Smoother curve */
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; /* Premium glow */
+    height: 75px !important; /* Slightly taller */
+    letter-spacing: 2px !important; /* Wider spacing */
     transition: all 0.3s ease !important;
 }
 
+/* Target the text inside the primary button specifically for font adjustments */
 .stButton > button[kind="primary"] p {
-    font-size: 16px !important; 
-    font-weight: 900 !important; 
+    font-size: 16px !important; /* Larger text */
+    font-weight: 900 !important; /* Thicker font */
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
 .stButton > button[kind="primary"]:hover {
-    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; 
-    transform: translateY(-2px) !important; 
+    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; /* Stronger glow on hover */
+    transform: translateY(-2px) !important; /* Slight lift effect */
 }
 
 
@@ -348,6 +351,7 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
+    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
     fault_files_to_process = []
@@ -392,12 +396,12 @@ with tab1:
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            # BUG FIX: changed label_image to label_img here
+                            # BUG FIX: label_img instead of label_image
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            # BUG FIX: changed label_image to label_img here
+                            # BUG FIX: label_img instead of label_image
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
