@@ -511,9 +511,9 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
+        # --- CHANGED: Header to DEVICE DETAILS and SN to Serial Number ---
         with st.container(border=True):
-            # --- FIX: Increased font size for Serial Number from 12px to 15px ---
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:15px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
