@@ -15,7 +15,7 @@ from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="RExharge Smart Diagnostic Hub", 
+    page_title="Watt's Up Smart Diagnostic Hub", 
     page_icon="⚡", 
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -110,7 +110,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 }
 
 /* ==============================
-   NEW FIX: UPLOADED FILE CARD FRAME (WHITE BOX)
+   UPLOADED FILE CARD FRAME (WHITE BOX)
 ============================== */
 [data-testid="stUploadedFile"] {
     background-color: #FFFFFF !important;
@@ -139,6 +139,27 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 [data-testid="stUploadedFile"] img {
     border-radius: 4px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+/* ==============================
+   IMAGE PREVIEW FRAME
+============================== */
+/* Frame ALL images rendered by Streamlit (st.image and file uploader previews) */
+img {
+    border: 3px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 6px !important; 
+    background-color: #0F172A !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8) !important;
+    box-sizing: border-box !important; 
+}
+
+/* Specific targeted frame for st.image outputs */
+[data-testid="stImage"] img {
+    border: 3px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+    background-color: #0F172A !important;
 }
 
 /* ==============================
@@ -192,7 +213,6 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; /* Stronger glow on hover */
     transform: translateY(-2px) !important; /* Slight lift effect */
 }
-
 
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
@@ -332,12 +352,12 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 class="gradient-title">⚡ RExharge</h1>
+        <h1 class="gradient-title">⚡ WATT'S UP</h1>
         <p style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
+tab1, tab2 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS"])
 
 with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
@@ -351,7 +371,6 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
-    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
     fault_files_to_process = []
@@ -396,12 +415,10 @@ with tab1:
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            # FINALLY FIXED: Changed both label_image references to label_img
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            # FINALLY FIXED: Changed both label_image references to label_img
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
