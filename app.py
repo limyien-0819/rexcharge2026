@@ -286,7 +286,7 @@ span[data-baseweb="tag"] svg {
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
 
-/* --- NEW: MANUAL ESCALATION BUTTON STYLING --- */
+/* --- MANUAL ESCALATION BUTTON STYLING --- */
 .stButton > button[kind="secondary"][help="Force Escalation"] {
     background: #1E293B !important;
     color: #F8FAFC !important;
@@ -508,7 +508,7 @@ with tab1:
         
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
-                st.session_state.force_escalated = False # Reset on fresh run
+                st.session_state.force_escalated = False 
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
@@ -605,12 +605,13 @@ with tab1:
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
-        # --- NEW LOGIC: Handling Zero Faults & Manual Escalation ---
+        # --- Handling Zero Faults & Manual Escalation ---
         if not res['customer_issues'] and not res['technician_issues']:
             if not st.session_state.force_escalated:
+                # --- FIX: Removed the ✅ ---
                 st.markdown("""
                     <div class="success-container">
-                        <p class="success-text">✅ NO ANOMALIES DETECTED</p>
+                        <p class="success-text">NO ANOMALIES DETECTED</p>
                         <p style="color: #94A3B8; font-size: 12px; margin-top: 5px;">The scan did not identify any known faults requiring action.</p>
                     </div>
                 """, unsafe_allow_html=True)
@@ -618,31 +619,29 @@ with tab1:
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
                 
-                # Manual Override Button
-                if st.button("REQUEST MANUAL REVIEW", key="force_esc", help="Force Escalation"):
-                    # Create a generic fallback ticket
-                    route_fallback = {
-                        "id": "Unknown", 
-                        "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
-                        "act": "Dispatch Technician for manual inspection.", 
-                        "severity": "Unknown"
-                    }
-                    new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback)
-                    
-                    current_tickets = load_tickets()
-                    current_tickets.append(new_ticket)
-                    save_tickets(current_tickets)
-                    
-                    # Update session state to show the manual ticket was created
-                    st.session_state.force_escalated = True
-                    res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
-                    res['routed_tickets'].append(new_ticket)
-                    st.rerun()
+                # --- FIX: Center the button using columns ---
+                btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
+                with btn_col2:
+                    if st.button("REQUEST MANUAL REVIEW", key="force_esc", help="Force Escalation", use_container_width=True):
+                        route_fallback = {
+                            "id": "Unknown", 
+                            "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
+                            "act": "Dispatch Technician for manual inspection.", 
+                            "severity": "Unknown"
+                        }
+                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback)
+                        
+                        current_tickets = load_tickets()
+                        current_tickets.append(new_ticket)
+                        save_tickets(current_tickets)
+                        
+                        st.session_state.force_escalated = True
+                        res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
+                        res['routed_tickets'].append(new_ticket)
+                        st.rerun()
             else:
-                # If they clicked the button, show success message instead of the big green box
                 st.success("Manual review ticket has been created and routed to the technical team.")
             
-        # Standard rendering for found issues (or manually forced ones)
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
@@ -746,7 +745,6 @@ with tab2:
         for idx, ticket in enumerate(filtered_tickets):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
             
-            # Handle "Unknown" team description safely
             if ticket.get('team_id') == "Unknown":
                 team_desc = "Manual Review Required"
             else:
