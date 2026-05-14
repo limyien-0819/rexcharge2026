@@ -363,6 +363,14 @@ button[kind="secondary"]:hover {
     color: #10B981;
 }
 
+/* --- ATAS TICKET DETAILS BOX (TAB 2) --- */
+.atas-ticket-box {
+    background-color: #09090B !important; 
+    border: 1px solid #1E293B !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -766,17 +774,26 @@ with tab2:
                 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            with st.container(border=True):
-                display_serial_track = found_ticket["serial"]
-                if display_serial_track.lower().startswith('sn:'): display_serial_track = display_serial_track[3:].strip()
-                elif display_serial_track.lower().startswith('sn '): display_serial_track = display_serial_track[3:].strip()
-                elif display_serial_track.lower().startswith('sn'): display_serial_track = display_serial_track[2:].strip()
+            # --- FIX: Refined styling for the ticket details container to match the Atas look ---
+            st.markdown('<div class="atas-ticket-box">', unsafe_allow_html=True)
+            
+            display_serial_track = found_ticket["serial"]
+            if display_serial_track.lower().startswith('sn:'): display_serial_track = display_serial_track[3:].strip()
+            elif display_serial_track.lower().startswith('sn '): display_serial_track = display_serial_track[3:].strip()
+            elif display_serial_track.lower().startswith('sn'): display_serial_track = display_serial_track[2:].strip()
+            
+            st.markdown('<p class="data-label">TICKET DETAILS</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important;">{found_ticket["observation"]}</p>', unsafe_allow_html=True)
+            
+            st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="data-value">{found_ticket["brand"]} / {found_ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_track}</span></p>', unsafe_allow_html=True)
+            
+            if 'timestamp' in found_ticket:
+                formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
+                st.markdown('<p class="data-label">LOGGED ON</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{formatted_time}</p>', unsafe_allow_html=True)
                 
-                st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>TICKET DETAILS</span><br><b style='font-size: 18px;'>{found_ticket['observation']}</b><br><br><span style='color:#F8FAFC; font-size:15px; font-weight: 700;'>{found_ticket['brand']} / {found_ticket['model']}</span><br><span style='color:#94A3B8; font-size:14px; font-weight: 500;'>Serial Number: {display_serial_track}</span>", unsafe_allow_html=True)
-                
-                if 'timestamp' in found_ticket:
-                    formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
-                    st.markdown(f"<br><span style='color:#64748B; font-size:11px;'>Logged on: {formatted_time}</span>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
 
 # --- 7. TAB 3: ACTIVE SERVICE TICKETS (TECHNICIAN) ---
@@ -875,8 +892,6 @@ with tab3:
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
-                
-                # --- FIX: Removed TROUBLESHOOTING STEPS for Technician View ---
                 
                 st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
                 st.markdown(f'<p class="data-value" style="color:#EF4444;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
@@ -987,8 +1002,6 @@ with tab4:
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
-                
-                # --- FIX: Removed TROUBLESHOOTING STEPS for Technician View ---
                 
                 st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
                 st.markdown(f'<p class="data-value" style="color:#10B981;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
