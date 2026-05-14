@@ -174,7 +174,7 @@ img {
 /* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
-/* General Button Base */
+/* General Secondary Button Base (In Progress, Resolved, Delete) */
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -184,9 +184,25 @@ img {
     font-weight: 800 !important;
     text-transform: uppercase !important;
     width: 100% !important;
+    transition: all 0.2s ease !important; /* Smooth transition for hover/click */
 }
 
-/* PREMIUM "ATAS" PRIMARY BUTTON STYLING */
+/* Hover state: slightly lighter background and stronger border */
+.stButton > button:hover {
+    background: #1E293B !important;
+    border-color: #38BDF8 !important;
+}
+
+/* ACTIVE state (Clicked!): Flashes a solid highlight color */
+.stButton > button:active {
+    background: #38BDF8 !important; 
+    color: #000000 !important; 
+    transform: scale(0.98) !important; 
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
+}
+
+
+/* PREMIUM "ATAS" PRIMARY BUTTON STYLING (Start Diagnostic) */
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
@@ -209,6 +225,11 @@ img {
 .stButton > button[kind="primary"]:hover {
     box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; 
     transform: translateY(-2px) !important; 
+}
+
+.stButton > button[kind="primary"]:active {
+    transform: scale(0.98) !important; 
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
 
 [data-testid="stVerticalBlockBorderWrapper"] {
@@ -549,7 +570,6 @@ with tab2:
         
         filtered = tickets
         
-        # CHANGED SUB-HEADER HERE
         st.markdown('<div class="dash-header">ACTIVE TICKETS</div>', unsafe_allow_html=True)
         
         for idx, ticket in enumerate(filtered):
@@ -577,7 +597,6 @@ with tab2:
                 c1, c2, c3 = st.columns(3)
                 tid = ticket['ticket_id']
                 
-                # CHANGED BUTTON NAMES HERE
                 with c1:
                     if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         all_t = load_tickets()
