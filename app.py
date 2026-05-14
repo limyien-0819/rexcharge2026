@@ -175,9 +175,8 @@ span[data-baseweb="tag"] svg {
 }
 
 /* ==============================
-   "ATAS" EXPANDER STYLING (NEW!)
+   "ATAS" EXPANDER STYLING
 ============================== */
-/* 1. The Expander Banner (Header) */
 [data-testid="stExpander"] details summary {
     background: linear-gradient(90deg, #0F172A, #1E293B) !important;
     border: 1px solid rgba(56, 189, 248, 0.2) !important;
@@ -186,13 +185,11 @@ span[data-baseweb="tag"] svg {
     transition: all 0.3s ease !important;
 }
 
-/* Hover effect for the banner */
 [data-testid="stExpander"] details summary:hover {
     border-color: rgba(56, 189, 248, 0.8) !important;
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.15) !important;
 }
 
-/* 2. The Text inside the Banner */
 [data-testid="stExpander"] details summary p {
     font-size: 15px !important;
     font-weight: 800 !important;
@@ -201,9 +198,8 @@ span[data-baseweb="tag"] svg {
     text-transform: uppercase !important;
 }
 
-/* 3. The Expanded Content Body */
 [data-testid="stExpander"] details [data-testid="stExpanderDetails"] {
-    background-color: #09090B !important; /* Very dark background for content */
+    background-color: #09090B !important; 
     border: 1px solid #1E293B !important;
     border-top: none !important;
     border-bottom-left-radius: 12px !important;
@@ -211,7 +207,6 @@ span[data-baseweb="tag"] svg {
     padding: 20px !important;
 }
 
-/* Hide the default grey line Streamlit puts above expander content */
 [data-testid="stExpander"] hr {
     display: none !important;
 }
@@ -542,7 +537,8 @@ with tab1:
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:15px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
+            # --- FIX: Adjusted Serial Number font size to 13px ---
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
