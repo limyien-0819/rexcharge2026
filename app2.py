@@ -23,7 +23,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
 
 /* ==============================
    TITLE GRADIENT FIX
@@ -201,6 +201,22 @@ div[data-testid="stFileUploader"] > section,
     border-radius: 12px !important;
 }
 
+/* ==============================
+   TABS STYLING (BOLD SELECTED)
+============================== */
+/* Unselected Tabs */
+.stTabs [data-baseweb="tab"] p {
+    color: #94A3B8 !important;
+    font-weight: 500 !important;
+}
+
+/* Selected Tab - Forced Bold */
+.stTabs [aria-selected="true"] p, 
+.stTabs [aria-selected="true"] span {
+    color: #F8FAFC !important;
+    font-weight: 900 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -310,7 +326,6 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# THE FIX: Explicitly forcing the subtitle paragraph to be white with inline !important overrides
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 class="gradient-title">⚡ RExharge</h1>
