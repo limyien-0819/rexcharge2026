@@ -432,7 +432,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- ADDED THIRD TAB FOR HISTORY ---
 tab1, tab2, tab3 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS", "TICKET HISTORY"])
 
 with tab1:
@@ -497,7 +496,13 @@ with tab1:
                         elif p['class'] == "serial_number":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
-                            if res: serial = res[0]
+                            # Handle standard SN prefix if the OCR captures it
+                            if res: 
+                                serial = res[0]
+                                if serial.lower().startswith('sn:'):
+                                    serial = serial[3:].strip()
+                                elif serial.lower().startswith('sn'):
+                                    serial = serial[2:].strip()
 
                     all_cust_iss = []
                     all_tech_iss = []
@@ -559,7 +564,13 @@ with tab1:
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
+            # Ensure serial number doesn't duplicate 'SN:' if the OCR accidentally kept it
+            display_serial = res['serial']
+            if display_serial.lower().startswith('sn:'): display_serial = display_serial[3:].strip()
+            elif display_serial.lower().startswith('sn '): display_serial = display_serial[3:].strip()
+            elif display_serial.lower().startswith('sn'): display_serial = display_serial[2:].strip()
+
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {display_serial}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
@@ -612,7 +623,6 @@ with tab1:
 with tab2:
     all_tickets = load_tickets()
     
-    # FILTER TO SHOW ONLY ACTIVE TICKETS IN TAB 2
     active_tickets = [t for t in all_tickets if t.get('status') in ["Pending Review", "In Progress"]]
     
     if not active_tickets:
@@ -683,10 +693,16 @@ with tab2:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
+                # --- FIX: Match UNIT IDENTIFICATION to Tab 1 ---
+                display_serial_t2 = ticket["serial"]
+                if display_serial_t2.lower().startswith('sn:'): display_serial_t2 = display_serial_t2[3:].strip()
+                elif display_serial_t2.lower().startswith('sn '): display_serial_t2 = display_serial_t2[3:].strip()
+                elif display_serial_t2.lower().startswith('sn'): display_serial_t2 = display_serial_t2[2:].strip()
+
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t2}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -702,7 +718,6 @@ with tab2:
                 btn_c1, btn_c2 = st.columns(2)
                 tid = ticket['ticket_id']
                 
-                # NOTE: Deleted "DELETE" button from active tickets since they should be resolved.
                 with btn_c1:
                     if st.button("MARK IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
@@ -721,7 +736,6 @@ with tab2:
 with tab3:
     all_tickets = load_tickets()
     
-    # FILTER TO SHOW ONLY RESOLVED TICKETS IN TAB 3
     resolved_tickets = [t for t in all_tickets if t.get('status') == "Resolved"]
     
     if not resolved_tickets:
@@ -783,10 +797,16 @@ with tab3:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
+                # --- FIX: Match UNIT IDENTIFICATION to Tab 1 ---
+                display_serial_t3 = ticket["serial"]
+                if display_serial_t3.lower().startswith('sn:'): display_serial_t3 = display_serial_t3[3:].strip()
+                elif display_serial_t3.lower().startswith('sn '): display_serial_t3 = display_serial_t3[3:].strip()
+                elif display_serial_t3.lower().startswith('sn'): display_serial_t3 = display_serial_t3[2:].strip()
+
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t3}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -801,7 +821,6 @@ with tab3:
                 
                 tid = ticket['ticket_id']
                 
-                # Only keep the delete button in the history tab to clear old records.
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t); st.rerun()
