@@ -90,11 +90,56 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-[data-testid="stFileUploader"] svg,
-[data-testid="stFileUploader"] svg * {
+/* ==============================
+   ICON COLOR FIX (NO BLUE PREVIEWS)
+============================== */
+/* ONLY color the primary cloud SVG in the dropzone area */
+div[data-testid="stFileUploadDropzone"] > section > svg,
+div[data-testid="stFileUploadDropzone"] > section > svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
+}
+
+/* Force the uploaded file card text to be black */
+[data-testid="stFileUploader"] [data-testid="stText"] span,
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Force the close/delete button on the white card to be grey, not blue */
+[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg,
+[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg * {
+    fill: #475569 !important;
+    stroke: #475569 !important;
+    color: #475569 !important;
+}
+
+/* Reset the image preview SVGs so they retain their natural colors */
+[data-testid="stUploadedFile"] svg {
+    fill: none !important;
+    stroke: none !important;
+}
+
+/* ==============================
+   IMAGE PREVIEW FRAME
+============================== */
+/* Add a clear border and background to the image preview thumbnail inside the uploader */
+[data-testid="stUploadedFile"] img {
+    border: 2px solid #0EA5E9 !important; /* Neon Blue Border */
+    border-radius: 8px !important;
+    padding: 2px !important;
+    background-color: #0F172A !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+}
+
+/* Style main st.image outputs in the report */
+[data-testid="stImage"] img {
+    border: 2px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    background-color: #0F172A !important;
 }
 
 /* ==============================
@@ -106,35 +151,6 @@ div[data-testid="stFileUploader"] > section,
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     font-weight: 400 !important;
-}
-
-/* ==============================
-   UPLOADED FILE CARD (WHITE BOX FIX & IMAGE FRAME)
-============================== */
-/* Ensure the text inside the white card is black */
-[data-testid="stFileUploader"] section[role="button"] + div *,
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-    font-weight: 700 !important;
-}
-
-/* Make sure the delete cross button is slate grey on the white card */
-[data-testid="stFileUploader"] section[role="button"] + div button svg,
-[data-testid="stFileUploader"] section[role="button"] + div button svg * {
-    fill: #475569 !important; 
-    stroke: #475569 !important;
-    color: #475569 !important;
-}
-
-/* --> NEW: Add a Frame to the Image Previews <-- */
-/* Target the images rendered in the main flow (like the report image) */
-[data-testid="stImage"] img {
-    border: 2px solid #0EA5E9 !important; /* Neon Blue Frame */
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8) !important;
-    padding: 4px !important; /* Inner padding to look like a frame */
-    background-color: #0F172A !important; /* Navy inner background */
 }
 
 /* ==============================
@@ -324,10 +340,9 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
-    # CHANGED: Allow multiple files for the fault upload
+    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
-    # Logic to handle single camera input or multiple uploaded files
     fault_files_to_process = []
     if f_cam:
         fault_files_to_process.append(f_cam)
@@ -351,7 +366,6 @@ with tab1:
             with st.spinner("Processing Telemetry..."):
                 label_img = Image.open(l_file).convert("RGB")
                 
-                # --- Label Detection ---
                 buffered_l = io.BytesIO()
                 label_img.save(buffered_l, format="JPEG")
                 img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
@@ -375,7 +389,6 @@ with tab1:
                         res = reader.readtext(roi, detail=0)
                         if res: serial = res[0]
 
-                # --- Fault Detection (Looping through multiple files) ---
                 all_cust_iss = []
                 all_tech_iss = []
                 all_routed_tickets = []
@@ -406,16 +419,16 @@ with tab1:
                                 draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
                                 route = ROUTING_LOGIC[lbl]
                                 
-                                # Prevent duplicates in the report if the same fault is in multiple images
                                 if route['recipient'] == "Customer":
                                     if lbl not in [i[0] for i in all_cust_iss]:
                                         all_cust_iss.append((lbl, route))
                                 else:
                                     if lbl not in [i[0] for i in all_tech_iss]:
                                         all_tech_iss.append((lbl, route))
-                                        # Only create a ticket if we haven't already created one for this specific fault in this run
                                         current_tickets = load_tickets()
-                                        new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt)
+                                        # Using a fallback dictionary structure if rt is undefined at this scope level
+                                        rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
+                                        new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
                                         current_tickets.append(new_ticket)
                                         all_routed_tickets.append(new_ticket)
                                         save_tickets(current_tickets)
@@ -439,7 +452,6 @@ with tab1:
         with st.container(border=True):
             st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE TELEMETRY</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>SN: {res['serial']}</span>", unsafe_allow_html=True)
             
-        # Display all annotated images
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
