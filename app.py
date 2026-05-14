@@ -360,14 +360,11 @@ def get_frame_from_video(video_file):
         return Image.fromarray(frame)
     return None
 
-# --- NEW: Function to encode PIL Image to Base64 ---
 def image_to_base64(img):
     buffered = io.BytesIO()
-    # Save with lower quality to keep JSON file size manageable
     img.save(buffered, format="JPEG", quality=60)
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-# --- NEW: Function to decode Base64 back to PIL Image ---
 def base64_to_image(b64_string):
     img_data = base64.b64decode(b64_string)
     img = Image.open(io.BytesIO(img_data))
@@ -403,7 +400,6 @@ def normalize_label(raw_label):
     normalized = re.sub(r'[^a-z0-9_]', '', normalized)
     return normalized.strip('_')
 
-# --- FIX: Updated to accept an image_base64 parameter ---
 def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info, image_base64=None):
     my_timezone = timezone(timedelta(hours=8))
     current_time = datetime.now(my_timezone)
@@ -427,7 +423,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "action_required": route_info['act'],
         "status": "Pending Review",
         "severity": route_info.get('severity', 'High'),
-        "image_data": image_base64 # Save the encoded image string
+        "image_data": image_base64 
     }
 
 # --- 4. DATASET LOGIC ---
@@ -569,7 +565,6 @@ with tab1:
                                         if lbl not in [i[0] for i in all_tech_iss]:
                                             all_tech_iss.append((lbl, route))
                                             
-                                            # --- FIX: Encode the annotated image and attach to ticket ---
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
                                             rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
@@ -628,7 +623,6 @@ with tab1:
                             "severity": "Unknown"
                         }
                         
-                        # --- FIX: Grab the first uploaded image (if any) to attach to manual ticket ---
                         fallback_img_data = None
                         if res['annotated_fault_images']:
                              fallback_img_data = image_to_base64(res['annotated_fault_images'][0])
@@ -660,8 +654,7 @@ with tab1:
                     st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
                     
-                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#10B981;">{rt["act"]}</p>', unsafe_allow_html=True)
+                    # --- FIX: Removed the REQUIRED ACTIONS from the customer view entirely ---
 
         if res['technician_issues']:
             for index, (lbl, rt) in enumerate(res['technician_issues']):
@@ -768,7 +761,6 @@ with tab2:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
-                # --- FIX: Display stored image inside the active ticket ---
                 if ticket.get("image_data"):
                     try:
                         decoded_img = base64_to_image(ticket["image_data"])
@@ -882,7 +874,6 @@ with tab3:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
-                # --- FIX: Display stored image inside the archived ticket ---
                 if ticket.get("image_data"):
                     try:
                         decoded_img = base64_to_image(ticket["image_data"])
