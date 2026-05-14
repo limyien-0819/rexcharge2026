@@ -287,7 +287,8 @@ span[data-baseweb="tag"] svg {
 }
 
 /* --- MANUAL ESCALATION BUTTON STYLING --- */
-.stButton > button[kind="secondary"][help="Force Escalation"] {
+/* Target only the manual review button by identifying it as secondary */
+button[kind="secondary"] {
     background: #1E293B !important;
     color: #F8FAFC !important;
     -webkit-text-fill-color: #F8FAFC !important;
@@ -295,7 +296,7 @@ span[data-baseweb="tag"] svg {
     height: 50px !important;
     margin-top: 10px !important;
 }
-.stButton > button[kind="secondary"][help="Force Escalation"]:hover {
+button[kind="secondary"]:hover {
     border-color: #F59E0B !important;
     color: #F59E0B !important;
     -webkit-text-fill-color: #F59E0B !important;
@@ -336,24 +337,6 @@ span[data-baseweb="tag"] svg {
 .stTabs [aria-selected="true"] p {
     color: #F8FAFC !important;
     font-weight: 900 !important;
-}
-
-/* --- NO FAULT CONTAINER STYLING --- */
-.success-container {
-    background: rgba(16, 185, 129, 0.1) !important;
-    border: 1px solid #10B981 !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    text-align: center !important;
-    margin-top: 20px !important;
-}
-
-.success-text {
-    color: #10B981 !important;
-    font-weight: 800 !important;
-    font-size: 18px !important;
-    letter-spacing: 1px !important;
-    margin: 0 !important;
 }
 
 </style>
@@ -608,21 +591,21 @@ with tab1:
         # --- Handling Zero Faults & Manual Escalation ---
         if not res['customer_issues'] and not res['technician_issues']:
             if not st.session_state.force_escalated:
-                # --- FIX: Removed the ✅ ---
+                # --- FIX: Inlined style to force centering ---
                 st.markdown("""
-                    <div class="success-container">
-                        <p class="success-text">NO ANOMALIES DETECTED</p>
-                        <p style="color: #94A3B8; font-size: 12px; margin-top: 5px;">The scan did not identify any known faults requiring action.</p>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
+                        <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>
+                        <p style="color: #94A3B8; font-size: 12px; margin-top: 5px; text-align: center;">The scan did not identify any known faults requiring action.</p>
                     </div>
                 """, unsafe_allow_html=True)
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
                 
-                # --- FIX: Center the button using columns ---
+                # --- FIX: Removed the 'help' parameter so no tooltip shows ---
                 btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
                 with btn_col2:
-                    if st.button("REQUEST MANUAL REVIEW", key="force_esc", help="Force Escalation", use_container_width=True):
+                    if st.button("REQUEST MANUAL REVIEW", key="force_esc", use_container_width=True):
                         route_fallback = {
                             "id": "Unknown", 
                             "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
