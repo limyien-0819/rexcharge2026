@@ -15,7 +15,7 @@ from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="RExharge Smart Diagnostic Hub", 
+    page_title="Watt's Up Smart Diagnostic Hub", 
     page_icon="⚡", 
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -110,7 +110,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 }
 
 /* ==============================
-   NEW FIX: UPLOADED FILE CARD FRAME (WHITE BOX)
+   UPLOADED FILE CARD FRAME (WHITE BOX)
 ============================== */
 [data-testid="stUploadedFile"] {
     background-color: #FFFFFF !important;
@@ -142,6 +142,25 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 }
 
 /* ==============================
+   IMAGE PREVIEW FRAME
+============================== */
+img {
+    border: 3px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 6px !important; 
+    background-color: #0F172A !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8) !important;
+    box-sizing: border-box !important; 
+}
+
+[data-testid="stImage"] img {
+    border: 3px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+    background-color: #0F172A !important;
+}
+
+/* ==============================
    DISABLE DROPZONE CLICK
 ============================== */
 [data-testid="stFileUploadDropzone"] {
@@ -155,7 +174,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
-/* General Button Base */
+/* General Secondary Button Base (In Progress, Resolved, Delete) */
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -165,34 +184,53 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     font-weight: 800 !important;
     text-transform: uppercase !important;
     width: 100% !important;
+    transition: all 0.2s ease !important; /* Smooth transition for hover/click */
 }
 
-/* PREMIUM "ATAS" PRIMARY BUTTON STYLING */
+/* Hover state: slightly lighter background and stronger border */
+.stButton > button:hover {
+    background: #1E293B !important;
+    border-color: #38BDF8 !important;
+}
+
+/* ACTIVE state (Clicked!): Flashes a solid highlight color */
+.stButton > button:active {
+    background: #38BDF8 !important; 
+    color: #000000 !important; 
+    transform: scale(0.98) !important; 
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
+}
+
+
+/* PREMIUM "ATAS" PRIMARY BUTTON STYLING (Start Diagnostic) */
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important; /* Force white text */
+    -webkit-text-fill-color: #FFFFFF !important; 
     border: none !important;
-    border-radius: 20px !important; /* Smoother curve */
-    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; /* Premium glow */
-    height: 75px !important; /* Slightly taller */
-    letter-spacing: 2px !important; /* Wider spacing */
+    border-radius: 20px !important; 
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; 
+    height: 75px !important; 
+    letter-spacing: 2px !important; 
     transition: all 0.3s ease !important;
 }
 
-/* Target the text inside the primary button specifically for font adjustments */
 .stButton > button[kind="primary"] p {
-    font-size: 16px !important; /* Larger text */
-    font-weight: 900 !important; /* Thicker font */
+    font-size: 16px !important; 
+    font-weight: 900 !important; 
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
 .stButton > button[kind="primary"]:hover {
-    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; /* Stronger glow on hover */
-    transform: translateY(-2px) !important; /* Slight lift effect */
+    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; 
+    transform: translateY(-2px) !important; 
 }
 
+.stButton > button[kind="primary"]:active {
+    transform: scale(0.98) !important; 
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
+}
 
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
@@ -332,12 +370,12 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 class="gradient-title">⚡ RExharge</h1>
+        <h1 class="gradient-title">⚡ WATT'S UP</h1>
         <p style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">SYSTEM DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["DIAGNOSTICS", "SYSTEM QUEUE"])
+tab1, tab2 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS"])
 
 with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
@@ -351,7 +389,6 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
-    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
     fault_files_to_process = []
@@ -396,12 +433,10 @@ with tab1:
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            # BUG FIX: label_img instead of label_image
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            # BUG FIX: label_img instead of label_image
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
@@ -535,7 +570,7 @@ with tab2:
         
         filtered = tickets
         
-        st.markdown('<div class="dash-header">ACTIVE WORK ORDERS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-header">ACTIVE TICKETS</div>', unsafe_allow_html=True)
         
         for idx, ticket in enumerate(filtered):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
@@ -563,20 +598,20 @@ with tab2:
                 tid = ticket['ticket_id']
                 
                 with c1:
-                    if st.button("PROCESS", key=f"p_{tid}_{idx}", use_container_width=True):
+                    if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         all_t = load_tickets()
                         for item in all_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
                         save_tickets(all_t); st.rerun()
                 
                 with c2:
-                    if st.button("RESOLVE", key=f"r_{tid}_{idx}", use_container_width=True):
+                    if st.button("RESOLVED", key=f"r_{tid}_{idx}", use_container_width=True):
                         all_t = load_tickets()
                         for item in all_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(all_t); st.rerun()
                 
                 with c3:
-                    if st.button("ARCHIVE", key=f"d_{tid}_{idx}", use_container_width=True):
+                    if st.button("DELETE", key=f"d_{tid}_{idx}", use_container_width=True):
                         all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                         save_tickets(all_t); st.rerun()
