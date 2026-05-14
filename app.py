@@ -144,7 +144,6 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    IMAGE PREVIEW FRAME
 ============================== */
-/* Frame ALL images rendered by Streamlit (st.image and file uploader previews) */
 img {
     border: 3px solid #0EA5E9 !important;
     border-radius: 12px !important;
@@ -154,7 +153,6 @@ img {
     box-sizing: border-box !important; 
 }
 
-/* Specific targeted frame for st.image outputs */
 [data-testid="stImage"] img {
     border: 3px solid #0EA5E9 !important;
     border-radius: 12px !important;
@@ -192,26 +190,25 @@ img {
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important; /* Force white text */
+    -webkit-text-fill-color: #FFFFFF !important; 
     border: none !important;
-    border-radius: 20px !important; /* Smoother curve */
-    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; /* Premium glow */
-    height: 75px !important; /* Slightly taller */
-    letter-spacing: 2px !important; /* Wider spacing */
+    border-radius: 20px !important; 
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; 
+    height: 75px !important; 
+    letter-spacing: 2px !important; 
     transition: all 0.3s ease !important;
 }
 
-/* Target the text inside the primary button specifically for font adjustments */
 .stButton > button[kind="primary"] p {
-    font-size: 16px !important; /* Larger text */
-    font-weight: 900 !important; /* Thicker font */
+    font-size: 16px !important; 
+    font-weight: 900 !important; 
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
 .stButton > button[kind="primary"]:hover {
-    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; /* Stronger glow on hover */
-    transform: translateY(-2px) !important; /* Slight lift effect */
+    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; 
+    transform: translateY(-2px) !important; 
 }
 
 [data-testid="stVerticalBlockBorderWrapper"] {
@@ -552,7 +549,8 @@ with tab2:
         
         filtered = tickets
         
-        st.markdown('<div class="dash-header">ACTIVE WORK ORDERS</div>', unsafe_allow_html=True)
+        # CHANGED SUB-HEADER HERE
+        st.markdown('<div class="dash-header">ACTIVE TICKETS</div>', unsafe_allow_html=True)
         
         for idx, ticket in enumerate(filtered):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
@@ -579,21 +577,22 @@ with tab2:
                 c1, c2, c3 = st.columns(3)
                 tid = ticket['ticket_id']
                 
+                # CHANGED BUTTON NAMES HERE
                 with c1:
-                    if st.button("PROCESS", key=f"p_{tid}_{idx}", use_container_width=True):
+                    if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         all_t = load_tickets()
                         for item in all_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
                         save_tickets(all_t); st.rerun()
                 
                 with c2:
-                    if st.button("RESOLVE", key=f"r_{tid}_{idx}", use_container_width=True):
+                    if st.button("RESOLVED", key=f"r_{tid}_{idx}", use_container_width=True):
                         all_t = load_tickets()
                         for item in all_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(all_t); st.rerun()
                 
                 with c3:
-                    if st.button("ARCHIVE", key=f"d_{tid}_{idx}", use_container_width=True):
+                    if st.button("DELETE", key=f"d_{tid}_{idx}", use_container_width=True):
                         all_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                         save_tickets(all_t); st.rerun()
