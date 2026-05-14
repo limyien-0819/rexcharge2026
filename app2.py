@@ -90,7 +90,6 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* ONLY color the primary cloud SVG in the dropzone area */
 div[data-testid="stFileUploadDropzone"] > section > svg,
 div[data-testid="stFileUploadDropzone"] > section > svg * {
     fill: #38BDF8 !important;
@@ -98,9 +97,6 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     color: #38BDF8 !important;
 }
 
-/* ==============================
-   FILE INFO TEXT
-============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span,
 [data-testid="stFileUploader"] p {
@@ -160,13 +156,9 @@ img {
     background-color: #0F172A !important;
 }
 
-/* ==============================
-   DISABLE DROPZONE CLICK
-============================== */
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
 }
-
 [data-testid="stFileUploadDropzone"] button {
     pointer-events: auto !important;
 }
@@ -178,15 +170,69 @@ span[data-baseweb="tag"] {
     background-color: #334155 !important; 
     color: #F8FAFC !important; 
 }
-
 span[data-baseweb="tag"] svg {
     fill: #94A3B8 !important;
 }
 
 /* ==============================
+   "ATAS" EXPANDER STYLING
+============================== */
+[data-testid="stExpander"] details summary {
+    background: linear-gradient(90deg, #0F172A, #1E293B) !important;
+    border: 1px solid rgba(56, 189, 248, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    transition: all 0.3s ease !important;
+}
+
+[data-testid="stExpander"] details summary:hover {
+    border-color: rgba(56, 189, 248, 0.8) !important;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.15) !important;
+}
+
+[data-testid="stExpander"] details summary p {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #F8FAFC !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+}
+
+[data-testid="stExpander"] details [data-testid="stExpanderDetails"] {
+    background-color: #09090B !important; 
+    border: 1px solid #1E293B !important;
+    border-top: none !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    padding: 24px !important;
+}
+
+[data-testid="stExpander"] hr {
+    display: none !important;
+}
+
+/* --- NEW: ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+.data-label {
+    font-size: 10px !important;
+    color: #64748B !important; /* Muted Slate color */
+    letter-spacing: 2px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 2px !important;
+    margin-top: 12px !important;
+}
+
+.data-value {
+    font-size: 15px !important;
+    color: #F8FAFC !important; /* Crisp White */
+    font-weight: 500 !important;
+    margin-bottom: 16px !important;
+    line-height: 1.5 !important;
+}
+
+/* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
-/* General Secondary Button Base (In Progress, Resolved, Delete) */
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -196,16 +242,14 @@ span[data-baseweb="tag"] svg {
     font-weight: 800 !important;
     text-transform: uppercase !important;
     width: 100% !important;
-    transition: all 0.2s ease !important; /* Smooth transition for hover/click */
+    transition: all 0.2s ease !important; 
 }
 
-/* Hover state: slightly lighter background and stronger border */
 .stButton > button:hover {
     background: #1E293B !important;
     border-color: #38BDF8 !important;
 }
 
-/* ACTIVE state (Clicked!): Flashes a solid highlight color */
 .stButton > button:active {
     background: #38BDF8 !important; 
     color: #000000 !important; 
@@ -213,7 +257,6 @@ span[data-baseweb="tag"] svg {
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
 
-/* PREMIUM "ATAS" PRIMARY BUTTON STYLING (Start Diagnostic) */
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
@@ -511,9 +554,8 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
-        # --- CHANGED: Header to DEVICE DETAILS and SN to Serial Number ---
         with st.container(border=True):
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {res['serial']}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
@@ -521,11 +563,14 @@ with tab1:
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
-                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#F59E0B;">{rt.get("severity", "Medium")}</p>', unsafe_allow_html=True)
+                    # --- NEW: Grid layout for Atas Typography in Report ---
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
+                    with c2:
+                        st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value" style="color:#F59E0B;">{rt.get("severity", "Medium")}</p>', unsafe_allow_html=True)
                     
                     st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
@@ -539,21 +584,22 @@ with tab1:
                 ticket_id = ticket['ticket_id'] if ticket else "PENDING"
                 
                 with st.expander(f"🚨 ESCALATED TICKETS"):
-                    st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
-                    
-                    st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                    team_info = "Unknown Team"
-                    if 'id' in rt:
-                         team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
-                    st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
-                    
+                    # --- NEW: Grid layout for Atas Typography in Report ---
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
+                        st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
+                    with c2:
+                        st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
+                        team_info = "Unknown Team"
+                        if 'id' in rt:
+                             team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
+                        st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
+                        st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
+                        
                     st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{rt.get("steps", "")}</p>', unsafe_allow_html=True)
                     
@@ -619,20 +665,27 @@ with tab2:
             team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
-                st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
                 
-                if 'timestamp' in ticket:
-                    try:
-                        formatted_time = datetime.fromisoformat(ticket['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
-                        st.markdown(f'<p class="data-value" style="color: #64748B; font-size: 11px;">Logged: {formatted_time}</p>', unsafe_allow_html=True)
-                    except: pass
+                # --- NEW: Grid layout for Atas Typography in Active Tickets Tab ---
+                header_col1, header_col2 = st.columns([1, 1])
+                with header_col1:
+                    st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
+                with header_col2:
+                    if 'timestamp' in ticket:
+                        try:
+                            formatted_time = datetime.fromisoformat(ticket['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+                            st.markdown(f'<p style="color: #64748B; font-size: 11px; text-align: right; margin-top: 5px;">Logged: {formatted_time}</p>', unsafe_allow_html=True)
+                        except: pass
                 
-                st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} (SN: {ticket["serial"]})</p>', unsafe_allow_html=True)
+                st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
-                st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="font-size:12px; color:#94A3B8;">SN: {ticket["serial"]}</span></p>', unsafe_allow_html=True)
+                with c2:
+                    st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
                 
                 st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                 st.markdown(f'<p class="data-value">{ticket["troubleshooting_steps"]}</p>', unsafe_allow_html=True)
@@ -642,24 +695,24 @@ with tab2:
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                c1, c2, c3 = st.columns(3)
+                btn_c1, btn_c2, btn_c3 = st.columns(3)
                 tid = ticket['ticket_id']
                 
-                with c1:
+                with btn_c1:
                     if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
                         save_tickets(current_t); st.rerun()
                 
-                with c2:
+                with btn_c2:
                     if st.button("RESOLVED", key=f"r_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(current_t); st.rerun()
                 
-                with c3:
+                with btn_c3:
                     if st.button("DELETE", key=f"d_{tid}_{idx}", use_container_width=True):
                         current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                         save_tickets(current_t); st.rerun()

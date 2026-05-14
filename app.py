@@ -10,7 +10,8 @@ import re
 import csv
 import json
 import tempfile
-from datetime import datetime, date
+# --- FIX: Imported timezone and timedelta to handle Malaysia Time ---
+from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
 # --- 1. SETUP & PAGE CONFIGURATION ---
@@ -211,10 +212,10 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- NEW: ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
 .data-label {
     font-size: 10px !important;
-    color: #64748B !important; /* Muted Slate color */
+    color: #64748B !important; 
     letter-spacing: 2px !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -224,7 +225,7 @@ span[data-baseweb="tag"] svg {
 
 .data-value {
     font-size: 15px !important;
-    color: #F8FAFC !important; /* Crisp White */
+    color: #F8FAFC !important; 
     font-weight: 500 !important;
     margin-bottom: 16px !important;
     line-height: 1.5 !important;
@@ -374,7 +375,11 @@ def normalize_label(raw_label):
     return normalized.strip('_')
 
 def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info):
-    today = datetime.now().strftime('%Y%m%d')
+    # --- FIX: Set specific timezone to Malaysia (UTC+8) ---
+    my_timezone = timezone(timedelta(hours=8))
+    current_time = datetime.now(my_timezone)
+    
+    today = current_time.strftime('%Y%m%d')
     existing_tickets = load_tickets()
     today_tickets = [t for t in existing_tickets if t['ticket_id'].startswith(today)]
     next_seq = (max([int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()] or [0]) + 1)
@@ -382,7 +387,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
     
     return {
         "ticket_id": ticket_id,
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": current_time.isoformat(), # Uses the timezone-aware Malaysia time
         "team_id": route_info['id'],
         "file_name": file_name,
         "brand": brand,
@@ -563,7 +568,6 @@ with tab1:
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
-                    # --- NEW: Grid layout for Atas Typography in Report ---
                     c1, c2 = st.columns(2)
                     with c1:
                         st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
@@ -584,7 +588,6 @@ with tab1:
                 ticket_id = ticket['ticket_id'] if ticket else "PENDING"
                 
                 with st.expander(f"🚨 ESCALATED TICKETS"):
-                    # --- NEW: Grid layout for Atas Typography in Report ---
                     c1, c2 = st.columns(2)
                     with c1:
                         st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
@@ -666,7 +669,6 @@ with tab2:
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 
-                # --- NEW: Grid layout for Atas Typography in Active Tickets Tab ---
                 header_col1, header_col2 = st.columns([1, 1])
                 with header_col1:
                     st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
