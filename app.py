@@ -172,6 +172,21 @@ img {
 }
 
 /* ==============================
+   MULTISELECT FILTER TAGS (GREY)
+============================== */
+/* Target the selected tags in the multiselect boxes */
+span[data-baseweb="tag"] {
+    background-color: #334155 !important; /* Slate grey background */
+    color: #F8FAFC !important; /* White text */
+}
+
+/* Optional: Make the close icon on the tag visible */
+span[data-baseweb="tag"] svg {
+    fill: #94A3B8 !important;
+}
+
+
+/* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
 /* General Secondary Button Base (In Progress, Resolved, Delete) */
@@ -555,7 +570,7 @@ with tab2:
     if not all_tickets:
         st.markdown("<br><br><p style='text-align:center; color:#94A3B8; font-weight:800;'>SYSTEM OPTIMAL. NO ACTIVE TICKETS.</p>", unsafe_allow_html=True)
     else:
-        # --- NEW FIX: SIMPLIFIED TOP METRIC ---
+        # --- SIMPLIFIED TOP METRIC ---
         st.markdown("""
             <div style="background: #09090B; border: 1px solid #1E293B; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px;">
                 <span style="font-size: 32px; font-weight: 800; color: #F8FAFC;">{total}</span><br>
@@ -563,41 +578,38 @@ with tab2:
             </div>
         """.format(total=len(all_tickets)), unsafe_allow_html=True)
         
-        # --- NEW FIX: FILTERING SYSTEM ---
+        # --- FILTERING SYSTEM (Defaults to Empty / Show All) ---
         st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
-        # Extract unique dates from the timestamps for the date filter
         available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in all_tickets if 'timestamp' in t])), reverse=True)
-        # Extract unique team names for the department filter
         available_teams = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in all_tickets])))
         
         fc1, fc2 = st.columns(2)
         with fc1:
-            # Multi-select for dates (Default to showing all)
-            selected_dates = st.multiselect("Date", available_dates, default=available_dates, label_visibility="collapsed", placeholder="Select Date(s)")
+            # Empty default. If empty, show all dates.
+            selected_dates = st.multiselect("Date", available_dates, default=[], label_visibility="collapsed", placeholder="Select Date(s)...")
         with fc2:
-            # Multi-select for Departments (Default to showing all)
-            selected_teams = st.multiselect("Department", available_teams, default=available_teams, label_visibility="collapsed", placeholder="Select Department(s)")
+            # Empty default. If empty, show all departments.
+            selected_teams = st.multiselect("Department", available_teams, default=[], label_visibility="collapsed", placeholder="Select Department(s)...")
             
         st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
-        # Apply the filters
+        # --- Apply the filters (Show all if list is empty) ---
         filtered_tickets = []
         for t in all_tickets:
             # Check Date
             try:
                 ticket_date = datetime.fromisoformat(t['timestamp']).date()
-                date_match = ticket_date in selected_dates
+                date_match = (len(selected_dates) == 0) or (ticket_date in selected_dates)
             except:
-                date_match = True # If timestamp is missing/bad, include it to be safe
+                date_match = True 
                 
             # Check Team
             ticket_team_string = f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}"
-            team_match = ticket_team_string in selected_teams
+            team_match = (len(selected_teams) == 0) or (ticket_team_string in selected_teams)
             
             if date_match and team_match:
                 filtered_tickets.append(t)
-        
         
         st.markdown('<div class="dash-header" style="margin-top: 0px !important;">ACTIVE TICKETS</div>', unsafe_allow_html=True)
         
@@ -612,7 +624,6 @@ with tab2:
                 st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # Show timestamp if available
                 if 'timestamp' in ticket:
                     try:
                         formatted_time = datetime.fromisoformat(ticket['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
@@ -638,7 +649,6 @@ with tab2:
                 
                 with c1:
                     if st.button("IN PROGRESS", key=f"p_{tid}_{idx}", use_container_width=True):
-                        # Load from file to ensure we update the full list, not just the filtered one
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
