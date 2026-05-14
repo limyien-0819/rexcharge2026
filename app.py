@@ -286,6 +286,21 @@ span[data-baseweb="tag"] svg {
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.5) !important; 
 }
 
+/* --- NEW: MANUAL ESCALATION BUTTON STYLING --- */
+.stButton > button[kind="secondary"][help="Force Escalation"] {
+    background: #1E293B !important;
+    color: #F8FAFC !important;
+    -webkit-text-fill-color: #F8FAFC !important;
+    border: 1px solid #475569 !important;
+    height: 50px !important;
+    margin-top: 10px !important;
+}
+.stButton > button[kind="secondary"][help="Force Escalation"]:hover {
+    border-color: #F59E0B !important;
+    color: #F59E0B !important;
+    -webkit-text-fill-color: #F59E0B !important;
+}
+
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
@@ -323,6 +338,24 @@ span[data-baseweb="tag"] svg {
     font-weight: 900 !important;
 }
 
+/* --- NO FAULT CONTAINER STYLING --- */
+.success-container {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid #10B981 !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    margin-top: 20px !important;
+}
+
+.success-text {
+    color: #10B981 !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    letter-spacing: 1px !important;
+    margin: 0 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -351,6 +384,8 @@ if 'last_label_name' not in st.session_state:
     st.session_state.last_fault_names = []
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
+if 'force_escalated' not in st.session_state:
+    st.session_state.force_escalated = False
 
 TICKETS_FILE = "routing_tickets.json"
 
@@ -463,6 +498,7 @@ with tab1:
         st.session_state.last_label_name = current_label_name
         st.session_state.last_fault_names = current_fault_names
         st.session_state.analysis_done = False
+        st.session_state.force_escalated = False
         st.session_state.analysis_results = {}
 
     if ready_for_analysis:
@@ -472,6 +508,7 @@ with tab1:
         
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
+                st.session_state.force_escalated = False # Reset on fresh run
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
@@ -496,13 +533,7 @@ with tab1:
                         elif p['class'] == "serial_number":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
-                            # Handle standard SN prefix if the OCR captures it
-                            if res: 
-                                serial = res[0]
-                                if serial.lower().startswith('sn:'):
-                                    serial = serial[3:].strip()
-                                elif serial.lower().startswith('sn'):
-                                    serial = serial[2:].strip()
+                            if res: serial = res[0]
 
                     all_cust_iss = []
                     all_tech_iss = []
@@ -564,7 +595,6 @@ with tab1:
         st.markdown('<div class="dash-header">DIAGNOSTIC REPORT</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
-            # Ensure serial number doesn't duplicate 'SN:' if the OCR accidentally kept it
             display_serial = res['serial']
             if display_serial.lower().startswith('sn:'): display_serial = display_serial[3:].strip()
             elif display_serial.lower().startswith('sn '): display_serial = display_serial[3:].strip()
@@ -575,6 +605,44 @@ with tab1:
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
+        # --- NEW LOGIC: Handling Zero Faults & Manual Escalation ---
+        if not res['customer_issues'] and not res['technician_issues']:
+            if not st.session_state.force_escalated:
+                st.markdown("""
+                    <div class="success-container">
+                        <p class="success-text">✅ NO ANOMALIES DETECTED</p>
+                        <p style="color: #94A3B8; font-size: 12px; margin-top: 5px;">The scan did not identify any known faults requiring action.</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
+                
+                # Manual Override Button
+                if st.button("REQUEST MANUAL REVIEW", key="force_esc", help="Force Escalation"):
+                    # Create a generic fallback ticket
+                    route_fallback = {
+                        "id": "Unknown", 
+                        "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
+                        "act": "Dispatch Technician for manual inspection.", 
+                        "severity": "Unknown"
+                    }
+                    new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback)
+                    
+                    current_tickets = load_tickets()
+                    current_tickets.append(new_ticket)
+                    save_tickets(current_tickets)
+                    
+                    # Update session state to show the manual ticket was created
+                    st.session_state.force_escalated = True
+                    res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
+                    res['routed_tickets'].append(new_ticket)
+                    st.rerun()
+            else:
+                # If they clicked the button, show success message instead of the big green box
+                st.success("Manual review ticket has been created and routed to the technical team.")
+            
+        # Standard rendering for found issues (or manually forced ones)
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
@@ -608,7 +676,7 @@ with tab1:
                         st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
                         team_info = "Unknown Team"
-                        if 'id' in rt:
+                        if 'id' in rt and rt['id'] != "Unknown":
                              team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
                         st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
@@ -677,7 +745,12 @@ with tab2:
             
         for idx, ticket in enumerate(filtered_tickets):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
-            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
+            
+            # Handle "Unknown" team description safely
+            if ticket.get('team_id') == "Unknown":
+                team_desc = "Manual Review Required"
+            else:
+                team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 
@@ -693,7 +766,6 @@ with tab2:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
-                # --- FIX: Match UNIT IDENTIFICATION to Tab 1 ---
                 display_serial_t2 = ticket["serial"]
                 if display_serial_t2.lower().startswith('sn:'): display_serial_t2 = display_serial_t2[3:].strip()
                 elif display_serial_t2.lower().startswith('sn '): display_serial_t2 = display_serial_t2[3:].strip()
@@ -781,7 +853,10 @@ with tab3:
             st.markdown("<p style='text-align:center; color:#94A3B8; margin-top:20px;'>No history matches the selected filters.</p>", unsafe_allow_html=True)
             
         for idx, ticket in enumerate(filtered_history):
-            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
+            if ticket.get('team_id') == "Unknown":
+                team_desc = "Manual Review Required"
+            else:
+                team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"✅ TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 
@@ -797,7 +872,6 @@ with tab3:
                 
                 st.markdown("<hr style='border-color: #1E293B; margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                 
-                # --- FIX: Match UNIT IDENTIFICATION to Tab 1 ---
                 display_serial_t3 = ticket["serial"]
                 if display_serial_t3.lower().startswith('sn:'): display_serial_t3 = display_serial_t3[3:].strip()
                 elif display_serial_t3.lower().startswith('sn '): display_serial_t3 = display_serial_t3[3:].strip()
