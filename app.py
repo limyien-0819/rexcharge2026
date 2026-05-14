@@ -23,7 +23,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
    TITLE GRADIENT FIX
@@ -41,14 +41,14 @@ h1.gradient-title {
 /* ==============================
    DASHBOARD INSTRUCTIONS (WHITE ONLY)
 ============================== */
-.stMarkdown:not(:has(h1.gradient-title)),
-.stMarkdown:not(:has(h1.gradient-title)) * {
+.stMarkdown:not(:has(h1.gradient-title)):not(:has(.stButton)),
+.stMarkdown:not(:has(h1.gradient-title)):not(:has(.stButton)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
-[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)),
-[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)) * {
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)):not(:has(.stButton)),
+[data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)):not(:has(.stButton)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
 }
@@ -112,17 +112,15 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    NEW FIX: UPLOADED FILE CARD FRAME (WHITE BOX)
 ============================== */
-/* This targets the exact container holding the preview, filename, and close button */
 [data-testid="stUploadedFile"] {
     background-color: #FFFFFF !important;
-    border: 2px solid #E2E8F0 !important; /* Light grey border for definition */
+    border: 2px solid #E2E8F0 !important; 
     border-radius: 8px !important;
     padding: 10px !important;
     margin-top: 10px !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
 }
 
-/* Force the uploaded file card text to be black */
 [data-testid="stUploadedFile"] span,
 [data-testid="stUploadedFile"] .uploadedFileName,
 [data-testid="stUploadedFile"] div {
@@ -131,7 +129,6 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     font-weight: 700 !important;
 }
 
-/* Force the close/delete button on the white card to be grey, not blue */
 [data-testid="stUploadedFile"] button svg,
 [data-testid="stUploadedFile"] button svg * {
     fill: #475569 !important;
@@ -139,7 +136,6 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     color: #475569 !important;
 }
 
-/* Ensure the image preview itself inside the card looks neat */
 [data-testid="stUploadedFile"] img {
     border-radius: 4px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
@@ -159,6 +155,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    MAIN BUTTONS & CARDS
 ============================== */
+/* General Button Base */
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -170,10 +167,32 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     width: 100% !important;
 }
 
+/* PREMIUM "ATAS" PRIMARY BUTTON STYLING */
 .stButton > button[kind="primary"] {
     background: linear-gradient(90deg, #0284C7, #1E40AF) !important;
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important; /* Force white text */
+    border: none !important;
+    border-radius: 20px !important; /* Smoother curve */
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4) !important; /* Premium glow */
+    height: 75px !important; /* Slightly taller */
+    letter-spacing: 2px !important; /* Wider spacing */
+    transition: all 0.3s ease !important;
 }
+
+/* Target the text inside the primary button specifically for font adjustments */
+.stButton > button[kind="primary"] p {
+    font-size: 16px !important; /* Larger text */
+    font-weight: 900 !important; /* Thicker font */
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    box-shadow: 0 15px 35px rgba(2, 132, 199, 0.6) !important; /* Stronger glow on hover */
+    transform: translateY(-2px) !important; /* Slight lift effect */
+}
+
 
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
@@ -332,7 +351,6 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
-    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
     fault_files_to_process = []
@@ -354,85 +372,91 @@ with tab1:
 
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("START DIAGNOSTIC", type="primary"):
-            with st.spinner("Processing Telemetry..."):
-                label_img = Image.open(l_file).convert("RGB")
-                
-                buffered_l = io.BytesIO()
-                label_img.save(buffered_l, format="JPEG")
-                img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
-                url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
-                
-                try:
-                    resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                    preds_l = resp_l.json().get('predictions', [])
-                except:
-                    preds_l = []
-                
-                brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
-                for p in preds_l:
-                    x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                    if p['class'] == "model_name":
-                        roi = np.array(label_img.crop((x0, y0, x1, y1)))
-                        res = reader.readtext(roi, detail=0)
-                        if res: model = res[0]
-                    elif p['class'] == "serial_number":
-                        roi = np.array(label_img.crop((x0, y0, x1, y1)))
-                        res = reader.readtext(roi, detail=0)
-                        if res: serial = res[0]
+        
+        # FIX: Create columns to center the button
+        # We use a ratio to squish the button into the middle column
+        col1, col2, col3 = st.columns([1, 2, 1]) 
+        
+        with col2: # Place the button in the center column
+            if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
+                with st.spinner("Processing Telemetry..."):
+                    label_img = Image.open(l_file).convert("RGB")
+                    
+                    buffered_l = io.BytesIO()
+                    label_img.save(buffered_l, format="JPEG")
+                    img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                    
+                    try:
+                        resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                        preds_l = resp_l.json().get('predictions', [])
+                    except:
+                        preds_l = []
+                    
+                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
+                    for p in preds_l:
+                        x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
+                        if p['class'] == "model_name":
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            res = reader.readtext(roi, detail=0)
+                            if res: model = res[0]
+                        elif p['class'] == "serial_number":
+                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            res = reader.readtext(roi, detail=0)
+                            if res: serial = res[0]
 
-                all_cust_iss = []
-                all_tech_iss = []
-                all_routed_tickets = []
-                annotated_images = []
+                    all_cust_iss = []
+                    all_tech_iss = []
+                    all_routed_tickets = []
+                    annotated_images = []
 
-                for f_file in fault_files_to_process:
-                    if hasattr(f_file, 'type') and f_file.type.startswith('video'):
-                        fault_img = get_frame_from_video(f_file)
-                    else:
-                        fault_img = Image.open(f_file).convert("RGB")
+                    for f_file in fault_files_to_process:
+                        if hasattr(f_file, 'type') and f_file.type.startswith('video'):
+                            fault_img = get_frame_from_video(f_file)
+                        else:
+                            fault_img = Image.open(f_file).convert("RGB")
 
-                    if fault_img:
-                        buffered_f = io.BytesIO()
-                        fault_img.save(buffered_f, format="JPEG")
-                        img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
-                        try:
-                            resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                            preds_f = resp_f.json().get('predictions', [])
-                        except:
-                            preds_f = []
-                        
-                        draw = ImageDraw.Draw(fault_img)
-                        for p in preds_f:
-                            lbl = normalize_label(p['class'])
-                            if lbl in ROUTING_LOGIC:
-                                x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
-                                x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
-                                draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
-                                route = ROUTING_LOGIC[lbl]
-                                
-                                if route['recipient'] == "Customer":
-                                    if lbl not in [i[0] for i in all_cust_iss]:
-                                        all_cust_iss.append((lbl, route))
-                                else:
-                                    if lbl not in [i[0] for i in all_tech_iss]:
-                                        all_tech_iss.append((lbl, route))
-                                        current_tickets = load_tickets()
-                                        rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
-                                        new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
-                                        current_tickets.append(new_ticket)
-                                        all_routed_tickets.append(new_ticket)
-                                        save_tickets(current_tickets)
+                        if fault_img:
+                            buffered_f = io.BytesIO()
+                            fault_img.save(buffered_f, format="JPEG")
+                            img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
+                            try:
+                                resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                                preds_f = resp_f.json().get('predictions', [])
+                            except:
+                                preds_f = []
+                            
+                            draw = ImageDraw.Draw(fault_img)
+                            for p in preds_f:
+                                lbl = normalize_label(p['class'])
+                                if lbl in ROUTING_LOGIC:
+                                    x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
+                                    x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
+                                    draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
+                                    route = ROUTING_LOGIC[lbl]
+                                    
+                                    if route['recipient'] == "Customer":
+                                        if lbl not in [i[0] for i in all_cust_iss]:
+                                            all_cust_iss.append((lbl, route))
+                                    else:
+                                        if lbl not in [i[0] for i in all_tech_iss]:
+                                            all_tech_iss.append((lbl, route))
+                                            current_tickets = load_tickets()
+                                            rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
+                                            new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
+                                            current_tickets.append(new_ticket)
+                                            all_routed_tickets.append(new_ticket)
+                                            save_tickets(current_tickets)
 
-                        annotated_images.append(fault_img)
+                            annotated_images.append(fault_img)
 
-                st.session_state.analysis_results = {
-                    'brand': brand, 'model': model, 'serial': serial,
-                    'customer_issues': all_cust_iss, 'technician_issues': all_tech_iss,
-                    'annotated_fault_images': annotated_images,
-                    'routed_tickets': all_routed_tickets
-                }
-                st.session_state.analysis_done = True
+                    st.session_state.analysis_results = {
+                        'brand': brand, 'model': model, 'serial': serial,
+                        'customer_issues': all_cust_iss, 'technician_issues': all_tech_iss,
+                        'annotated_fault_images': annotated_images,
+                        'routed_tickets': all_routed_tickets
+                    }
+                    st.session_state.analysis_done = True
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results

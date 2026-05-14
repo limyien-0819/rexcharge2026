@@ -90,56 +90,12 @@ div[data-testid="stFileUploader"] > section,
     font-weight: 700 !important;
 }
 
-/* ==============================
-   ICON COLOR FIX (NO BLUE PREVIEWS)
-============================== */
 /* ONLY color the primary cloud SVG in the dropzone area */
 div[data-testid="stFileUploadDropzone"] > section > svg,
 div[data-testid="stFileUploadDropzone"] > section > svg * {
     fill: #38BDF8 !important;
     stroke: #38BDF8 !important;
     color: #38BDF8 !important;
-}
-
-/* Force the uploaded file card text to be black */
-[data-testid="stFileUploader"] [data-testid="stText"] span,
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
-
-/* Force the close/delete button on the white card to be grey, not blue */
-[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg,
-[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg * {
-    fill: #475569 !important;
-    stroke: #475569 !important;
-    color: #475569 !important;
-}
-
-/* Reset the image preview SVGs so they retain their natural colors */
-[data-testid="stUploadedFile"] svg {
-    fill: none !important;
-    stroke: none !important;
-}
-
-/* ==============================
-   IMAGE PREVIEW FRAME
-============================== */
-/* Add a clear border and background to the image preview thumbnail inside the uploader */
-[data-testid="stUploadedFile"] img {
-    border: 2px solid #0EA5E9 !important; /* Neon Blue Border */
-    border-radius: 8px !important;
-    padding: 2px !important;
-    background-color: #0F172A !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
-}
-
-/* Style main st.image outputs in the report */
-[data-testid="stImage"] img {
-    border: 2px solid #0EA5E9 !important;
-    border-radius: 12px !important;
-    padding: 4px !important;
-    background-color: #0F172A !important;
 }
 
 /* ==============================
@@ -151,6 +107,42 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     font-weight: 400 !important;
+}
+
+/* ==============================
+   NEW FIX: UPLOADED FILE CARD FRAME (WHITE BOX)
+============================== */
+/* This targets the exact container holding the preview, filename, and close button */
+[data-testid="stUploadedFile"] {
+    background-color: #FFFFFF !important;
+    border: 2px solid #E2E8F0 !important; /* Light grey border for definition */
+    border-radius: 8px !important;
+    padding: 10px !important;
+    margin-top: 10px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+
+/* Force the uploaded file card text to be black */
+[data-testid="stUploadedFile"] span,
+[data-testid="stUploadedFile"] .uploadedFileName,
+[data-testid="stUploadedFile"] div {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    font-weight: 700 !important;
+}
+
+/* Force the close/delete button on the white card to be grey, not blue */
+[data-testid="stUploadedFile"] button svg,
+[data-testid="stUploadedFile"] button svg * {
+    fill: #475569 !important;
+    stroke: #475569 !important;
+    color: #475569 !important;
+}
+
+/* Ensure the image preview itself inside the card looks neat */
+[data-testid="stUploadedFile"] img {
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
 }
 
 /* ==============================
@@ -426,7 +418,6 @@ with tab1:
                                     if lbl not in [i[0] for i in all_tech_iss]:
                                         all_tech_iss.append((lbl, route))
                                         current_tickets = load_tickets()
-                                        # Using a fallback dictionary structure if rt is undefined at this scope level
                                         rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
                                         new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
                                         current_tickets.append(new_ticket)
