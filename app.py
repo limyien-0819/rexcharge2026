@@ -351,6 +351,7 @@ with tab1:
     st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
     f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
+    # MULTIPLE FILES ACCEPTED
     f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
     fault_files_to_process = []
@@ -373,11 +374,9 @@ with tab1:
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # FIX: Create columns to center the button
-        # We use a ratio to squish the button into the middle column
         col1, col2, col3 = st.columns([1, 2, 1]) 
         
-        with col2: # Place the button in the center column
+        with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
                 with st.spinner("Processing Telemetry..."):
                     label_img = Image.open(l_file).convert("RGB")
@@ -397,11 +396,13 @@ with tab1:
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
                         if p['class'] == "model_name":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            # FINALLY FIXED: Changed both label_image references to label_img
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: model = res[0]
                         elif p['class'] == "serial_number":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
+                            # FINALLY FIXED: Changed both label_image references to label_img
+                            roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
 
