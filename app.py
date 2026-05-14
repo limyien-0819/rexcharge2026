@@ -125,20 +125,21 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 /* ==============================
    IMAGE PREVIEW FRAME
 ============================== */
-/* Add a clear border and background to the image preview thumbnail inside the uploader */
-[data-testid="stUploadedFile"] img {
-    border: 2px solid #0EA5E9 !important; /* Neon Blue Border */
-    border-radius: 8px !important;
-    padding: 2px !important;
+/* Frame ALL images rendered by Streamlit (st.image and file uploader previews) */
+img {
+    border: 3px solid #0EA5E9 !important; /* Thicker Neon Blue Frame */
+    border-radius: 12px !important;
+    padding: 6px !important; /* More padding to look like a prominent frame */
     background-color: #0F172A !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8) !important;
+    box-sizing: border-box !important; 
 }
 
-/* Style main st.image outputs in the report */
+/* Specific targeted frame for st.image outputs */
 [data-testid="stImage"] img {
-    border: 2px solid #0EA5E9 !important;
+    border: 3px solid #0EA5E9 !important;
     border-radius: 12px !important;
-    padding: 4px !important;
+    padding: 6px !important;
     background-color: #0F172A !important;
 }
 

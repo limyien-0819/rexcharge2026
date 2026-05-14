@@ -23,12 +23,11 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
 
 /* ==============================
    TITLE GRADIENT FIX
 ============================== */
-/* We target the specific h1 class we created so it ignores the white override */
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
@@ -42,8 +41,6 @@ h1.gradient-title {
 /* ==============================
    DASHBOARD INSTRUCTIONS (WHITE ONLY)
 ============================== */
-
-/* Apply white text to markdown elements, BUT explicitly exclude our h1 gradient title */
 .stMarkdown:not(:has(h1.gradient-title)),
 .stMarkdown:not(:has(h1.gradient-title)) * {
     color: #FFFFFF !important;
@@ -56,15 +53,9 @@ h1.gradient-title {
     -webkit-text-fill-color: #FFFFFF !important;
 }
 
-.stMarkdown strong,
-.stMarkdown em {
-    color: #FFFFFF !important;
-}
-
 /* ==============================
    GLOBAL RESET
 ============================== */
-
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
@@ -77,7 +68,6 @@ html, body, .stApp {
 /* ==============================
    BASE BOXES
 ============================== */
-
 div[data-testid="stFileUploader"] > section,
 [data-testid="stCameraInput"] > div {
     background-color: #0F172A !important;
@@ -87,39 +77,12 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   CAMERA BUTTON
+   UPLOAD & CAMERA BUTTONS
 ============================== */
-
 [data-testid="stCameraInput"] button,
-[data-testid="stCameraInput"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* ==============================
-   UPLOAD ICON
-============================== */
-
-[data-testid="stFileUploader"] svg,
-[data-testid="stFileUploader"] svg * {
-    fill: #38BDF8 !important;
-    stroke: #38BDF8 !important;
-    color: #38BDF8 !important;
-}
-
-/* ==============================
-   UPLOAD BUTTON + TEXT
-============================== */
-
+[data-testid="stCameraInput"] button *,
 [data-testid="stFileUploadDropzone"] button,
-[data-testid="stFileUploadDropzone"] button * {
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    font-weight: 700 !important;
-}
-
-/* Upload label */
+[data-testid="stFileUploadDropzone"] button *,
 [data-testid="stFileUploader"] label,
 [data-testid="stFileUploader"] label * {
     color: #38BDF8 !important;
@@ -128,9 +91,60 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   FILE INFO TEXT (WHITE)
+   ICON COLOR FIX (NO BLUE PREVIEWS)
 ============================== */
+/* ONLY color the primary cloud SVG in the dropzone area */
+div[data-testid="stFileUploadDropzone"] > section > svg,
+div[data-testid="stFileUploadDropzone"] > section > svg * {
+    fill: #38BDF8 !important;
+    stroke: #38BDF8 !important;
+    color: #38BDF8 !important;
+}
 
+/* Force the uploaded file card text to be black */
+[data-testid="stFileUploader"] [data-testid="stText"] span,
+[data-testid="stFileUploader"] .uploadedFileName {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Force the close/delete button on the white card to be grey, not blue */
+[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg,
+[data-testid="stFileUploader"] [data-testid="stUploadedFile"] button svg * {
+    fill: #475569 !important;
+    stroke: #475569 !important;
+    color: #475569 !important;
+}
+
+/* Reset the image preview SVGs so they retain their natural colors */
+[data-testid="stUploadedFile"] svg {
+    fill: none !important;
+    stroke: none !important;
+}
+
+/* ==============================
+   IMAGE PREVIEW FRAME
+============================== */
+/* Add a clear border and background to the image preview thumbnail inside the uploader */
+[data-testid="stUploadedFile"] img {
+    border: 2px solid #0EA5E9 !important; /* Neon Blue Border */
+    border-radius: 8px !important;
+    padding: 2px !important;
+    background-color: #0F172A !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+}
+
+/* Style main st.image outputs in the report */
+[data-testid="stImage"] img {
+    border: 2px solid #0EA5E9 !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    background-color: #0F172A !important;
+}
+
+/* ==============================
+   FILE INFO TEXT
+============================== */
 [data-testid="stFileUploader"] small,
 [data-testid="stFileUploader"] span,
 [data-testid="stFileUploader"] p {
@@ -140,18 +154,8 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   UPLOADED FILE NAME
-============================== */
-
-[data-testid="stFileUploader"] .uploadedFileName {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
-
-/* ==============================
    DISABLE DROPZONE CLICK
 ============================== */
-
 [data-testid="stFileUploadDropzone"] {
     pointer-events: none !important;
 }
@@ -161,20 +165,8 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   BUTTON STYLING INSIDE BOXES
+   MAIN BUTTONS & CARDS
 ============================== */
-
-[data-testid="stFileUploader"] button,
-[data-testid="stCameraInput"] button {
-    background-color: #1E293B !important;
-    border: 1px solid #0EA5E9 !important;
-    border-radius: 8px !important;
-}
-
-/* ==============================
-   MAIN BUTTONS
-============================== */
-
 .stButton > button {
     background: #0B1120 !important;
     border: 1px solid #1E293B !important;
@@ -191,10 +183,6 @@ div[data-testid="stFileUploader"] > section,
     color: #FFFFFF !important;
 }
 
-/* ==============================
-   CARDS
-============================== */
-
 [data-testid="stVerticalBlockBorderWrapper"] {
     background: rgba(15, 23, 42, 0.6) !important;
     border: 1px solid rgba(14, 165, 233, 0.3) !important;
@@ -202,17 +190,32 @@ div[data-testid="stFileUploader"] > section,
 }
 
 /* ==============================
-   TABS STYLING (BOLD SELECTED)
+   SECTION HEADERS (BOLD & LARGER)
 ============================== */
-/* Unselected Tabs */
+.dash-header {
+    font-size: 22px !important; 
+    font-weight: 900 !important; 
+    color: #F8FAFC !important;
+    margin-top: 30px !important;
+    margin-bottom: 5px !important;
+    letter-spacing: -0.5px;
+}
+
+.dash-sub {
+    font-size: 14px !important;
+    color: #94A3B8 !important;
+    margin-bottom: 20px !important;
+}
+
+/* ==============================
+   TABS STYLING
+============================== */
 .stTabs [data-baseweb="tab"] p {
     color: #94A3B8 !important;
     font-weight: 500 !important;
 }
 
-/* Selected Tab - Forced Bold */
-.stTabs [aria-selected="true"] p, 
-.stTabs [aria-selected="true"] span {
+.stTabs [aria-selected="true"] p {
     color: #F8FAFC !important;
     font-weight: 900 !important;
 }
@@ -239,10 +242,10 @@ def get_frame_from_video(video_file):
         return Image.fromarray(frame)
     return None
 
-# --- 3. SESSION STATE & DATA PERSISTENCE ---
+# --- 3. SESSION STATE ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
-    st.session_state.last_fault_name = None
+    st.session_state.last_fault_names = []
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
 
@@ -254,7 +257,7 @@ def load_tickets():
             with open(TICKETS_FILE, 'r') as f:
                 content = f.read()
                 return json.loads(content) if content else []
-        except Exception: return []
+        except: return []
     return []
 
 def save_tickets(tickets):
@@ -271,13 +274,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
     today = datetime.now().strftime('%Y%m%d')
     existing_tickets = load_tickets()
     today_tickets = [t for t in existing_tickets if t['ticket_id'].startswith(today)]
-    
-    if today_tickets:
-        seq_nums = [int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()]
-        next_seq = max(seq_nums) + 1 if seq_nums else 1
-    else:
-        next_seq = 1
-        
+    next_seq = (max([int(t['ticket_id'][8:]) for t in today_tickets if t['ticket_id'][8:].isdigit()] or [0]) + 1)
     ticket_id = f"{today}{next_seq:06d}"
     
     return {
@@ -288,7 +285,6 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "brand": brand,
         "model": model,
         "serial": serial,
-        "fault_label": fault_label,
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
@@ -296,24 +292,21 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "severity": route_info.get('severity', 'High') 
     }
 
-# --- 4. DATASET & ROUTING LOGIC ---
+# --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
     with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
-            action_text = row['Action Required'].strip()
-            recipient = "After-Sales Team" if "Technician" in action_text else "Customer"
             ROUTING_LOGIC[label] = {
                 "id": row['Evidence'],
-                "recipient": recipient,
+                "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
                 "steps": row['Troubleshooting Steps & Parameters'],
-                "act": action_text,
+                "act": row['Action Required'],
                 "severity": row.get('Severity', 'Medium')
             }
-except Exception as e:
-    pass 
+except: pass 
 
 TEAM_DESCRIPTIONS = {
     "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
@@ -339,103 +332,116 @@ with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
     st.markdown('<div class="dash-sub">Take a photo of the brand/model/serial sticker.</div>', unsafe_allow_html=True)
     
-    label_camera = st.camera_input("Scanner", key="label_cam", label_visibility="collapsed")
-    label_upload = st.file_uploader("Upload Asset", type=["jpg", "jpeg", "png"], key="label_upload", label_visibility="collapsed")
-    label_file = label_camera if label_camera else label_upload
+    l_cam = st.camera_input("Scanner", key="l_cam", label_visibility="collapsed")
+    l_up = st.file_uploader("Upload Label", type=["jpg", "jpeg", "png"], key="l_up", label_visibility="collapsed")
+    l_file = l_cam if l_cam else l_up
 
     st.markdown('<div class="dash-header">📸 2. Capture Fault (Image or Video)</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dash-sub">Record video or take a photo of the physical issue.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Record video or take photos of the physical issue. You can upload multiple files.</div>', unsafe_allow_html=True)
     
-    fault_camera = st.camera_input("Capture", key="fault_cam", label_visibility="collapsed")
-    fault_upload = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="fault_upload", label_visibility="collapsed")
-    fault_file = fault_camera if fault_camera else fault_upload
+    f_cam = st.camera_input("Capture Fault", key="f_cam", label_visibility="collapsed")
+    # MULTIPLE FILES ACCEPTED
+    f_up = st.file_uploader("Upload Media", type=["jpg", "jpeg", "png", "mp4", "mov", "avi"], key="f_up", accept_multiple_files=True, label_visibility="collapsed")
     
-    ready_for_analysis = bool(label_file and fault_file)
-    current_label_name = getattr(label_file, 'name', None) if label_file else None
-    current_fault_name = getattr(fault_file, 'name', None) if fault_file else None
+    fault_files_to_process = []
+    if f_cam:
+        fault_files_to_process.append(f_cam)
+    if f_up:
+        fault_files_to_process.extend(f_up)
+    
+    ready_for_analysis = bool(l_file and fault_files_to_process)
+    
+    current_label_name = getattr(l_file, 'name', None) if l_file else None
+    current_fault_names = [getattr(f, 'name', 'camera_capture') for f in fault_files_to_process]
 
-    if current_label_name != st.session_state.last_label_name or current_fault_name != st.session_state.last_fault_name:
+    if current_label_name != st.session_state.last_label_name or current_fault_names != st.session_state.last_fault_names:
         st.session_state.last_label_name = current_label_name
-        st.session_state.last_fault_name = current_fault_name
+        st.session_state.last_fault_names = current_fault_names
         st.session_state.analysis_done = False
         st.session_state.analysis_results = {}
 
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("START DIAGNOSTIC", type="primary"):
-            with st.spinner("Processing..."):
-                label_img = Image.open(label_file).convert("RGB")
+            with st.spinner("Processing Telemetry..."):
+                label_img = Image.open(l_file).convert("RGB")
                 
-                if hasattr(fault_file, 'type') and fault_file.type.startswith('video'):
-                    fault_img = get_frame_from_video(fault_file)
-                else:
-                    fault_img = Image.open(fault_file).convert("RGB")
+                buffered_l = io.BytesIO()
+                label_img.save(buffered_l, format="JPEG")
+                img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
+                url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                
+                try:
+                    resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                    preds_l = resp_l.json().get('predictions', [])
+                except:
+                    preds_l = []
+                
+                brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
+                for p in preds_l:
+                    x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
+                    if p['class'] == "model_name":
+                        roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                        res = reader.readtext(roi, detail=0)
+                        if res: model = res[0]
+                    elif p['class'] == "serial_number":
+                        roi = np.array(label_img.crop((x0, y0, x1, y1)))
+                        res = reader.readtext(roi, detail=0)
+                        if res: serial = res[0]
 
-                if fault_img:
-                    # Identity Logic
-                    buffered = io.BytesIO()
-                    label_img.save(buffered, format="JPEG")
-                    img_str = base64.b64encode(buffered.getvalue()).decode("ascii")
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
-                    
-                    try:
-                        resp = requests.post(url, data=img_str, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                        preds = resp.json().get('predictions', [])
-                    except:
-                        preds = []
-                    
-                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
-                    for p in preds:
-                        x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        if p['class'] == "model_name":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
-                            res = reader.readtext(roi, detail=0)
-                            if res: model = res[0]
-                        elif p['class'] == "serial_number":
-                            roi = np.array(label_image.crop((x0, y0, x1, y1)))
-                            res = reader.readtext(roi, detail=0)
-                            if res: serial = res[0]
+                all_cust_iss = []
+                all_tech_iss = []
+                all_routed_tickets = []
+                annotated_images = []
 
-                    # Fault Logic
-                    buffered_f = io.BytesIO()
-                    fault_img.save(buffered_f, format="JPEG")
-                    img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
-                    try:
-                        resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                        preds_f = resp_f.json().get('predictions', [])
-                    except:
-                        preds_f = []
-                    
-                    draw = ImageDraw.Draw(fault_img)
-                    cust_iss, tech_iss = [], []
-                    for p in preds_f:
-                        lbl = normalize_label(p['class'])
-                        if lbl in ROUTING_LOGIC:
-                            x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
-                            x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
-                            draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
-                            route = ROUTING_LOGIC[lbl]
-                            if route['recipient'] == "Customer":
-                                cust_iss.append((lbl, route))
-                            else:
-                                tech_iss.append((lbl, route))
+                for f_file in fault_files_to_process:
+                    if hasattr(f_file, 'type') and f_file.type.startswith('video'):
+                        fault_img = get_frame_from_video(f_file)
+                    else:
+                        fault_img = Image.open(f_file).convert("RGB")
 
-                    routed_tickets = []
-                    if tech_iss:
-                        current_tickets = load_tickets()
-                        for lbl, rt in tech_iss:
-                            new_ticket = create_routing_ticket(getattr(fault_file, 'name', 'upload'), brand, model, serial, lbl, rt)
-                            current_tickets.append(new_ticket)
-                            routed_tickets.append(new_ticket)
-                        save_tickets(current_tickets)
+                    if fault_img:
+                        buffered_f = io.BytesIO()
+                        fault_img.save(buffered_f, format="JPEG")
+                        img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
+                        try:
+                            resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                            preds_f = resp_f.json().get('predictions', [])
+                        except:
+                            preds_f = []
+                        
+                        draw = ImageDraw.Draw(fault_img)
+                        for p in preds_f:
+                            lbl = normalize_label(p['class'])
+                            if lbl in ROUTING_LOGIC:
+                                x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
+                                x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
+                                draw.rectangle([x0, y0, x1, y1], outline="#EF4444", width=6) 
+                                route = ROUTING_LOGIC[lbl]
+                                
+                                if route['recipient'] == "Customer":
+                                    if lbl not in [i[0] for i in all_cust_iss]:
+                                        all_cust_iss.append((lbl, route))
+                                else:
+                                    if lbl not in [i[0] for i in all_tech_iss]:
+                                        all_tech_iss.append((lbl, route))
+                                        current_tickets = load_tickets()
+                                        # Using a fallback dictionary structure if rt is undefined at this scope level
+                                        rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
+                                        new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback)
+                                        current_tickets.append(new_ticket)
+                                        all_routed_tickets.append(new_ticket)
+                                        save_tickets(current_tickets)
 
-                    st.session_state.analysis_results = {
-                        'brand': brand, 'model': model, 'serial': serial,
-                        'customer_issues': cust_iss, 'technician_issues': tech_iss,
-                        'annotated_fault_image': fault_img,
-                        'routed_tickets': routed_tickets
-                    }
-                    st.session_state.analysis_done = True
+                        annotated_images.append(fault_img)
+
+                st.session_state.analysis_results = {
+                    'brand': brand, 'model': model, 'serial': serial,
+                    'customer_issues': all_cust_iss, 'technician_issues': all_tech_iss,
+                    'annotated_fault_images': annotated_images,
+                    'routed_tickets': all_routed_tickets
+                }
+                st.session_state.analysis_done = True
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results
@@ -446,7 +452,8 @@ with tab1:
         with st.container(border=True):
             st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE TELEMETRY</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:12px;'>SN: {res['serial']}</span>", unsafe_allow_html=True)
             
-        st.image(res['annotated_fault_image'], use_container_width=True)
+        for img in res['annotated_fault_images']:
+            st.image(img, use_container_width=True)
         
         if res['customer_issues']:
             for lbl, rt in res['customer_issues']:
@@ -467,7 +474,6 @@ with tab1:
             for index, (lbl, rt) in enumerate(res['technician_issues']):
                 ticket = res['routed_tickets'][index] if index < len(res['routed_tickets']) else None
                 ticket_id = ticket['ticket_id'] if ticket else "PENDING"
-                team_desc = TEAM_DESCRIPTIONS.get(rt['id'], f"Team {rt['id']}")
                 
                 with st.expander(f"🚨 ESCALATED PROTOCOL"):
                     st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
@@ -480,13 +486,16 @@ with tab1:
                     st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
                     
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["id"]} - {team_desc}</p>', unsafe_allow_html=True)
+                    team_info = "Unknown Team"
+                    if 'id' in rt:
+                         team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
+                    st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
                     
                     st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{rt.get("steps", "")}</p>', unsafe_allow_html=True)
                     
                     st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt["act"]}</p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("act", "")}</p>', unsafe_allow_html=True)
 
 # --- 7. TAB 2: QUEUE MANAGEMENT DASHBOARD ---
 with tab2:
@@ -514,7 +523,7 @@ with tab2:
         
         for idx, ticket in enumerate(filtered):
             status_color = "#EF4444" if ticket['status'] == "Pending Review" else "#0EA5E9" if ticket['status'] == "In Progress" else "#10B981"
-            team_desc = TEAM_DESCRIPTIONS.get(ticket['team_id'], f"Team {ticket['team_id']}")
+            team_desc = TEAM_DESCRIPTIONS.get(ticket.get('team_id', ''), f"Team {ticket.get('team_id', '')}")
             
             with st.expander(f"🎫 TICKET {ticket['ticket_id']} — {ticket['observation']}"):
                 st.markdown(f'<span style="background-color: {status_color}; color: #000000; padding: 4px 12px; border-radius: 4px; font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform:uppercase;">{ticket["status"]}</span>', unsafe_allow_html=True)
@@ -524,7 +533,7 @@ with tab2:
                 st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} (SN: {ticket["serial"]})</p>', unsafe_allow_html=True)
                 
                 st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{ticket["team_id"]} - {team_desc}</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
                 
                 st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                 st.markdown(f'<p class="data-value">{ticket["troubleshooting_steps"]}</p>', unsafe_allow_html=True)
