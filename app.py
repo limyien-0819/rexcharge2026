@@ -106,7 +106,7 @@ div[data-testid="stFileUploadDropzone"] > section > svg * {
 }
 
 /* ==============================
-   UPLOADED FILE CARD FRAME (WHITE BOX)
+   UPLOADED FILE CARD FRAME
 ============================== */
 [data-testid="stUploadedFile"] {
     background-color: #FFFFFF !important;
@@ -164,7 +164,7 @@ img {
 }
 
 /* ==============================
-   MULTISELECT FILTER TAGS (GREY)
+   MULTISELECT FILTER TAGS
 ============================== */
 span[data-baseweb="tag"] {
     background-color: #334155 !important; 
@@ -338,6 +338,31 @@ button[kind="secondary"]:hover {
     font-weight: 900 !important;
 }
 
+/* --- STATUS TIMELINE STYLING --- */
+.timeline-box {
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+.timeline-active {
+    background-color: rgba(14, 165, 233, 0.2);
+    border: 2px solid #0EA5E9;
+    color: #0EA5E9;
+}
+.timeline-inactive {
+    background-color: #09090B;
+    border: 1px solid #1E293B;
+    color: #475569;
+}
+.timeline-resolved {
+    background-color: rgba(16, 185, 129, 0.2);
+    border: 2px solid #10B981;
+    color: #10B981;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -460,7 +485,8 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["DIAGNOSTICS", "SERVICE TICKETS", "TICKET HISTORY"])
+# --- FIX: Added "CHECK STATUS" Tab for Users ---
+tab1, tab2, tab3, tab4 = st.tabs(["DIAGNOSTICS", "CHECK STATUS", "SERVICE TICKETS", "TICKET HISTORY"])
 
 with tab1:
     st.markdown('<div class="dash-header">📸 1. Scan Charger Label</div>', unsafe_allow_html=True)
@@ -601,6 +627,7 @@ with tab1:
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
         
+        # --- NO FAULTS / MANUAL ESCALATION HANDLING ---
         if not res['customer_issues'] and not res['technician_issues']:
             if not st.session_state.force_escalated:
                 st.markdown("""
@@ -635,12 +662,19 @@ with tab1:
                         
                         st.session_state.force_escalated = True
                         res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
-                        res['routed_tickets'].append(new_ticket)
                         st.rerun()
-            else:
-                st.success("Manual review ticket has been created and routed to the technical team.")
-            
+        
+        # --- FIX: Handling Customer vs Technician Logic properly ---
+        
+        # 1. Show Customer Issues (Self-Resolvable)
         if res['customer_issues']:
+            st.markdown("""
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #F59E0B; border-radius: 12px; padding: 15px; text-align: center; margin-top: 20px; margin-bottom: 10px;">
+                    <p style="color: #F59E0B; font-weight: 800; font-size: 14px; letter-spacing: 1px; margin: 0;">USER-RESOLVABLE ISSUE DETECTED</p>
+                    <p style="color: #94A3B8; font-size: 11px; margin-top: 2px; margin-bottom: 0;">No technician has been dispatched yet. Please follow the steps below.</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
             for lbl, rt in res['customer_issues']:
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
                     c1, c2 = st.columns(2)
@@ -653,40 +687,87 @@ with tab1:
                     
                     st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+            
+            # Allow user to escalate if their fix fails
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Did the steps above fail to fix the issue?</p>", unsafe_allow_html=True)
+            bc1, bc2, bc3 = st.columns([1, 2, 1])
+            with bc2:
+                if st.button("TROUBLESHOOTING FAILED - REQUEST TECHNICIAN", key="esc_cust", use_container_width=True):
+                    # Take the first customer issue and force create a ticket
+                    lbl, rt = res['customer_issues'][0]
+                    fallback_img_data = image_to_base64(res['annotated_fault_images'][0]) if res['annotated_fault_images'] else None
+                    new_ticket = create_routing_ticket("User Escalation", res['brand'], res['model'], display_serial, lbl, rt, fallback_img_data)
                     
-                    # --- FIX: Removed the REQUIRED ACTIONS from the customer view entirely ---
-
-        if res['technician_issues']:
-            for index, (lbl, rt) in enumerate(res['technician_issues']):
-                ticket = res['routed_tickets'][index] if index < len(res['routed_tickets']) else None
-                ticket_id = ticket['ticket_id'] if ticket else "PENDING"
-                
-                with st.expander(f"🚨 ESCALATED TICKETS"):
-                    c1, c2 = st.columns(2)
-                    with c1:
-                        st.markdown('<p class="data-label">TICKET ID</p>', unsafe_allow_html=True)
-                        st.markdown(f'<p class="data-value" style="color:#0EA5E9; font-weight:800;">{ticket_id}</p>', unsafe_allow_html=True)
-                        st.markdown('<p class="data-label">OBSERVATION</p>', unsafe_allow_html=True)
-                        st.markdown(f'<p class="data-value">{lbl.replace("_"," ").title()}</p>', unsafe_allow_html=True)
-                    with c2:
-                        st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
-                        st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("severity", "High")}</p>', unsafe_allow_html=True)
-                        team_info = "Unknown Team"
-                        if 'id' in rt and rt['id'] != "Unknown":
-                             team_info = f"{rt['id']} - {TEAM_DESCRIPTIONS.get(rt['id'], 'Team')}"
-                        st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
-                        st.markdown(f'<p class="data-value">{team_info}</p>', unsafe_allow_html=True)
-                        
-                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt.get("steps", "")}</p>', unsafe_allow_html=True)
+                    current_tickets = load_tickets()
+                    current_tickets.append(new_ticket)
+                    save_tickets(current_tickets)
                     
-                    st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value" style="color:#EF4444;">{rt.get("act", "")}</p>', unsafe_allow_html=True)
+                    st.session_state.force_escalated = True
+                    st.rerun()
 
-# --- 7. TAB 2: ACTIVE SERVICE TICKETS ---
+        # 2. Show Technician Notification (If escalated automatically or manually)
+        if res['technician_issues'] or st.session_state.force_escalated:
+            
+            st.markdown("""
+                <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid #0EA5E9; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
+                    <p style="color: #0EA5E9; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">MAINTENANCE DISPATCHED</p>
+                    <p style="color: #94A3B8; font-size: 12px; margin-top: 5px; text-align: center;">Our technical team has been notified. A service ticket has been created for your unit.</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Show the Ticket ID to the user so they can track it in Tab 2
+            if res['routed_tickets']:
+                t_id = res['routed_tickets'][-1]['ticket_id']
+                st.markdown(f"<p style='text-align:center; margin-top:15px; color:#F8FAFC;'>Your Ticket ID is: <b style='color:#0EA5E9; font-size:18px;'>{t_id}</b></p>", unsafe_allow_html=True)
+                st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>You can check the progress of this ticket in the 'CHECK STATUS' tab.</p>", unsafe_allow_html=True)
+
+
+# --- NEW: TAB 2: USER TICKET TRACKING ---
 with tab2:
-    all_tickets = load_tickets()
+    st.markdown('<div class="dash-header">TRACK YOUR TICKET</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dash-sub">Enter your Ticket ID below to check the current status of your service request.</div>', unsafe_allow_html=True)
     
+    search_id = st.text_input("Ticket ID", placeholder="e.g., 20260514000001", label_visibility="collapsed")
+    
+    if st.button("CHECK STATUS", type="primary"):
+        all_tickets = load_tickets()
+        found_ticket = next((t for t in all_tickets if t['ticket_id'] == search_id.strip()), None)
+        
+        if not found_ticket:
+            st.error("Ticket not found. Please check the ID and try again.")
+        else:
+            st.markdown("<hr style='border-color: #1E293B; margin-top: 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+            
+            # Determine timeline states
+            stat = found_ticket['status']
+            p_class = "timeline-active" if stat == "Pending Review" else "timeline-resolved" if stat in ["In Progress", "Resolved"] else "timeline-inactive"
+            i_class = "timeline-active" if stat == "In Progress" else "timeline-resolved" if stat == "Resolved" else "timeline-inactive"
+            r_class = "timeline-active" if stat == "Resolved" else "timeline-inactive"
+            
+            # Display timeline
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown(f'<div class="timeline-box {p_class}">PENDING</div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown(f'<div class="timeline-box {i_class}">IN PROGRESS</div>', unsafe_allow_html=True)
+            with c3:
+                st.markdown(f'<div class="timeline-box {r_class}">RESOLVED</div>', unsafe_allow_html=True)
+                
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            with st.container(border=True):
+                st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>TICKET DETAILS</span><br><b style='font-size: 18px;'>{found_ticket['observation']}</b>", unsafe_allow_html=True)
+                st.markdown(f"<span style='color:#94A3B8; font-size:13px;'>Device: {found_ticket['brand']} / {found_ticket['model']} (SN: {found_ticket['serial']})</span>", unsafe_allow_html=True)
+                
+                if 'timestamp' in found_ticket:
+                    formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
+                    st.markdown(f"<span style='color:#64748B; font-size:11px;'>Logged on: {formatted_time}</span>", unsafe_allow_html=True)
+
+
+# --- 7. TAB 3: ACTIVE SERVICE TICKETS (TECHNICIAN) ---
+with tab3:
+    all_tickets = load_tickets()
     active_tickets = [t for t in all_tickets if t.get('status') in ["Pending Review", "In Progress"]]
     
     if not active_tickets:
@@ -806,8 +887,8 @@ with tab2:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(current_t); st.rerun()
 
-# --- 8. TAB 3: RESOLVED TICKET HISTORY ---
-with tab3:
+# --- 8. TAB 4: RESOLVED TICKET HISTORY (TECHNICIAN) ---
+with tab4:
     all_tickets = load_tickets()
     
     resolved_tickets = [t for t in all_tickets if t.get('status') == "Resolved"]
