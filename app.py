@@ -26,13 +26,8 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
-   TITLE GRADIENT FIX & ALIGNMENT
+   TITLE GRADIENT FIX & REMOVE ANCHOR LINK
 ============================== */
-.header-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
@@ -40,40 +35,13 @@ h1.gradient-title {
     text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
     font-size: 3.5rem !important;
     font-weight: 800 !important;
-    margin: 0px auto !important;
-    padding: 0px !important;
-    display: inline-block;
-    position: relative;
-}
-
-/* SLEEK TEXT LIGHTNING ICON */
-h1.gradient-title::before {
-    content: "⚡";
-    position: absolute;
-    left: -55px; 
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2.5rem;
-    color: #38BDF8 !important;
-    -webkit-text-fill-color: #38BDF8 !important;
-    text-shadow: none !important;
+    margin-bottom: 0px !important;
+    text-align: center !important;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
 h1.gradient-title a {
     display: none !important;
-}
-
-/* REFINED SUBTITLE */
-.subtitle {
-    color: #94A3B8 !important; 
-    -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 8px; 
-    font-size: 11px; 
-    font-weight: 600;
-    margin-top: 5px; 
-    text-transform: uppercase;
-    text-align: center;
 }
 
 /* ==============================
@@ -529,7 +497,12 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div class="header-container">
-        <h1 class="gradient-title">WATT'S UP</h1>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+             <svg width="36" height="36" viewBox="0 0 24 24" fill="#38BDF8" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 3L3 13H11V21L21 11H13V3Z" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+             </svg>
+            <h1 class="gradient-title" style="margin: 0;">WATT'S UP</h1>
+        </div>
         <p class="subtitle">DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
