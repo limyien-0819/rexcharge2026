@@ -44,14 +44,6 @@ st.markdown("""
     justify-content: center;
 }
 
-.lightning-icon {
-    font-size: 3rem;
-    position: absolute;
-    left: -45px; /* Adjust this to move the icon left/right */
-    top: 50%;
-    transform: translateY(-50%);
-}
-
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
@@ -250,7 +242,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING --- */
+/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -528,11 +520,9 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# --- NEW: Perfectly aligned title section with the lightning bolt positioned absolutely ---
 st.markdown("""
     <div class="header-container">
         <div class="title-wrapper">
-            <span class="lightning-icon">⚡</span>
             <h1 class="gradient-title">WATT'S UP</h1>
         </div>
         <p class="subtitle">DIAGNOSTIC HUB</p>
