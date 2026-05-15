@@ -47,12 +47,9 @@ st.markdown("""
 .lightning-icon {
     font-size: 3rem;
     position: absolute;
-    /* Move it a bit further away from the text */
-    left: -55px; 
+    left: -45px; /* Adjust this to move the icon left/right */
     top: 50%;
     transform: translateY(-50%);
-    /* Make the lightning bolt blue to match the theme */
-    color: #38BDF8 !important;
 }
 
 h1.gradient-title {
@@ -70,8 +67,7 @@ h1.gradient-title {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     letter-spacing: 5px;
-    /* Make the subtitle slightly smaller */
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
     margin-top: -5px;
 }
@@ -532,6 +528,7 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# --- NEW: Perfectly aligned title section with the lightning bolt positioned absolutely ---
 st.markdown("""
     <div class="header-container">
         <div class="title-wrapper">
