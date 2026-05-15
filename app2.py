@@ -211,7 +211,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -600,12 +600,10 @@ with tab1:
                                     else:
                                         if lbl not in [i[0] for i in all_tech_iss]:
                                             all_tech_iss.append((lbl, route))
-                                            
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
                                             rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
                                             new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback, encoded_img)
-                                            
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
                                             save_tickets(current_tickets)
@@ -777,17 +775,22 @@ with tab2:
                 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            display_serial_track = found_ticket["serial"]
+            display_serial_track = found_ticket.get("serial", "Unknown")
             if display_serial_track.lower().startswith('sn:'): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn '): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn'): display_serial_track = display_serial_track[2:].strip()
             
-            formatted_time = ""
+            formatted_time = "Unknown"
             if 'timestamp' in found_ticket:
                 formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
 
-            # --- FIX: Formatted completely flush to prevent Streamlit Markdown breaks ---
-            safe_html = '<div class="atas-ticket-box"><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px;">TICKET DETAILS</span><span style="font-size: 18px; color: #0EA5E9; font-weight: 800; display: block; margin-bottom: 16px;">' + found_ticket["observation"] + '</span><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">UNIT IDENTIFICATION</span><span style="font-size: 15px; color: #F8FAFC; font-weight: 500; display: block; margin-bottom: 5px;">' + found_ticket["brand"] + ' / ' + found_ticket["model"] + '</span><span style="font-size: 13px; color: #94A3B8; font-weight: 500; display: block; margin-bottom: 16px;">Serial Number: ' + display_serial_track + '</span><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">LOGGED ON</span><span style="font-size: 13px; color: #64748B; display: block;">' + formatted_time + '</span></div>'
+            # --- FIX: Removed formatting strings that crash Streamlit markdown parsing ---
+            obs_clean = str(found_ticket.get("observation", "")).replace("\n", " ").replace("\r", " ")
+            brand_clean = str(found_ticket.get("brand", "")).replace("\n", " ").replace("\r", " ")
+            model_clean = str(found_ticket.get("model", "")).replace("\n", " ").replace("\r", " ")
+            serial_clean = str(display_serial_track).replace("\n", " ").replace("\r", " ")
+
+            safe_html = f'<div class="atas-ticket-box"><div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div><div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{obs_clean}</div><div class="data-label">UNIT IDENTIFICATION</div><div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean}</div><div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {serial_clean}</div><div class="data-label">LOGGED ON</div><div style="font-size: 13px; color: #64748B;">{formatted_time}</div></div>'
             st.markdown(safe_html, unsafe_allow_html=True)
 
 

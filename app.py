@@ -26,7 +26,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
-   TITLE GRADIENT FIX
+   TITLE GRADIENT FIX & REMOVE ANCHOR LINK
 ============================== */
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
@@ -36,6 +36,11 @@ h1.gradient-title {
     font-size: 3.5rem !important;
     font-weight: 800 !important;
     margin-bottom: 0px !important;
+}
+
+/* Hide the automatic Streamlit anchor link next to the title */
+h1.gradient-title a {
+    display: none !important;
 }
 
 /* ==============================
@@ -489,6 +494,7 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# NOTE: The anchor link removal CSS rule (h1.gradient-title a { display: none !important; }) handles the icon removal here.
 st.markdown("""
     <div style="text-align: center; margin-bottom: 20px;">
         <h1 class="gradient-title">⚡ WATT'S UP</h1>
@@ -784,13 +790,22 @@ with tab2:
             if 'timestamp' in found_ticket:
                 formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
 
-            # --- FIX: Removed formatting strings that crash Streamlit markdown parsing ---
             obs_clean = str(found_ticket.get("observation", "")).replace("\n", " ").replace("\r", " ")
             brand_clean = str(found_ticket.get("brand", "")).replace("\n", " ").replace("\r", " ")
             model_clean = str(found_ticket.get("model", "")).replace("\n", " ").replace("\r", " ")
             serial_clean = str(display_serial_track).replace("\n", " ").replace("\r", " ")
 
-            safe_html = f'<div class="atas-ticket-box"><div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div><div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{obs_clean}</div><div class="data-label">UNIT IDENTIFICATION</div><div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean}</div><div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {serial_clean}</div><div class="data-label">LOGGED ON</div><div style="font-size: 13px; color: #64748B;">{formatted_time}</div></div>'
+            safe_html = f"""
+            <div class="atas-ticket-box">
+                <div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div>
+                <div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{obs_clean}</div>
+                <div class="data-label">UNIT IDENTIFICATION</div>
+                <div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean}</div>
+                <div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {serial_clean}</div>
+                <div class="data-label">LOGGED ON</div>
+                <div style="font-size: 13px; color: #64748B;">{formatted_time}</div>
+            </div>
+            """
             st.markdown(safe_html, unsafe_allow_html=True)
 
 
