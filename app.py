@@ -211,7 +211,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING --- */
+/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -363,6 +363,15 @@ button[kind="secondary"]:hover {
     background-color: rgba(16, 185, 129, 0.2);
     border: 2px solid #10B981;
     color: #10B981;
+}
+
+/* --- ATAS TICKET DETAILS BOX (TAB 2) --- */
+.atas-ticket-box {
+    background-color: #09090B !important; 
+    border: 1px solid #1E293B !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    margin-top: 20px !important;
 }
 
 </style>
@@ -591,12 +600,10 @@ with tab1:
                                     else:
                                         if lbl not in [i[0] for i in all_tech_iss]:
                                             all_tech_iss.append((lbl, route))
-                                            
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
                                             rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
                                             new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback, encoded_img)
-                                            
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
                                             save_tickets(current_tickets)
@@ -777,21 +784,20 @@ with tab2:
             if 'timestamp' in found_ticket:
                 formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
 
-            # --- FIX: Formatted as a single HTML string to prevent Markdown parsing breaks ---
-            html_box = f"""
-            <div style="background-color: #09090B; border: 1px solid #1E293B; border-radius: 12px; padding: 24px; margin-top: 20px;">
-                <span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px;">TICKET DETAILS</span>
-                <span style="font-size: 18px; color: #0EA5E9; font-weight: 800; display: block; margin-bottom: 16px;">{found_ticket["observation"]}</span>
+            # --- FIX: Refined styling using strictly HTML tags to prevent Markdown parsing interference ---
+            st.markdown(f"""
+            <div class="atas-ticket-box">
+                <div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div>
+                <div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{found_ticket["observation"]}</div>
                 
-                <span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">UNIT IDENTIFICATION</span>
-                <span style="font-size: 15px; color: #F8FAFC; font-weight: 500; display: block; margin-bottom: 5px;">{found_ticket["brand"]} / {found_ticket["model"]}</span>
-                <span style="font-size: 13px; color: #94A3B8; font-weight: 500; display: block; margin-bottom: 16px;">Serial Number: {display_serial_track}</span>
+                <div class="data-label">UNIT IDENTIFICATION</div>
+                <div class="data-value" style="margin-bottom: 4px !important;">{found_ticket["brand"]} / {found_ticket["model"]}</div>
+                <div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {display_serial_track}</div>
                 
-                <span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">LOGGED ON</span>
-                <span style="font-size: 13px; color: #64748B; display: block;">{formatted_time}</span>
+                <div class="data-label">LOGGED ON</div>
+                <div style="font-size: 13px; color: #64748B;">{formatted_time}</div>
             </div>
-            """
-            st.markdown(html_box, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
 
 # --- 7. TAB 3: ACTIVE SERVICE TICKETS (TECHNICIAN) ---
