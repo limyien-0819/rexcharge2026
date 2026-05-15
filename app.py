@@ -77,41 +77,41 @@ h1.gradient-title a {
 }
 
 /* ==============================
-   GLOBAL RESET & HIDE STREAMLIT BRANDING
+   NUCLEAR STREAMLIT BRANDING WIPE
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
 }
 
-/* Hides the top menu, standard footer, and sidebar */
-#MainMenu, footer, header, [data-testid="stSidebar"] {
+/* Kills header, footer, sidebar, and standard toolbars */
+#MainMenu, header, footer, 
+[data-testid="stSidebar"], 
+[data-testid="stHeader"], 
+[data-testid="stFooter"], 
+[data-testid="stToolbar"], 
+[data-testid="stDecoration"], 
+[data-testid="stStatusWidget"], 
+[data-testid="manage-app-button"] {
     display: none !important;
     visibility: hidden !important;
+    opacity: 0 !important;
 }
 
-/* AGGRESSIVE STREAMLIT BADGE REMOVAL */
-/* This targets the actual hyperlink of the Cloud badge directly */
-a[href*="streamlit.io"] {
+/* Bruteforce wipe of the 'Hosted by Streamlit' badge across all possible selectors */
+div[class*="viewerBadge"], 
+div[class*="stViewerBadge"], 
+div[class*="stFooter"],
+a[href*="streamlit.io"], 
+a[href*="streamlit.app"] {
     display: none !important;
     opacity: 0 !important;
-    visibility: hidden !important;
     pointer-events: none !important;
-}
-
-.viewerBadge_container, 
-.viewerBadge_link, 
-[data-testid="stViewerBadge"],
-#st-viewer-badge {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
-
-/* Ensures the empty footer area doesn't take up blank space at the bottom */
-.stApp > footer {
-    display: none !important;
+    z-index: -9999 !important;
+    /* Forces it off the screen even if the cloud overrides 'display: none' */
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
 }
 
 /* ==============================
