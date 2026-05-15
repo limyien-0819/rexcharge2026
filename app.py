@@ -31,7 +31,7 @@ st.markdown("""
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -50,25 +50,57 @@ h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
-    font-size: 3.5rem !important;
-    font-weight: 800 !important;
+    text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
+    font-size: 4rem !important; 
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    letter-spacing: 5px;
-    font-size: 10px;
-    font-weight: 800;
-    margin-top: -5px;
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+    letter-spacing: 16px !important; 
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-top: 5px !important;
+    margin-left: 16px !important; /* Offsets tracking for perfect center */
+    text-transform: uppercase !important;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
 h1.gradient-title a {
+    display: none !important;
+}
+
+/* ==============================
+   GLOBAL RESET & HIDE STREAMLIT BRANDING
+============================== */
+html, body, .stApp {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #000000 !important;
+}
+
+/* Hides the top menu, standard footer, and sidebar */
+#MainMenu, footer, header, [data-testid="stSidebar"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hides the floating "Hosted by Streamlit" cloud badge */
+.viewerBadge_container {
+    display: none !important;
+}
+
+/* Hides the newer version of the Streamlit cloud badge */
+[data-testid="stViewerBadge"] {
+    display: none !important;
+}
+
+/* Ensures the empty footer area doesn't take up blank space at the bottom */
+.stApp > footer {
     display: none !important;
 }
 
@@ -85,18 +117,6 @@ h1.gradient-title a {
 [data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)):not(:has(.stButton)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* ==============================
-   GLOBAL RESET
-============================== */
-html, body, .stApp {
-    font-family: 'Inter', sans-serif !important;
-    background-color: #000000 !important;
-}
-
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
 }
 
 /* ==============================
@@ -245,7 +265,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -1065,8 +1085,9 @@ with tab4:
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t); st.rerun()
 
-        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
+        
+        # --- NEW: BACKUP BUTTON ---
         if os.path.exists(TICKETS_FILE):
             with open(TICKETS_FILE, "r") as f:
                 json_data = f.read()
