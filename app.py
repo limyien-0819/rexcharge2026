@@ -30,7 +30,7 @@ st.markdown("""
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* More breathing room below header */
     position: relative;
     display: flex;
     flex-direction: column;
@@ -44,15 +44,20 @@ st.markdown("""
     justify-content: center;
 }
 
-.lightning-icon {
-    font-size: 3rem;
+/* SLEEK SVG LIGHTNING ICON */
+.lightning-svg {
     position: absolute;
-    /* Increased distance from the title */
-    left: -65px; 
+    left: -50px; 
     top: 50%;
     transform: translateY(-50%);
-    /* Set color to blue */
-    color: #38BDF8 !important;
+    width: 36px;
+    height: 36px;
+    fill: none;
+    stroke: #38BDF8;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0px 0px 8px rgba(56, 189, 248, 0.6));
 }
 
 h1.gradient-title {
@@ -72,14 +77,15 @@ h1.gradient-title a {
     display: none !important;
 }
 
+/* REFINED SUBTITLE */
 .subtitle {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    letter-spacing: 5px;
-    /* Slightly smaller font size */
-    font-size: 8px;
-    font-weight: 800;
-    margin-top: -5px;
+    color: #94A3B8 !important; /* Slightly muted for an atas feel */
+    -webkit-text-fill-color: #94A3B8 !important;
+    letter-spacing: 8px; /* Wider tracking */
+    font-size: 11px; /* Just slightly larger to balance the wide tracking */
+    font-weight: 600;
+    margin-top: 5px; /* Pushed down slightly from title */
+    text-transform: uppercase;
 }
 
 /* ==============================
@@ -533,11 +539,13 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-# Note the &#x26A1;&#xFE0E; syntax forces the emoji to render as a text character so the blue color applies
+
 st.markdown("""
     <div class="header-container">
         <div class="title-wrapper">
-            <span class="lightning-icon">&#x26A1;&#xFE0E;</span>
+            <svg class="lightning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
             <h1 class="gradient-title">WATT'S UP</h1>
         </div>
         <p class="subtitle">DIAGNOSTIC HUB</p>
