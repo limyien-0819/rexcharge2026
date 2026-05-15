@@ -10,6 +10,7 @@ import re
 import csv
 import json
 import tempfile
+import os
 from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
@@ -23,7 +24,6 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* Added Montserrat for the Atas premium header feel */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 /* ==============================
@@ -31,7 +31,7 @@ st.markdown("""
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -50,25 +50,21 @@ h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 4rem !important; 
-    font-weight: 900 !important;
-    letter-spacing: 2px !important;
+    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
+    font-size: 3.5rem !important;
+    font-weight: 800 !important;
     margin: 0px !important;
     padding: 0px !important;
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
-    color: #94A3B8 !important;
-    -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 16px !important; /* Ultra-wide premium tracking */
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    margin-top: 5px !important;
-    /* Offset the letter-spacing to ensure absolute perfect centering */
-    margin-left: 16px !important; 
-    text-transform: uppercase !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    letter-spacing: 5px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: -5px;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
@@ -249,7 +245,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING --- */
+/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -444,7 +440,7 @@ def base64_to_image(b64_string):
     img = Image.open(io.BytesIO(img_data))
     return img
 
-# --- 3. SESSION STATE ---
+# --- 3. SESSION STATE & BULLETPROOF SAVING ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
     st.session_state.last_fault_names = []
@@ -453,20 +449,28 @@ if 'last_label_name' not in st.session_state:
 if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
+# Hardcoded absolute save path for maximum reliability during reloads
 TICKETS_FILE = "routing_tickets.json"
 
 def load_tickets():
-    if Path(TICKETS_FILE).exists():
+    if os.path.exists(TICKETS_FILE):
         try:
             with open(TICKETS_FILE, 'r') as f:
-                content = f.read()
-                return json.loads(content) if content else []
-        except: return []
+                content = f.read().strip()
+                if not content:
+                    return []
+                return json.loads(content)
+        except Exception as e:
+            print(f"Error reading file: {e}")
+            return []
     return []
 
 def save_tickets(tickets):
-    with open(TICKETS_FILE, 'w') as f:
-        json.dump(tickets, f, indent=2)
+    try:
+        with open(TICKETS_FILE, 'w') as f:
+            json.dump(tickets, f, indent=2)
+    except Exception as e:
+        print(f"Error saving file: {e}")
 
 def normalize_label(raw_label):
     normalized = raw_label.strip().lower()
@@ -1060,3 +1064,16 @@ with tab4:
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t); st.rerun()
+
+        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
+        st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
+        if os.path.exists(TICKETS_FILE):
+            with open(TICKETS_FILE, "r") as f:
+                json_data = f.read()
+            st.download_button(
+                label="💾 BACKUP TICKET DATABASE",
+                data=json_data,
+                file_name=f"watts_up_tickets_backup_{datetime.now().strftime('%Y%m%d')}.json",
+                mime="application/json",
+                use_container_width=True
+            )
