@@ -51,22 +51,23 @@ h1.gradient-title {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 4rem !important; 
+    font-size: 2.8rem !important; /* REDUCED SIZE FOR MOBILE COMPATIBILITY */
     font-weight: 900 !important;
     letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
+    white-space: nowrap !important; /* FORCES SINGLE LINE */
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
     color: #94A3B8 !important;
     -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 16px !important; 
-    font-size: 11px !important;
+    letter-spacing: 12px !important; /* Adjusted tracking for smaller title */
+    font-size: 10px !important;
     font-weight: 600 !important;
     margin-top: 5px !important;
-    margin-left: 16px !important; /* Offsets tracking for perfect center */
+    margin-left: 12px !important; /* Offsets tracking for perfect center */
     text-transform: uppercase !important;
 }
 
@@ -89,14 +90,17 @@ html, body, .stApp {
     visibility: hidden !important;
 }
 
-/* Hides the floating "Hosted by Streamlit" cloud badge */
-.viewerBadge_container {
+/* BULLETPROOF BADGE REMOVAL 
+  Targets all known variants of the Streamlit cloud watermark
+*/
+.viewerBadge_container, 
+.viewerBadge_link, 
+[data-testid="stViewerBadge"],
+#st-viewer-badge {
     display: none !important;
-}
-
-/* Hides the newer version of the Streamlit cloud badge */
-[data-testid="stViewerBadge"] {
-    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* Ensures the empty footer area doesn't take up blank space at the bottom */
