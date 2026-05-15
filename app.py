@@ -47,11 +47,11 @@ st.markdown("""
 .lightning-icon {
     font-size: 3rem;
     position: absolute;
-    /* Move it a bit further away from the text */
-    left: -55px; 
+    /* Increased distance from the title */
+    left: -65px; 
     top: 50%;
     transform: translateY(-50%);
-    /* Make the lightning bolt blue to match the theme */
+    /* Set color to blue */
     color: #38BDF8 !important;
 }
 
@@ -64,21 +64,22 @@ h1.gradient-title {
     font-weight: 800 !important;
     margin: 0px !important;
     padding: 0px !important;
+    text-align: center !important;
+}
+
+/* Hide the automatic Streamlit anchor link next to the title */
+h1.gradient-title a {
+    display: none !important;
 }
 
 .subtitle {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     letter-spacing: 5px;
-    /* Make the subtitle slightly smaller */
-    font-size: 9px;
+    /* Slightly smaller font size */
+    font-size: 8px;
     font-weight: 800;
     margin-top: -5px;
-}
-
-/* Hide the automatic Streamlit anchor link next to the title */
-h1.gradient-title a {
-    display: none !important;
 }
 
 /* ==============================
@@ -532,10 +533,11 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# Note the &#x26A1;&#xFE0E; syntax forces the emoji to render as a text character so the blue color applies
 st.markdown("""
     <div class="header-container">
         <div class="title-wrapper">
-            <span class="lightning-icon">⚡</span>
+            <span class="lightning-icon">&#x26A1;&#xFE0E;</span>
             <h1 class="gradient-title">WATT'S UP</h1>
         </div>
         <p class="subtitle">DIAGNOSTIC HUB</p>
