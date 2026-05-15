@@ -26,8 +26,35 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
-   TITLE GRADIENT FIX & REMOVE ANCHOR LINK
+   TITLE GRADIENT FIX & ALIGNMENT
 ============================== */
+.header-container {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightning-icon {
+    font-size: 3rem;
+    position: absolute;
+    /* Move it a bit further away from the text */
+    left: -55px; 
+    top: 50%;
+    transform: translateY(-50%);
+    /* Make the lightning bolt blue to match the theme */
+    color: #38BDF8 !important;
+}
+
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
@@ -35,8 +62,18 @@ h1.gradient-title {
     text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
     font-size: 3.5rem !important;
     font-weight: 800 !important;
-    margin-bottom: 0px !important;
-    text-align: center !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.subtitle {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    letter-spacing: 5px;
+    /* Make the subtitle slightly smaller */
+    font-size: 9px;
+    font-weight: 800;
+    margin-top: -5px;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
@@ -497,11 +534,9 @@ MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div class="header-container">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-             <svg width="36" height="36" viewBox="0 0 24 24" fill="#38BDF8" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 3L3 13H11V21L21 11H13V3Z" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-             </svg>
-            <h1 class="gradient-title" style="margin: 0;">WATT'S UP</h1>
+        <div class="title-wrapper">
+            <span class="lightning-icon">⚡</span>
+            <h1 class="gradient-title">WATT'S UP</h1>
         </div>
         <p class="subtitle">DIAGNOSTIC HUB</p>
     </div>
