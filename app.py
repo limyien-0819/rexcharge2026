@@ -51,23 +51,23 @@ h1.gradient-title {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 2.8rem !important; /* REDUCED SIZE FOR MOBILE COMPATIBILITY */
+    font-size: 2.8rem !important; 
     font-weight: 900 !important;
     letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
-    white-space: nowrap !important; /* FORCES SINGLE LINE */
+    white-space: nowrap !important; 
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
     color: #94A3B8 !important;
     -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 12px !important; /* Adjusted tracking for smaller title */
+    letter-spacing: 12px !important; 
     font-size: 10px !important;
     font-weight: 600 !important;
     margin-top: 5px !important;
-    margin-left: 12px !important; /* Offsets tracking for perfect center */
+    margin-left: 12px !important; 
     text-transform: uppercase !important;
 }
 
@@ -88,19 +88,6 @@ html, body, .stApp {
 #MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
     visibility: hidden !important;
-}
-
-/* BULLETPROOF BADGE REMOVAL 
-  Targets all known variants of the Streamlit cloud watermark
-*/
-.viewerBadge_container, 
-.viewerBadge_link, 
-[data-testid="stViewerBadge"],
-#st-viewer-badge {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
 }
 
 /* Ensures the empty footer area doesn't take up blank space at the bottom */
@@ -433,6 +420,24 @@ button[kind="secondary"]:hover {
 }
 
 </style>
+""", unsafe_allow_html=True)
+
+# --- FORCE REMOVE STREAMLIT BADGE VIA JS ---
+# This injects a script that continuously hunts down and deletes the badge
+st.markdown("""
+    <script>
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                const badges = document.querySelectorAll('.viewerBadge_container, [data-testid="stViewerBadge"]');
+                badges.forEach(badge => badge.remove());
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    </script>
 """, unsafe_allow_html=True)
 
 # --- 2. CORE UTILITIES & OCR ---
