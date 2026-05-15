@@ -26,7 +26,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ==============================
-   TITLE GRADIENT FIX & REMOVE ANCHOR LINK
+   TITLE GRADIENT FIX & ALIGNMENT
 ============================== */
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
@@ -36,6 +36,9 @@ h1.gradient-title {
     font-size: 3.5rem !important;
     font-weight: 800 !important;
     margin-bottom: 0px !important;
+    text-align: center !important;
+    /* Pulls the title left to compensate for the lightning icon width */
+    margin-left: -35px !important; 
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
