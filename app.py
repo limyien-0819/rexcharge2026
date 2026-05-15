@@ -28,6 +28,30 @@ st.markdown("""
 /* ==============================
    TITLE GRADIENT FIX & ALIGNMENT
 ============================== */
+.header-container {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightning-icon {
+    font-size: 3rem;
+    position: absolute;
+    left: -45px; /* Adjust this to move the icon left/right */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
@@ -35,10 +59,17 @@ h1.gradient-title {
     text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
     font-size: 3.5rem !important;
     font-weight: 800 !important;
-    margin-bottom: 0px !important;
-    text-align: center !important;
-    /* Pulls the title left to compensate for the lightning icon width */
-    margin-left: -35px !important; 
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.subtitle {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    letter-spacing: 5px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: -5px;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
@@ -497,10 +528,14 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
+# --- NEW: Perfectly aligned title section with the lightning bolt positioned absolutely ---
 st.markdown("""
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 class="gradient-title">⚡ WATT'S UP</h1>
-        <p style="color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; letter-spacing: 5px; font-size: 10px; font-weight: 800; margin-top: -10px;">DIAGNOSTIC HUB</p>
+    <div class="header-container">
+        <div class="title-wrapper">
+            <span class="lightning-icon">⚡</span>
+            <h1 class="gradient-title">WATT'S UP</h1>
+        </div>
+        <p class="subtitle">DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
 
