@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import cv2
 import requests
 import base64
@@ -20,6 +21,31 @@ st.set_page_config(
     page_icon="⚡", 
     layout="centered",
     initial_sidebar_state="collapsed"
+)
+
+# --- 2. KILL STREAMLIT BADGE (AGGRESSIVE JS METHOD) ---
+# This hidden component runs a JavaScript loop that deletes the "Hosted by Streamlit" badge
+components.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        const removeBadge = () => {
+            const badges = doc.querySelectorAll('.viewerBadge_container, [data-testid="stViewerBadge"]');
+            badges.forEach(badge => {
+                badge.style.display = 'none';
+                badge.style.opacity = '0';
+                badge.remove();
+            });
+            const footers = doc.querySelectorAll('footer');
+            footers.forEach(f => f.style.display = 'none');
+        };
+        // Run immediately
+        removeBadge();
+        // Keep running every 500ms to catch it if Streamlit tries to re-inject it
+        setInterval(removeBadge, 500);
+    </script>
+    """,
+    height=0, width=0,
 )
 
 st.markdown("""
@@ -51,12 +77,12 @@ h1.gradient-title {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 2.8rem !important; 
+    font-size: 2.8rem !important; /* Mobile friendly size */
     font-weight: 900 !important;
     letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
-    white-space: nowrap !important; 
+    white-space: nowrap !important; /* Forces single line */
 }
 
 .subtitle {
@@ -88,6 +114,17 @@ html, body, .stApp {
 #MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
     visibility: hidden !important;
+}
+
+/* CSS fallback for badge removal */
+.viewerBadge_container, 
+.viewerBadge_link, 
+[data-testid="stViewerBadge"],
+#st-viewer-badge {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* Ensures the empty footer area doesn't take up blank space at the bottom */
@@ -422,25 +459,7 @@ button[kind="secondary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# --- FORCE REMOVE STREAMLIT BADGE VIA JS ---
-# This injects a script that continuously hunts down and deletes the badge
-st.markdown("""
-    <script>
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                const badges = document.querySelectorAll('.viewerBadge_container, [data-testid="stViewerBadge"]');
-                badges.forEach(badge => badge.remove());
-            });
-        });
-        
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    </script>
-""", unsafe_allow_html=True)
-
-# --- 2. CORE UTILITIES & OCR ---
+# --- 3. CORE UTILITIES & OCR ---
 @st.cache_resource
 def load_ocr():
     return easyocr.Reader(['en'])
@@ -469,7 +488,7 @@ def base64_to_image(b64_string):
     img = Image.open(io.BytesIO(img_data))
     return img
 
-# --- 3. SESSION STATE & BULLETPROOF SAVING ---
+# --- 4. SESSION STATE & BULLETPROOF SAVING ---
 if 'last_label_name' not in st.session_state:
     st.session_state.last_label_name = None
     st.session_state.last_fault_names = []
@@ -478,7 +497,6 @@ if 'last_label_name' not in st.session_state:
 if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
-# Hardcoded absolute save path for maximum reliability during reloads
 TICKETS_FILE = "routing_tickets.json"
 
 def load_tickets():
@@ -533,7 +551,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "image_data": image_base64 
     }
 
-# --- 4. DATASET LOGIC ---
+# --- 5. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
     with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
@@ -555,11 +573,11 @@ TEAM_DESCRIPTIONS = {
     "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
 }
 
-# --- 5. API CONFIGURATION ---
+# --- 6. API CONFIGURATION ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
-# --- 6. MAIN SYSTEM INTERFACE ---
+# --- 7. MAIN SYSTEM INTERFACE ---
 st.markdown("""
     <div class="header-container">
         <div class="title-wrapper">
@@ -1096,7 +1114,6 @@ with tab4:
 
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
         
-        # --- NEW: BACKUP BUTTON ---
         if os.path.exists(TICKETS_FILE):
             with open(TICKETS_FILE, "r") as f:
                 json_data = f.read()
