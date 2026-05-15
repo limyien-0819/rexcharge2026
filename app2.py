@@ -220,6 +220,7 @@ span[data-baseweb="tag"] svg {
     text-transform: uppercase !important;
     margin-bottom: 2px !important;
     margin-top: 12px !important;
+    display: block !important;
 }
 
 .data-value {
@@ -228,6 +229,7 @@ span[data-baseweb="tag"] svg {
     font-weight: 500 !important;
     margin-bottom: 16px !important;
     line-height: 1.5 !important;
+    display: block !important;
 }
 
 /* ==============================
@@ -369,6 +371,7 @@ button[kind="secondary"]:hover {
     border: 1px solid #1E293B !important;
     border-radius: 12px !important;
     padding: 24px !important;
+    margin-top: 20px !important;
 }
 
 </style>
@@ -774,26 +777,18 @@ with tab2:
                 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # --- FIX: Refined styling for the ticket details container to match the Atas look ---
-            st.markdown('<div class="atas-ticket-box">', unsafe_allow_html=True)
-            
             display_serial_track = found_ticket["serial"]
             if display_serial_track.lower().startswith('sn:'): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn '): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn'): display_serial_track = display_serial_track[2:].strip()
             
-            st.markdown('<p class="data-label">TICKET DETAILS</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important;">{found_ticket["observation"]}</p>', unsafe_allow_html=True)
-            
-            st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="data-value">{found_ticket["brand"]} / {found_ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_track}</span></p>', unsafe_allow_html=True)
-            
+            formatted_time = ""
             if 'timestamp' in found_ticket:
                 formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
-                st.markdown('<p class="data-label">LOGGED ON</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value">{formatted_time}</p>', unsafe_allow_html=True)
-                
-            st.markdown('</div>', unsafe_allow_html=True)
+
+            # --- FIX: Formatted completely flush to prevent Streamlit Markdown breaks ---
+            safe_html = '<div class="atas-ticket-box"><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px;">TICKET DETAILS</span><span style="font-size: 18px; color: #0EA5E9; font-weight: 800; display: block; margin-bottom: 16px;">' + found_ticket["observation"] + '</span><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">UNIT IDENTIFICATION</span><span style="font-size: 15px; color: #F8FAFC; font-weight: 500; display: block; margin-bottom: 5px;">' + found_ticket["brand"] + ' / ' + found_ticket["model"] + '</span><span style="font-size: 13px; color: #94A3B8; font-weight: 500; display: block; margin-bottom: 16px;">Serial Number: ' + display_serial_track + '</span><span style="font-size: 10px; color: #64748B; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; margin-top: 12px;">LOGGED ON</span><span style="font-size: 13px; color: #64748B; display: block;">' + formatted_time + '</span></div>'
+            st.markdown(safe_html, unsafe_allow_html=True)
 
 
 # --- 7. TAB 3: ACTIVE SERVICE TICKETS (TECHNICIAN) ---
