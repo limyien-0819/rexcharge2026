@@ -211,7 +211,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -775,29 +775,23 @@ with tab2:
                 
             st.markdown("<br>", unsafe_allow_html=True)
             
-            display_serial_track = found_ticket["serial"]
+            display_serial_track = found_ticket.get("serial", "Unknown")
             if display_serial_track.lower().startswith('sn:'): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn '): display_serial_track = display_serial_track[3:].strip()
             elif display_serial_track.lower().startswith('sn'): display_serial_track = display_serial_track[2:].strip()
             
-            formatted_time = ""
+            formatted_time = "Unknown"
             if 'timestamp' in found_ticket:
                 formatted_time = datetime.fromisoformat(found_ticket['timestamp']).strftime('%B %d, %Y - %H:%M %p')
 
-            # --- FIX: Refined styling using strictly HTML tags to prevent Markdown parsing interference ---
-            st.markdown(f"""
-            <div class="atas-ticket-box">
-                <div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div>
-                <div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{found_ticket["observation"]}</div>
-                
-                <div class="data-label">UNIT IDENTIFICATION</div>
-                <div class="data-value" style="margin-bottom: 4px !important;">{found_ticket["brand"]} / {found_ticket["model"]}</div>
-                <div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {display_serial_track}</div>
-                
-                <div class="data-label">LOGGED ON</div>
-                <div style="font-size: 13px; color: #64748B;">{formatted_time}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            # --- FIX: Removed formatting strings that crash Streamlit markdown parsing ---
+            obs_clean = str(found_ticket.get("observation", "")).replace("\n", " ").replace("\r", " ")
+            brand_clean = str(found_ticket.get("brand", "")).replace("\n", " ").replace("\r", " ")
+            model_clean = str(found_ticket.get("model", "")).replace("\n", " ").replace("\r", " ")
+            serial_clean = str(display_serial_track).replace("\n", " ").replace("\r", " ")
+
+            safe_html = f'<div class="atas-ticket-box"><div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div><div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{obs_clean}</div><div class="data-label">UNIT IDENTIFICATION</div><div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean}</div><div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {serial_clean}</div><div class="data-label">LOGGED ON</div><div style="font-size: 13px; color: #64748B;">{formatted_time}</div></div>'
+            st.markdown(safe_html, unsafe_allow_html=True)
 
 
 # --- 7. TAB 3: ACTIVE SERVICE TICKETS (TECHNICIAN) ---
