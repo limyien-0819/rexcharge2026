@@ -23,14 +23,15 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Added Montserrat for the Atas premium header feel */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 /* ==============================
    TITLE GRADIENT FIX & ALIGNMENT
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -45,23 +46,29 @@ st.markdown("""
 }
 
 h1.gradient-title {
+    font-family: 'Montserrat', sans-serif !important;
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
-    font-size: 3.5rem !important;
-    font-weight: 800 !important;
+    text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
+    font-size: 4rem !important; 
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
 }
 
 .subtitle {
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    letter-spacing: 5px;
-    font-size: 10px;
-    font-weight: 800;
-    margin-top: -5px;
+    font-family: 'Montserrat', sans-serif !important;
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+    letter-spacing: 16px !important; /* Ultra-wide premium tracking */
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-top: 5px !important;
+    /* Offset the letter-spacing to ensure absolute perfect centering */
+    margin-left: 16px !important; 
+    text-transform: uppercase !important;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
@@ -242,7 +249,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
