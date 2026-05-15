@@ -30,34 +30,7 @@ st.markdown("""
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 30px; /* More breathing room below header */
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.title-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* SLEEK SVG LIGHTNING ICON */
-.lightning-svg {
-    position: absolute;
-    left: -50px; 
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    fill: none;
-    stroke: #38BDF8;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    filter: drop-shadow(0px 0px 8px rgba(56, 189, 248, 0.6));
+    margin-bottom: 30px;
 }
 
 h1.gradient-title {
@@ -67,9 +40,23 @@ h1.gradient-title {
     text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
     font-size: 3.5rem !important;
     font-weight: 800 !important;
-    margin: 0px !important;
+    margin: 0px auto !important;
     padding: 0px !important;
-    text-align: center !important;
+    display: inline-block;
+    position: relative;
+}
+
+/* SLEEK TEXT LIGHTNING ICON */
+h1.gradient-title::before {
+    content: "⚡";
+    position: absolute;
+    left: -55px; 
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem;
+    color: #38BDF8 !important;
+    -webkit-text-fill-color: #38BDF8 !important;
+    text-shadow: none !important;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
@@ -79,13 +66,14 @@ h1.gradient-title a {
 
 /* REFINED SUBTITLE */
 .subtitle {
-    color: #94A3B8 !important; /* Slightly muted for an atas feel */
+    color: #94A3B8 !important; 
     -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 8px; /* Wider tracking */
-    font-size: 11px; /* Just slightly larger to balance the wide tracking */
+    letter-spacing: 8px; 
+    font-size: 11px; 
     font-weight: 600;
-    margin-top: 5px; /* Pushed down slightly from title */
+    margin-top: 5px; 
     text-transform: uppercase;
+    text-align: center;
 }
 
 /* ==============================
@@ -539,15 +527,9 @@ API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
 
 # --- 6. MAIN SYSTEM INTERFACE ---
-
 st.markdown("""
     <div class="header-container">
-        <div class="title-wrapper">
-            <svg class="lightning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-            </svg>
-            <h1 class="gradient-title">WATT'S UP</h1>
-        </div>
+        <h1 class="gradient-title">WATT'S UP</h1>
         <p class="subtitle">DIAGNOSTIC HUB</p>
     </div>
 """, unsafe_allow_html=True)
