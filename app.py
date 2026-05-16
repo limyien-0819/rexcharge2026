@@ -539,13 +539,13 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
 # --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
-    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset (1).csv') # Updated to use your new CSV name
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv') 
     with open(csv_path, mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
             ROUTING_LOGIC[label] = {
-                "id": row['Issue Category'], # Corrected based on new CSV headers
+                "id": row['Issue Category'], 
                 "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
                 "steps": row['Troubleshooting Steps & Parameters'],
                 "act": row['Action Required'],
@@ -715,7 +715,8 @@ with tab1:
         with st.expander("🛠️ DEBUG: Raw Roboflow Model Output (Click to view)"):
             st.write("This shows exactly what the model returned. If 'predictions' is empty, the model didn't detect anything with >5% confidence.")
             for log in st.session_state.debug_raw_api_responses:
-                st.json(log)
+                # CHANGED from st.json(log) to st.code() to avoid Streamlit JS import crash
+                st.code(json.dumps(log, indent=2), language="json")
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results
