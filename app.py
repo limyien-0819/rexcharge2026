@@ -476,6 +476,7 @@ if 'last_label_name' not in st.session_state:
     st.session_state.last_fault_names = []
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
+    st.session_state.debug_raw_api_responses = [] # NEW: for debugging
 if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
@@ -538,13 +539,13 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
 # --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
-    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv')
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset (1).csv') # Updated to use your new CSV name
     with open(csv_path, mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
             ROUTING_LOGIC[label] = {
-                "id": row['Evidence'],
+                "id": row['Issue Category'], # Corrected based on new CSV headers
                 "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
                 "steps": row['Troubleshooting Steps & Parameters'],
                 "act": row['Action Required'],
@@ -555,7 +556,8 @@ except: pass
 TEAM_DESCRIPTIONS = {
     "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
     "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
-    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
+    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection",
+    "Electrical & Utility": "Electrical & Utility Team", "Installation": "Installation Team", "Operational": "Operational Support"
 }
 
 # --- 5. SECURE API CONFIGURATION (RECHARGE-2) ---
@@ -605,6 +607,7 @@ with tab1:
         st.session_state.analysis_done = False
         st.session_state.force_escalated = False
         st.session_state.analysis_results = {}
+        st.session_state.debug_raw_api_responses = []
 
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -614,19 +617,24 @@ with tab1:
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
                 st.session_state.force_escalated = False 
+                st.session_state.debug_raw_api_responses = [] # Reset debug log
+                
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
                     img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                    # LOWERED CONFIDENCE THRESHOLD TO 5 TO DEBUG
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=5" 
                     
                     try:
                         resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
                         preds_l = resp_l.json().get('predictions', [])
-                    except:
+                        st.session_state.debug_raw_api_responses.append({"image": "Label Image", "response": resp_l.json()})
+                    except Exception as e:
                         preds_l = []
+                        st.session_state.debug_raw_api_responses.append({"image": "Label Image", "error": str(e)})
                     
                     # UPDATED IDENTITY LOGIC FOR RECHARGE-2
                     brand, model, serial = "Unknown", "Unknown", "Not detected"
@@ -659,8 +667,10 @@ with tab1:
                             try:
                                 resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
                                 preds_f = resp_f.json().get('predictions', [])
-                            except:
+                                st.session_state.debug_raw_api_responses.append({"image": getattr(f_file, 'name', 'Fault Image'), "response": resp_f.json()})
+                            except Exception as e:
                                 preds_f = []
+                                st.session_state.debug_raw_api_responses.append({"image": getattr(f_file, 'name', 'Fault Image'), "error": str(e)})
                             
                             draw = ImageDraw.Draw(fault_img)
                             for p in preds_f:
@@ -699,6 +709,13 @@ with tab1:
                         'routed_tickets': all_routed_tickets
                     }
                     st.session_state.analysis_done = True
+
+    # --- NEW DEBUG VIEWER ---
+    if st.session_state.get('debug_raw_api_responses'):
+        with st.expander("🛠️ DEBUG: Raw Roboflow Model Output (Click to view)"):
+            st.write("This shows exactly what the model returned. If 'predictions' is empty, the model didn't detect anything with >5% confidence.")
+            for log in st.session_state.debug_raw_api_responses:
+                st.json(log)
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results

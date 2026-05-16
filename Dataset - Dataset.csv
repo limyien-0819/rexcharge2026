@@ -1,19 +1,9 @@
-Fault ID,Detection Label,Issue Category,Severity,Troubleshooting Steps & Parameters,Action Required,Evidence
-7kW-01,Charger_unable_to_power_up,Electrical & Utility,Critical,"Check voltage at charger (~230V) and upstream (Isolator, EVDB, Meter).",Technician: Rectify faulty component; Tighten loose termination,P01
-7kW-02,Burnt_mark_issue,Hardware Failure,Critical,Turn off power immediately. Check inside for melted or discolored parts.,Technician: Replace damaged components; Rewire if necessary,P02
-7kW-03,Charger_no_pulse,Electrical & Utility,Medium,Test power input and check CP signal output.,Technician: Repair internal circuit or Replace mainboard,P03
-7kW-04,Isolator_ON/OFF,Operational,Low,Check the isolator switch on the side of the unit.,User/Technician: Flip switch to ON; Replace isolator if faulty,P04
-7kW-05,MCB_Tripped,Electrical & Utility,Medium,Check for short circuit/overload. Try resetting the MCB.,Technician: Fix overload issue; Replace MCB if it trips repeatedly,P05
-7kW-06,TNB_Meter_Tapping,Electrical & Utility,High,"Check main supply connection for loose wires, voltage drops, or overheating.",User: Contact TNB for inspection,P06
-7kW-07,TNB_Fuse_blow_issue,Electrical & Utility,High,Stop charging for 15 mins if overheating. Check TNB main fuse.,User: Contact TNB to replace fuse,P07
-7kW-08,Red_Light_-_Code_E02,Electrical & Utility,High,Check app for 'Grounding Issue' under 'Fault'. Ensure firmware is V44.,User/Technician: Update firmware via App; Check grounding connection,P08
-7kW-09,Red_Light_-_Code_E05,Electrical & Utility,High,Check for Over Current. Measure voltage while charging.,Technician: Check cabling and TNB supply stability,P09
-7kW-10,Red_Light_-_E20/E21/E31,Hardware Failure,Critical,Restart charger a few times to fix hardware or MCB issues.,"Technician: If issue persists, proceed with replacement process +1",P10
-7kW-11,Bluetooth_connection_failure,Connectivity,Low,Keep phone within 1m. 'Forget This Device' in Bluetooth settings and reconnect.,User: Grant location permissions; Try with another phone,P11
-7kW-12,MCB_Pairing_Issue,Installation,High,"Check MCB rating (40A for 7kW, 63A for 22kW) and phase pairing.",Technician: Replace with correct MCB rating; Ensure phase alignment.,P12
-22kW-01,Voltage_Pre-condition,Electrical & Utility,High,Check Voltage: 3-phase (400V±15%) or 1-phase (230V±15%).,Technician: Ensure supply voltage is within standard range,P001
-22kW-02,Earthing_Resistance_Check,Electrical & Utility,High,Check Grounding resistance (<40Ω) and N-PE voltage (<4V).,Technician: Take photo of readings; Improve earthing if failed,P002
-22kW-03,EV_Connector_no_output,App & Sofware,Medium,Check terminal voltage. Verify Connection Mode in e.BOX App.,User: Correct Connection Mode setting; Save and restart +1,P003
-22kW-04,Charging_Interrupted,App & Sofware,Low,Ensure 'Charge Scheduled' is disabled in e.BOX app or vehicle.,User: Turn off scheduled charging at both App and Vehicle,P004
-22kW-05,Load_Balance_Issue,App & Sofware,Medium,Turn OFF 'Auto' Load Balance in e.BOX app.,User: Manual configuration of load balance settings,P005
-22kW-06,System_Error_Report,App & Sofware,Medium,Get detailed logs from 'Error Report' in e.BOX App settings.,User: Submit screen recording and Error Report to PRO-NET,P006
+Detection Label,Issue Category,Severity,Troubleshooting Steps & Parameters,Action Required
+brand,Operational,Low,Ensure the brand logo on the charger enclosure is not covered or obstructed. Used for automatic app profile loading.,User/App: Automatic detection loads the correct charger brand profile and configuration settings in the UI backend.
+MCB_three phase,Installation,Low,"Verify if three-phase wiring matches the 22kW charger requirements (400V±15%). Ensure all three phases (L1, L2, L3) are properly connected.",User/Technician: Confirm system is operating on a three-phase supply line. Ensure load balance is configured if multi-phase drop occurs.
+MCB_single_phase,Electrical & Utility,Low,Verify if single-phase wiring matches the 7kW charger requirements (230V±15%). Ensure phase-neutral configuration is correct.,User/Technician: Confirm system is operating on a single-phase supply line. No immediate fault rectification required.
+Isolator_ON/OFF,Operational,Low,Check the isolator switch on the side of the unit.,User/Technician: Flip switch to ON; Replace isolator if faulty
+MCB_Tripped,Electrical & Utility,Medium,Check for short circuit/overload. Try resetting the MCB.,"User/Technician: Isolate charger, wait 2-3 mins to cool down, attempt to reset once. If it trips immediately, contact a certified technician."
+charger_no_light,Electrical & Utility,Critical,"Measure input voltage at the charger terminal (~230V or ~400V). Check if upstream MCB, RCD, or main fuse has blown.","Technician: Check power supply lines, rectify loose incoming connections, or replace faulty internal power module."
+charger_red_light,Electrical & Utility,High,"Check e.BOX App or display for error codes (e.g., Grounding Issue, Over Current). Measure voltage and check earthing resistance (<40Ω).","Technician: Reset the charger. If red light persists, check cabling, verify grounding path, and address specific error code in logs."
+charger_serial_number,Operational,Low,"Ensure the serial number sticker/plate is clean, unblurred, and completely visible to the camera for OCR scanning.",User: Position the camera directly in front of the serial number plate. Manual input required if the text is physically damaged.
