@@ -51,23 +51,23 @@ h1.gradient-title {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 2.8rem !important; /* REDUCED SIZE FOR MOBILE COMPATIBILITY */
+    font-size: 2.8rem !important; /* Mobile friendly size */
     font-weight: 900 !important;
     letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
-    white-space: nowrap !important; /* FORCES SINGLE LINE */
+    white-space: nowrap !important; /* Forces single line */
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
     color: #94A3B8 !important;
     -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 12px !important; /* Adjusted tracking for smaller title */
+    letter-spacing: 12px !important; 
     font-size: 10px !important;
     font-weight: 600 !important;
     margin-top: 5px !important;
-    margin-left: 12px !important; /* Offsets tracking for perfect center */
+    margin-left: 12px !important; 
     text-transform: uppercase !important;
 }
 
@@ -77,35 +77,41 @@ h1.gradient-title a {
 }
 
 /* ==============================
-   GLOBAL RESET & HIDE STREAMLIT BRANDING
+   NUCLEAR STREAMLIT BRANDING WIPE
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
 }
 
-/* Hides the top menu, standard footer, and sidebar */
-#MainMenu, footer, header, [data-testid="stSidebar"] {
+/* Kills header, footer, sidebar, and standard toolbars */
+#MainMenu, header, footer, 
+[data-testid="stSidebar"], 
+[data-testid="stHeader"], 
+[data-testid="stFooter"], 
+[data-testid="stToolbar"], 
+[data-testid="stDecoration"], 
+[data-testid="stStatusWidget"], 
+[data-testid="manage-app-button"] {
     display: none !important;
     visibility: hidden !important;
+    opacity: 0 !important;
 }
 
-/* BULLETPROOF BADGE REMOVAL 
-  Targets all known variants of the Streamlit cloud watermark
-*/
-.viewerBadge_container, 
-.viewerBadge_link, 
-[data-testid="stViewerBadge"],
-#st-viewer-badge {
+/* Bruteforce wipe of the 'Hosted by Streamlit' badge across all possible selectors */
+div[class*="viewerBadge"], 
+div[class*="stViewerBadge"], 
+div[class*="stFooter"],
+a[href*="streamlit.io"], 
+a[href*="streamlit.app"] {
     display: none !important;
     opacity: 0 !important;
-    visibility: hidden !important;
     pointer-events: none !important;
-}
-
-/* Ensures the empty footer area doesn't take up blank space at the bottom */
-.stApp > footer {
-    display: none !important;
+    z-index: -9999 !important;
+    /* Forces it off the screen even if the cloud overrides 'display: none' */
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
 }
 
 /* ==============================
@@ -474,12 +480,13 @@ if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
 # Hardcoded absolute save path for maximum reliability during reloads
-TICKETS_FILE = "routing_tickets.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+TICKETS_FILE = os.path.join(SCRIPT_DIR, "routing_tickets.json")
 
 def load_tickets():
     if os.path.exists(TICKETS_FILE):
         try:
-            with open(TICKETS_FILE, 'r') as f:
+            with open(TICKETS_FILE, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
                 if not content:
                     return []
@@ -491,7 +498,7 @@ def load_tickets():
 
 def save_tickets(tickets):
     try:
-        with open(TICKETS_FILE, 'w') as f:
+        with open(TICKETS_FILE, 'w', encoding='utf-8') as f:
             json.dump(tickets, f, indent=2)
     except Exception as e:
         print(f"Error saving file: {e}")
@@ -531,7 +538,8 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
 # --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
-    with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv')
+    with open(csv_path, mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
@@ -550,9 +558,9 @@ TEAM_DESCRIPTIONS = {
     "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
 }
 
-# --- 5. API CONFIGURATION ---
+# --- 5. SECURE API CONFIGURATION (RECHARGE-2) ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
-MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
+MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
@@ -620,14 +628,15 @@ with tab1:
                     except:
                         preds_l = []
                     
-                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
+                    # UPDATED IDENTITY LOGIC FOR RECHARGE-2
+                    brand, model, serial = "Unknown", "Unknown", "Not detected"
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        if p['class'] == "model_name":
+                        if p['class'] == "brand":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
-                            if res: model = res[0]
-                        elif p['class'] == "serial_number":
+                            if res: brand = res[0]
+                        elif p['class'] == "charger_serial_number":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
@@ -655,7 +664,12 @@ with tab1:
                             
                             draw = ImageDraw.Draw(fault_img)
                             for p in preds_f:
+                                # UPDATED FAULT LOGIC FOR RECHARGE-2
                                 lbl = normalize_label(p['class'])
+                                # Ignore identity tags in the fault media processing
+                                if lbl in ["brand", "charger_serial_number"]:
+                                    continue
+                                
                                 if lbl in ROUTING_LOGIC:
                                     x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
                                     x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
@@ -981,14 +995,18 @@ with tab3:
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
-                        save_tickets(current_t); st.rerun()
+                        save_tickets(current_t)
+                        st.toast(f"Ticket {tid} marked as In Progress!")
+                        st.rerun()
                 
                 with btn_c2:
                     if st.button("RESOLVE TICKET", key=f"r_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
-                        save_tickets(current_t); st.rerun()
+                        save_tickets(current_t)
+                        st.toast(f"Ticket {tid} resolved!")
+                        st.rerun()
 
 # --- 8. TAB 4: RESOLVED TICKET HISTORY (TECHNICIAN) ---
 with tab4:
@@ -1087,13 +1105,15 @@ with tab4:
                 
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
-                    save_tickets(current_t); st.rerun()
+                    save_tickets(current_t)
+                    st.toast(f"Record {tid} permanently deleted! 🗑️")
+                    st.rerun()
 
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
         
-        # --- NEW: BACKUP BUTTON ---
+        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
         if os.path.exists(TICKETS_FILE):
-            with open(TICKETS_FILE, "r") as f:
+            with open(TICKETS_FILE, "r", encoding='utf-8') as f:
                 json_data = f.read()
             st.download_button(
                 label="💾 BACKUP TICKET DATABASE",
