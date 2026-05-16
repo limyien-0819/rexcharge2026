@@ -51,23 +51,23 @@ h1.gradient-title {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
-    font-size: 2.8rem !important; /* Mobile friendly size */
+    font-size: 2.8rem !important; /* REDUCED SIZE FOR MOBILE COMPATIBILITY */
     font-weight: 900 !important;
     letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
-    white-space: nowrap !important; /* Forces single line */
+    white-space: nowrap !important; /* FORCES SINGLE LINE */
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
     color: #94A3B8 !important;
     -webkit-text-fill-color: #94A3B8 !important;
-    letter-spacing: 12px !important; 
+    letter-spacing: 12px !important; /* Adjusted tracking for smaller title */
     font-size: 10px !important;
     font-weight: 600 !important;
     margin-top: 5px !important;
-    margin-left: 12px !important; 
+    margin-left: 12px !important; /* Offsets tracking for perfect center */
     text-transform: uppercase !important;
 }
 
@@ -77,41 +77,35 @@ h1.gradient-title a {
 }
 
 /* ==============================
-   NUCLEAR STREAMLIT BRANDING WIPE
+   GLOBAL RESET & HIDE STREAMLIT BRANDING
 ============================== */
 html, body, .stApp {
     font-family: 'Inter', sans-serif !important;
     background-color: #000000 !important;
 }
 
-/* Kills header, footer, sidebar, and standard toolbars */
-#MainMenu, header, footer, 
-[data-testid="stSidebar"], 
-[data-testid="stHeader"], 
-[data-testid="stFooter"], 
-[data-testid="stToolbar"], 
-[data-testid="stDecoration"], 
-[data-testid="stStatusWidget"], 
-[data-testid="manage-app-button"] {
+/* Hides the top menu, standard footer, and sidebar */
+#MainMenu, footer, header, [data-testid="stSidebar"] {
     display: none !important;
     visibility: hidden !important;
-    opacity: 0 !important;
 }
 
-/* Bruteforce wipe of the 'Hosted by Streamlit' badge across all possible selectors */
-div[class*="viewerBadge"], 
-div[class*="stViewerBadge"], 
-div[class*="stFooter"],
-a[href*="streamlit.io"], 
-a[href*="streamlit.app"] {
+/* BULLETPROOF BADGE REMOVAL 
+  Targets all known variants of the Streamlit cloud watermark
+*/
+.viewerBadge_container, 
+.viewerBadge_link, 
+[data-testid="stViewerBadge"],
+#st-viewer-badge {
     display: none !important;
     opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none !important;
-    z-index: -9999 !important;
-    /* Forces it off the screen even if the cloud overrides 'display: none' */
-    position: absolute !important;
-    left: -9999px !important;
-    top: -9999px !important;
+}
+
+/* Ensures the empty footer area doesn't take up blank space at the bottom */
+.stApp > footer {
+    display: none !important;
 }
 
 /* ==============================
@@ -440,7 +434,6 @@ button[kind="secondary"]:hover {
 
 </style>
 """, unsafe_allow_html=True)
-
 
 # --- 2. CORE UTILITIES & OCR ---
 @st.cache_resource
@@ -1098,7 +1091,7 @@ with tab4:
 
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
         
-        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
+        # --- NEW: BACKUP BUTTON ---
         if os.path.exists(TICKETS_FILE):
             with open(TICKETS_FILE, "r") as f:
                 json_data = f.read()

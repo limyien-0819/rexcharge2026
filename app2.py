@@ -31,7 +31,7 @@ st.markdown("""
 ============================== */
 .header-container {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -50,26 +50,68 @@ h1.gradient-title {
     background: -webkit-linear-gradient(45deg, #0284C7, #7DD3FC, #E0F2FE) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    text-shadow: 0px 0px 20px rgba(56, 189, 248, 0.4) !important;
-    font-size: 3.5rem !important;
-    font-weight: 800 !important;
+    text-shadow: 0px 0px 25px rgba(56, 189, 248, 0.3) !important;
+    font-size: 2.8rem !important; /* Mobile friendly size */
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
     margin: 0px !important;
     padding: 0px !important;
+    white-space: nowrap !important; /* Forces single line */
 }
 
 .subtitle {
     font-family: 'Montserrat', sans-serif !important;
-    color: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    letter-spacing: 5px;
-    font-size: 10px;
-    font-weight: 800;
-    margin-top: -5px;
+    color: #94A3B8 !important;
+    -webkit-text-fill-color: #94A3B8 !important;
+    letter-spacing: 12px !important; 
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    margin-top: 5px !important;
+    margin-left: 12px !important; 
+    text-transform: uppercase !important;
 }
 
 /* Hide the automatic Streamlit anchor link next to the title */
 h1.gradient-title a {
     display: none !important;
+}
+
+/* ==============================
+   NUCLEAR STREAMLIT BRANDING WIPE
+============================== */
+html, body, .stApp {
+    font-family: 'Inter', sans-serif !important;
+    background-color: #000000 !important;
+}
+
+/* Kills header, footer, sidebar, and standard toolbars */
+#MainMenu, header, footer, 
+[data-testid="stSidebar"], 
+[data-testid="stHeader"], 
+[data-testid="stFooter"], 
+[data-testid="stToolbar"], 
+[data-testid="stDecoration"], 
+[data-testid="stStatusWidget"], 
+[data-testid="manage-app-button"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Bruteforce wipe of the 'Hosted by Streamlit' badge across all possible selectors */
+div[class*="viewerBadge"], 
+div[class*="stViewerBadge"], 
+div[class*="stFooter"],
+a[href*="streamlit.io"], 
+a[href*="streamlit.app"] {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -9999 !important;
+    /* Forces it off the screen even if the cloud overrides 'display: none' */
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
 }
 
 /* ==============================
@@ -85,18 +127,6 @@ h1.gradient-title a {
 [data-testid="stMarkdownContainer"]:not(:has(h1.gradient-title)):not(:has(.stButton)) * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
-}
-
-/* ==============================
-   GLOBAL RESET
-============================== */
-html, body, .stApp {
-    font-family: 'Inter', sans-serif !important;
-    background-color: #000000 !important;
-}
-
-#MainMenu, footer, header, [data-testid="stSidebar"] {
-    display: none !important;
 }
 
 /* ==============================
@@ -245,7 +275,7 @@ span[data-baseweb="tag"] svg {
     display: none !important;
 }
 
-/* --- ATAS TEXT FORMATTING INSIDE EXPANDER --- */
+/* --- ATAS TEXT FORMATTING --- */
 .data-label {
     font-size: 10px !important;
     color: #64748B !important; 
@@ -410,6 +440,7 @@ button[kind="secondary"]:hover {
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # --- 2. CORE UTILITIES & OCR ---
 @st.cache_resource
@@ -1065,8 +1096,9 @@ with tab4:
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t); st.rerun()
 
-        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
+        
+        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
         if os.path.exists(TICKETS_FILE):
             with open(TICKETS_FILE, "r") as f:
                 json_data = f.read()
