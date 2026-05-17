@@ -503,13 +503,14 @@ def save_tickets(tickets):
     except Exception as e:
         print(f"Error saving file: {e}")
 
+# --- FIX 1: Normalize Function Fix (handles slashes) ---
 def normalize_label(raw_label):
-    normalized = raw_label.strip().lower()
-    normalized = re.sub(r'[\s\-]+', '_', normalized)
+    normalized = str(raw_label).strip().lower()
+    # Replace spaces, hyphens, and slashes with underscores
+    normalized = re.sub(r'[\s\-\/]+', '_', normalized)
     normalized = re.sub(r'[^a-z0-9_]', '', normalized)
     return normalized.strip('_')
 
-# --- MODIFIED: Added charger_power parameter ---
 def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_label, route_info, image_base64=None):
     my_timezone = timezone(timedelta(hours=8))
     current_time = datetime.now(my_timezone)
@@ -528,7 +529,7 @@ def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_
         "brand": brand,
         "model": model,
         "serial": serial,
-        "charger_power": charger_power, # Captures the inferred power
+        "charger_power": charger_power,
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info.get('steps', ''),
         "action_required": route_info.get('act', ''),
@@ -537,21 +538,30 @@ def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_
         "image_data": image_base64 
     }
 
-# --- 4. DATASET LOGIC ---
+# --- FIX 2: CSV Logic Fix (handles "Issue Category" OR "Evidence") ---
 ROUTING_LOGIC = {}
 try:
-    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv') 
-    with open(csv_path, mode='r', encoding='utf-8') as f:
-        csv_reader = csv.DictReader(f)
-        for row in csv_reader:
-            label = normalize_label(row['Detection Label'])
-            ROUTING_LOGIC[label] = {
-                "id": row['Issue Category'], 
-                "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
-                "steps": row['Troubleshooting Steps & Parameters'],
-                "act": row['Action Required'],
-                "severity": row.get('Severity', 'Medium')
-            }
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset (1).csv') 
+    if os.path.exists(csv_path):
+        with open(csv_path, mode='r', encoding='utf-8') as f:
+            csv_reader = csv.DictReader(f)
+            headers = csv_reader.fieldnames or []
+            
+            # Auto-detect column name
+            cat_col = next((c for c in headers if c in ['Issue Category', 'Evidence']), None)
+            
+            for row in csv_reader:
+                lbl_raw = row.get('Detection Label')
+                if not lbl_raw: continue
+                
+                label = normalize_label(lbl_raw)
+                ROUTING_LOGIC[label] = {
+                    "id": row.get(cat_col, 'Unknown') if cat_col else 'Unknown', 
+                    "recipient": "After-Sales Team" if "Technician" in str(row.get('Action Required', '')) else "Customer",
+                    "steps": row.get('Troubleshooting Steps & Parameters', ''),
+                    "act": row.get('Action Required', ''),
+                    "severity": row.get('Severity', 'Medium')
+                }
 except: pass 
 
 TEAM_DESCRIPTIONS = {
@@ -561,7 +571,7 @@ TEAM_DESCRIPTIONS = {
     "Electrical & Utility": "Electrical & Utility Team", "Installation": "Installation Team", "Operational": "Operational Support"
 }
 
-# --- 5. SECURE API CONFIGURATION (RECHARGE-2) ---
+# --- 5. SECURE API CONFIGURATION ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
@@ -620,11 +630,9 @@ with tab1:
                 
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
-                    
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
                     
-                    # NOTE: Using confidence=1 and raw byte upload to prevent crashes
                     url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=1" 
                     
                     try:
@@ -672,13 +680,11 @@ with tab1:
                             for p in preds_f:
                                 lbl = normalize_label(p['class'])
                                 
-                                # BUSINESS LOGIC: Determine kW from Phase detection
                                 if "single_phase" in lbl:
                                     charger_power = "7kW"
                                 elif "three_phase" in lbl or "threephase" in lbl:
                                     charger_power = "22kW"
                                 
-                                # Ignore identity tags from drawing fault boxes
                                 if lbl in ["brand", "charger_serial_number"]:
                                     continue
                                 
@@ -704,7 +710,6 @@ with tab1:
 
                             annotated_images.append(fault_img)
 
-                    # Update all tickets generated in this run if power was deduced later
                     for t in all_routed_tickets:
                         t["charger_power"] = charger_power
 
