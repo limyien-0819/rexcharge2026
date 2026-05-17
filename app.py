@@ -523,15 +523,15 @@ def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_
     return {
         "ticket_id": ticket_id,
         "timestamp": current_time.isoformat(), 
-        "team_id": route_info['id'],
+        "team_id": route_info.get('id', 'Unknown'),
         "file_name": file_name,
         "brand": brand,
         "model": model,
         "serial": serial,
         "charger_power": charger_power, # Captures the inferred power
         "observation": fault_label.replace('_', ' ').title(),
-        "troubleshooting_steps": route_info['steps'],
-        "action_required": route_info['act'],
+        "troubleshooting_steps": route_info.get('steps', ''),
+        "action_required": route_info.get('act', ''),
         "status": "Pending Review",
         "severity": route_info.get('severity', 'High'),
         "image_data": image_base64 
@@ -561,7 +561,7 @@ TEAM_DESCRIPTIONS = {
     "Electrical & Utility": "Electrical & Utility Team", "Installation": "Installation Team", "Operational": "Operational Support"
 }
 
-# --- 5. SECURE API CONFIGURATION ---
+# --- 5. SECURE API CONFIGURATION (RECHARGE-2) ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
 MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
@@ -623,12 +623,12 @@ with tab1:
                     
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
-                    img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
-                    # Used the URL format from your working code
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25" 
+                    
+                    # NOTE: Using confidence=1 and raw byte upload to prevent crashes
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=1" 
                     
                     try:
-                        resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                        resp_l = requests.post(url, data=buffered_l.getvalue(), headers={"Content-Type": "image/jpeg"})
                         preds_l = resp_l.json().get('predictions', [])
                     except Exception as e:
                         preds_l = []
@@ -650,7 +650,6 @@ with tab1:
                     all_routed_tickets = []
                     annotated_images = []
                     
-                    # MODIFIED: Intelligent Power Phase Deduction
                     charger_power = "Unknown Output"
 
                     for f_file in fault_files_to_process:
@@ -662,9 +661,9 @@ with tab1:
                         if fault_img:
                             buffered_f = io.BytesIO()
                             fault_img.save(buffered_f, format="JPEG")
-                            img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
+                            
                             try:
-                                resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                                resp_f = requests.post(url, data=buffered_f.getvalue(), headers={"Content-Type": "image/jpeg"})
                                 preds_f = resp_f.json().get('predictions', [])
                             except Exception as e:
                                 preds_f = []
@@ -673,13 +672,13 @@ with tab1:
                             for p in preds_f:
                                 lbl = normalize_label(p['class'])
                                 
-                                # MODIFIED: Business logic to identify kW based on Phase
+                                # BUSINESS LOGIC: Determine kW from Phase detection
                                 if "single_phase" in lbl:
-                                    charger_power = "7kW (Single Phase)"
+                                    charger_power = "7kW"
                                 elif "three_phase" in lbl or "threephase" in lbl:
-                                    charger_power = "22kW (Three Phase)"
+                                    charger_power = "22kW"
                                 
-                                # MODIFIED: Ignore identity tags when drawing fault boxes
+                                # Ignore identity tags from drawing fault boxes
                                 if lbl in ["brand", "charger_serial_number"]:
                                     continue
                                 
@@ -697,8 +696,7 @@ with tab1:
                                             all_tech_iss.append((lbl, route))
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
-                                            rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
-                                            # MODIFIED: Pass the deduced charger_power to the ticket
+                                            rt_fallback = {"steps": route.get('steps', ''), "act": route.get('act', ''), "id": route.get('id', 'Unknown'), "severity": route.get('severity', 'High')}
                                             new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, charger_power, lbl, rt_fallback, encoded_img)
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
@@ -706,7 +704,7 @@ with tab1:
 
                             annotated_images.append(fault_img)
 
-                    # Update all tickets generated in this run if power was deduced in a later image
+                    # Update all tickets generated in this run if power was deduced later
                     for t in all_routed_tickets:
                         t["charger_power"] = charger_power
 
@@ -730,7 +728,6 @@ with tab1:
             elif display_serial.lower().startswith('sn '): display_serial = display_serial[3:].strip()
             elif display_serial.lower().startswith('sn'): display_serial = display_serial[2:].strip()
 
-            # MODIFIED: Display the inferred power alongside the brand/model
             power_display = f"<span style='color:#10B981; font-weight:800; font-size:12px;'> | {res.get('power', 'Unknown Output')}</span>" if res.get('power') != "Unknown Output" else ""
             st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span>{power_display}<br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {display_serial}</span>", unsafe_allow_html=True)
             
@@ -892,7 +889,6 @@ with tab2:
             serial_clean = str(display_serial_track).replace("\n", " ").replace("\r", " ")
             power_clean = str(found_ticket.get("charger_power", "Unknown Power"))
 
-            # MODIFIED: Display the inferred power in tracking
             safe_html = f"""
             <div class="atas-ticket-box">
                 <div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div>

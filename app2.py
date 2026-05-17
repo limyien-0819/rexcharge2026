@@ -441,7 +441,6 @@ button[kind="secondary"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-
 # --- 2. CORE UTILITIES & OCR ---
 @st.cache_resource
 def load_ocr():
@@ -481,12 +480,13 @@ if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
 # Hardcoded absolute save path for maximum reliability during reloads
-TICKETS_FILE = "routing_tickets.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+TICKETS_FILE = os.path.join(SCRIPT_DIR, "routing_tickets.json")
 
 def load_tickets():
     if os.path.exists(TICKETS_FILE):
         try:
-            with open(TICKETS_FILE, 'r') as f:
+            with open(TICKETS_FILE, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
                 if not content:
                     return []
@@ -498,7 +498,7 @@ def load_tickets():
 
 def save_tickets(tickets):
     try:
-        with open(TICKETS_FILE, 'w') as f:
+        with open(TICKETS_FILE, 'w', encoding='utf-8') as f:
             json.dump(tickets, f, indent=2)
     except Exception as e:
         print(f"Error saving file: {e}")
@@ -509,7 +509,8 @@ def normalize_label(raw_label):
     normalized = re.sub(r'[^a-z0-9_]', '', normalized)
     return normalized.strip('_')
 
-def create_routing_ticket(file_name, brand, model, serial, fault_label, route_info, image_base64=None):
+# --- MODIFIED: Added charger_power parameter ---
+def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_label, route_info, image_base64=None):
     my_timezone = timezone(timedelta(hours=8))
     current_time = datetime.now(my_timezone)
     
@@ -527,6 +528,7 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
         "brand": brand,
         "model": model,
         "serial": serial,
+        "charger_power": charger_power, # Captures the inferred power
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info['steps'],
         "action_required": route_info['act'],
@@ -538,12 +540,13 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
 # --- 4. DATASET LOGIC ---
 ROUTING_LOGIC = {}
 try:
-    with open('Dataset - Dataset.csv', mode='r', encoding='utf-8') as f:
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv') 
+    with open(csv_path, mode='r', encoding='utf-8') as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
             label = normalize_label(row['Detection Label'])
             ROUTING_LOGIC[label] = {
-                "id": row['Evidence'],
+                "id": row['Issue Category'], 
                 "recipient": "After-Sales Team" if "Technician" in row['Action Required'] else "Customer",
                 "steps": row['Troubleshooting Steps & Parameters'],
                 "act": row['Action Required'],
@@ -554,12 +557,13 @@ except: pass
 TEAM_DESCRIPTIONS = {
     "P01": "Power Supply Unit", "P02": "Core Hardware", "P03": "Control Circuitry",
     "P04": "Operational Switches", "P05": "Protection Systems", "P06": "Utility Connection",
-    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection"
+    "P07": "Internal Fuse", "P08": "Grounding/Firmware", "P09": "Over Current Protection",
+    "Electrical & Utility": "Electrical & Utility Team", "Installation": "Installation Team", "Operational": "Operational Support"
 }
 
-# --- 5. API CONFIGURATION ---
+# --- 5. SECURE API CONFIGURATION ---
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
-MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"] 
+MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
 
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
@@ -613,28 +617,30 @@ with tab1:
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
                 st.session_state.force_escalated = False 
+                
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
                     
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
                     img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25"
+                    # Used the URL format from your working code
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=25" 
                     
                     try:
                         resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
                         preds_l = resp_l.json().get('predictions', [])
-                    except:
+                    except Exception as e:
                         preds_l = []
                     
-                    brand, model, serial = "Proton eMAS", "Unknown", "Not detected"
+                    brand, model, serial = "Unknown", "Unknown", "Not detected"
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
-                        if p['class'] == "model_name":
+                        if p['class'] == "brand":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
-                            if res: model = res[0]
-                        elif p['class'] == "serial_number":
+                            if res: brand = res[0]
+                        elif p['class'] == "charger_serial_number":
                             roi = np.array(label_img.crop((x0, y0, x1, y1)))
                             res = reader.readtext(roi, detail=0)
                             if res: serial = res[0]
@@ -643,6 +649,9 @@ with tab1:
                     all_tech_iss = []
                     all_routed_tickets = []
                     annotated_images = []
+                    
+                    # MODIFIED: Intelligent Power Phase Deduction
+                    charger_power = "Unknown Output"
 
                     for f_file in fault_files_to_process:
                         if hasattr(f_file, 'type') and f_file.type.startswith('video'):
@@ -657,12 +666,23 @@ with tab1:
                             try:
                                 resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
                                 preds_f = resp_f.json().get('predictions', [])
-                            except:
+                            except Exception as e:
                                 preds_f = []
                             
                             draw = ImageDraw.Draw(fault_img)
                             for p in preds_f:
                                 lbl = normalize_label(p['class'])
+                                
+                                # MODIFIED: Business logic to identify kW based on Phase
+                                if "single_phase" in lbl:
+                                    charger_power = "7kW (Single Phase)"
+                                elif "three_phase" in lbl or "threephase" in lbl:
+                                    charger_power = "22kW (Three Phase)"
+                                
+                                # MODIFIED: Ignore identity tags when drawing fault boxes
+                                if lbl in ["brand", "charger_serial_number"]:
+                                    continue
+                                
                                 if lbl in ROUTING_LOGIC:
                                     x0, y0 = p['x'] - p['width']/2, p['y'] - p['height']/2
                                     x1, y1 = p['x'] + p['width']/2, p['y'] + p['height']/2
@@ -678,15 +698,20 @@ with tab1:
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
                                             rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
-                                            new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback, encoded_img)
+                                            # MODIFIED: Pass the deduced charger_power to the ticket
+                                            new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, charger_power, lbl, rt_fallback, encoded_img)
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
                                             save_tickets(current_tickets)
 
                             annotated_images.append(fault_img)
 
+                    # Update all tickets generated in this run if power was deduced in a later image
+                    for t in all_routed_tickets:
+                        t["charger_power"] = charger_power
+
                     st.session_state.analysis_results = {
-                        'brand': brand, 'model': model, 'serial': serial,
+                        'brand': brand, 'model': model, 'serial': serial, 'power': charger_power,
                         'customer_issues': all_cust_iss, 'technician_issues': all_tech_iss,
                         'annotated_fault_images': annotated_images,
                         'routed_tickets': all_routed_tickets
@@ -705,7 +730,9 @@ with tab1:
             elif display_serial.lower().startswith('sn '): display_serial = display_serial[3:].strip()
             elif display_serial.lower().startswith('sn'): display_serial = display_serial[2:].strip()
 
-            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span><br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {display_serial}</span>", unsafe_allow_html=True)
+            # MODIFIED: Display the inferred power alongside the brand/model
+            power_display = f"<span style='color:#10B981; font-weight:800; font-size:12px;'> | {res.get('power', 'Unknown Output')}</span>" if res.get('power') != "Unknown Output" else ""
+            st.markdown(f"<span style='color:#0EA5E9; font-weight:800; font-size:12px;'>DEVICE DETAILS</span>{power_display}<br><b>{res['brand']} / {res['model']}</b><br><span style='color:#94A3B8; font-size:13px; font-weight: 500;'>Serial Number: {display_serial}</span>", unsafe_allow_html=True)
             
         for img in res['annotated_fault_images']:
             st.image(img, use_container_width=True)
@@ -736,7 +763,7 @@ with tab1:
                         if res['annotated_fault_images']:
                              fallback_img_data = image_to_base64(res['annotated_fault_images'][0])
                              
-                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, "UNDIAGNOSED_FAULT", route_fallback, fallback_img_data)
+                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, res.get('power', 'Unknown Output'), "UNDIAGNOSED_FAULT", route_fallback, fallback_img_data)
                         
                         current_tickets = load_tickets()
                         current_tickets.append(new_ticket)
@@ -779,7 +806,7 @@ with tab1:
                 if st.button("TROUBLESHOOTING FAILED - REQUEST TECHNICIAN", key="esc_cust", use_container_width=True):
                     lbl, rt = res['customer_issues'][0]
                     fallback_img_data = image_to_base64(res['annotated_fault_images'][0]) if res['annotated_fault_images'] else None
-                    new_ticket = create_routing_ticket("User Escalation", res['brand'], res['model'], display_serial, lbl, rt, fallback_img_data)
+                    new_ticket = create_routing_ticket("User Escalation", res['brand'], res['model'], display_serial, res.get('power', 'Unknown Output'), lbl, rt, fallback_img_data)
                     
                     current_tickets = load_tickets()
                     current_tickets.append(new_ticket)
@@ -863,13 +890,15 @@ with tab2:
             brand_clean = str(found_ticket.get("brand", "")).replace("\n", " ").replace("\r", " ")
             model_clean = str(found_ticket.get("model", "")).replace("\n", " ").replace("\r", " ")
             serial_clean = str(display_serial_track).replace("\n", " ").replace("\r", " ")
+            power_clean = str(found_ticket.get("charger_power", "Unknown Power"))
 
+            # MODIFIED: Display the inferred power in tracking
             safe_html = f"""
             <div class="atas-ticket-box">
                 <div class="data-label" style="margin-top: 0px !important;">TICKET DETAILS</div>
                 <div class="data-value" style="font-size: 18px !important; color: #0EA5E9 !important; font-weight: 800 !important; margin-bottom: 20px !important;">{obs_clean}</div>
                 <div class="data-label">UNIT IDENTIFICATION</div>
-                <div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean}</div>
+                <div class="data-value" style="margin-bottom: 4px !important;">{brand_clean} / {model_clean} <span style="color:#10B981; font-size:12px;">[{power_clean}]</span></div>
                 <div style="font-size: 13px; color: #94A3B8; font-weight: 500; margin-bottom: 20px;">Serial Number: {serial_clean}</div>
                 <div class="data-label">LOGGED ON</div>
                 <div style="font-size: 13px; color: #64748B;">{formatted_time}</div>
@@ -970,7 +999,7 @@ with tab3:
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t2}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} <span style="color:#10B981; font-size:11px;">[{ticket.get("charger_power", "Unknown Power")}]</span><br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t2}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -988,14 +1017,16 @@ with tab3:
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
-                        save_tickets(current_t); st.rerun()
+                        save_tickets(current_t)
+                        st.rerun()
                 
                 with btn_c2:
                     if st.button("RESOLVE TICKET", key=f"r_{tid}_{idx}", use_container_width=True):
                         current_t = load_tickets()
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
-                        save_tickets(current_t); st.rerun()
+                        save_tickets(current_t)
+                        st.rerun()
 
 # --- 8. TAB 4: RESOLVED TICKET HISTORY (TECHNICIAN) ---
 with tab4:
@@ -1080,7 +1111,7 @@ with tab4:
                 c1, c2 = st.columns(2)
                 with c1:
                     st.markdown('<p class="data-label">UNIT IDENTIFICATION</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]}<br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t3}</span></p>', unsafe_allow_html=True)
+                    st.markdown(f'<p class="data-value">{ticket["brand"]} / {ticket["model"]} <span style="color:#10B981; font-size:11px;">[{ticket.get("charger_power", "Unknown Power")}]</span><br><span style="color:#94A3B8; font-size:13px; font-weight: 500;">Serial Number: {display_serial_t3}</span></p>', unsafe_allow_html=True)
                 with c2:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
@@ -1094,13 +1125,13 @@ with tab4:
                 
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
-                    save_tickets(current_t); st.rerun()
+                    save_tickets(current_t)
+                    st.rerun()
 
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
         
-        # --- OPTIONAL: BACKUP BUTTON (If you need to save data before Cloud resets it) ---
         if os.path.exists(TICKETS_FILE):
-            with open(TICKETS_FILE, "r") as f:
+            with open(TICKETS_FILE, "r", encoding='utf-8') as f:
                 json_data = f.read()
             st.download_button(
                 label="💾 BACKUP TICKET DATABASE",
