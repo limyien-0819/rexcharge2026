@@ -476,6 +476,7 @@ if 'last_label_name' not in st.session_state:
     st.session_state.last_fault_names = []
     st.session_state.analysis_done = False
     st.session_state.analysis_results = {}
+    st.session_state.debug_raw_api_responses = [] # NEW: for debugging
 if 'force_escalated' not in st.session_state:
     st.session_state.force_escalated = False
 
@@ -522,14 +523,14 @@ def create_routing_ticket(file_name, brand, model, serial, fault_label, route_in
     return {
         "ticket_id": ticket_id,
         "timestamp": current_time.isoformat(), 
-        "team_id": route_info.get('id', 'Unknown'),
+        "team_id": route_info['id'],
         "file_name": file_name,
         "brand": brand,
         "model": model,
         "serial": serial,
         "observation": fault_label.replace('_', ' ').title(),
-        "troubleshooting_steps": route_info.get('steps', ''),
-        "action_required": route_info.get('act', ''),
+        "troubleshooting_steps": route_info['steps'],
+        "action_required": route_info['act'],
         "status": "Pending Review",
         "severity": route_info.get('severity', 'High'),
         "image_data": image_base64 
@@ -606,6 +607,7 @@ with tab1:
         st.session_state.analysis_done = False
         st.session_state.force_escalated = False
         st.session_state.analysis_results = {}
+        st.session_state.debug_raw_api_responses = []
 
     if ready_for_analysis:
         st.markdown("<br>", unsafe_allow_html=True)
@@ -615,22 +617,26 @@ with tab1:
         with col2: 
             if st.button("START DIAGNOSTIC", type="primary", use_container_width=True):
                 st.session_state.force_escalated = False 
+                st.session_state.debug_raw_api_responses = [] # Reset debug log
                 
                 with st.spinner("Processing..."):
                     label_img = Image.open(l_file).convert("RGB")
+                    
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
-                    
-                    # Dropped Confidence to 1%
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=1"
+                    img_str_l = base64.b64encode(buffered_l.getvalue()).decode("ascii")
+                    # LOWERED CONFIDENCE THRESHOLD TO 5 TO DEBUG
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=5" 
                     
                     try:
-                        # Fixed Base64 Bug: Sending raw image bytes
-                        resp_l = requests.post(url, data=buffered_l.getvalue(), headers={"Content-Type": "image/jpeg"})
+                        resp_l = requests.post(url, data=img_str_l, headers={"Content-Type": "application/x-www-form-urlencoded"})
                         preds_l = resp_l.json().get('predictions', [])
-                    except:
+                        st.session_state.debug_raw_api_responses.append({"image": "Label Image", "response": resp_l.json()})
+                    except Exception as e:
                         preds_l = []
+                        st.session_state.debug_raw_api_responses.append({"image": "Label Image", "error": str(e)})
                     
+                    # UPDATED IDENTITY LOGIC FOR RECHARGE-2
                     brand, model, serial = "Unknown", "Unknown", "Not detected"
                     for p in preds_l:
                         x0, y0, x1, y1 = p['x']-p['width']/2, p['y']-p['height']/2, p['x']+p['width']/2, p['y']+p['height']/2
@@ -657,18 +663,19 @@ with tab1:
                         if fault_img:
                             buffered_f = io.BytesIO()
                             fault_img.save(buffered_f, format="JPEG")
-                            
+                            img_str_f = base64.b64encode(buffered_f.getvalue()).decode("ascii")
                             try:
-                                # Fixed Base64 Bug: Sending raw image bytes
-                                resp_f = requests.post(url, data=buffered_f.getvalue(), headers={"Content-Type": "image/jpeg"})
+                                resp_f = requests.post(url, data=img_str_f, headers={"Content-Type": "application/x-www-form-urlencoded"})
                                 preds_f = resp_f.json().get('predictions', [])
-                            except:
+                                st.session_state.debug_raw_api_responses.append({"image": getattr(f_file, 'name', 'Fault Image'), "response": resp_f.json()})
+                            except Exception as e:
                                 preds_f = []
+                                st.session_state.debug_raw_api_responses.append({"image": getattr(f_file, 'name', 'Fault Image'), "error": str(e)})
                             
                             draw = ImageDraw.Draw(fault_img)
                             for p in preds_f:
+                                # UPDATED FAULT LOGIC FOR RECHARGE-2
                                 lbl = normalize_label(p['class'])
-                                
                                 # Ignore identity tags in the fault media processing
                                 if lbl in ["brand", "charger_serial_number"]:
                                     continue
@@ -687,7 +694,7 @@ with tab1:
                                             all_tech_iss.append((lbl, route))
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
-                                            rt_fallback = {"steps": route.get('steps', ''), "act": route.get('act', ''), "id": route.get('id', 'Unknown'), "severity": route.get('severity', 'High')}
+                                            rt_fallback = {"steps": route['steps'], "act": route['act'], "id": route['id'], "severity": route.get('severity', 'High')}
                                             new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, lbl, rt_fallback, encoded_img)
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
@@ -702,6 +709,14 @@ with tab1:
                         'routed_tickets': all_routed_tickets
                     }
                     st.session_state.analysis_done = True
+
+    # --- NEW DEBUG VIEWER ---
+    if st.session_state.get('debug_raw_api_responses'):
+        with st.expander("🛠️ DEBUG: Raw Roboflow Model Output (Click to view)"):
+            st.write("This shows exactly what the model returned. If 'predictions' is empty, the model didn't detect anything with >5% confidence.")
+            for log in st.session_state.debug_raw_api_responses:
+                # CHANGED from st.json(log) to st.code() to avoid Streamlit JS import crash
+                st.code(json.dumps(log, indent=2), language="json")
 
     if st.session_state.analysis_done:
         res = st.session_state.analysis_results
@@ -999,6 +1014,7 @@ with tab3:
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "In Progress"
                         save_tickets(current_t)
+                        st.toast(f"Ticket {tid} marked as In Progress!")
                         st.rerun()
                 
                 with btn_c2:
@@ -1007,6 +1023,7 @@ with tab3:
                         for item in current_t:
                             if item['ticket_id'] == tid: item['status'] = "Resolved"
                         save_tickets(current_t)
+                        st.toast(f"Ticket {tid} resolved!")
                         st.rerun()
 
 # --- 8. TAB 4: RESOLVED TICKET HISTORY (TECHNICIAN) ---
@@ -1107,6 +1124,7 @@ with tab4:
                 if st.button("DELETE RECORD", key=f"del_{tid}_{idx}", use_container_width=True):
                     current_t = [item for item in load_tickets() if item['ticket_id'] != tid]
                     save_tickets(current_t)
+                    st.toast(f"Record {tid} permanently deleted! 🗑️")
                     st.rerun()
 
         st.markdown("<br><hr style='border-color: #1E293B;'><br>", unsafe_allow_html=True)
