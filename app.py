@@ -541,7 +541,7 @@ def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_
 # --- FIX 2: CSV Logic Fix (handles "Issue Category" OR "Evidence") ---
 ROUTING_LOGIC = {}
 try:
-    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset (1).csv') 
+    csv_path = os.path.join(SCRIPT_DIR, 'Dataset - Dataset.csv') 
     if os.path.exists(csv_path):
         with open(csv_path, mode='r', encoding='utf-8') as f:
             csv_reader = csv.DictReader(f)
@@ -557,7 +557,10 @@ try:
                 label = normalize_label(lbl_raw)
                 ROUTING_LOGIC[label] = {
                     "id": row.get(cat_col, 'Unknown') if cat_col else 'Unknown', 
-                    "recipient": "After-Sales Team" if "Technician" in str(row.get('Action Required', '')) else "Customer",
+                    "recipient": "After-Sales Team" if (
+                        str(row.get('Severity', '')).strip().title() in ['High', 'Critical']
+                        or "Technician" in str(row.get('Action Required', ''))
+                    ) else "Customer",
                     "steps": row.get('Troubleshooting Steps & Parameters', ''),
                     "act": row.get('Action Required', ''),
                     "severity": row.get('Severity', 'Medium')
@@ -572,8 +575,8 @@ TEAM_DESCRIPTIONS = {
 }
 
 # --- 5. SECURE API CONFIGURATION ---
-API_KEY = st.secrets["ROBOFLOW_API_KEY"]
-MODEL_ENDPOINT = st.secrets["ROBOFLOW_MODEL_ENDPOINT"]
+API_KEY = "vrJ7tThB8mOBHDvY68Mj"
+MODEL_ENDPOINT = "recharge-2/8"
 
 # --- 6. MAIN SYSTEM INTERFACE ---
 st.markdown("""
@@ -633,13 +636,19 @@ with tab1:
                     buffered_l = io.BytesIO()
                     label_img.save(buffered_l, format="JPEG")
                     
-                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=1" 
+                    url = f"https://detect.roboflow.com/{MODEL_ENDPOINT}?api_key={API_KEY}&confidence=0.40"
+                    label_base64 = base64.b64encode(buffered_l.getvalue()).decode("ascii")
                     
                     try:
-                        resp_l = requests.post(url, data=buffered_l.getvalue(), headers={"Content-Type": "image/jpeg"})
-                        preds_l = resp_l.json().get('predictions', [])
+                        resp_l = requests.post(url, data=label_base64, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                        if resp_l.status_code == 200:
+                            preds_l = resp_l.json().get('predictions', [])
+                        else:
+                            preds_l = []
+                            st.warning(f"Label detection returned {resp_l.status_code}: {resp_l.text}")
                     except Exception as e:
                         preds_l = []
+                        st.warning(f"Label detection error: {e}")
                     
                     brand, model, serial = "Unknown", "Unknown", "Not detected"
                     for p in preds_l:
@@ -657,6 +666,9 @@ with tab1:
                     all_tech_iss = []
                     all_routed_tickets = []
                     annotated_images = []
+                    raw_fault_labels = []
+                    raw_fault_predictions = []
+                    raw_fault_debug = []
                     
                     charger_power = "Unknown Output"
 
@@ -669,16 +681,33 @@ with tab1:
                         if fault_img:
                             buffered_f = io.BytesIO()
                             fault_img.save(buffered_f, format="JPEG")
+                            file_name = getattr(f_file, 'name', 'camera_capture')
                             
                             try:
-                                resp_f = requests.post(url, data=buffered_f.getvalue(), headers={"Content-Type": "image/jpeg"})
-                                preds_f = resp_f.json().get('predictions', [])
+                                fault_base64 = base64.b64encode(buffered_f.getvalue()).decode("ascii")
+                                resp_f = requests.post(url, data=fault_base64, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                                if resp_f.status_code == 200:
+                                    preds_f = resp_f.json().get('predictions', [])
+                                else:
+                                    preds_f = []
+                                    raw_fault_debug.append(f"file={file_name} status={resp_f.status_code} error={resp_f.text}")
+                                raw_fault_debug.append(f"file={file_name} status={resp_f.status_code} predictions={len(preds_f)}")
                             except Exception as e:
                                 preds_f = []
+                                raw_fault_debug.append(f"file={file_name} error={str(e)}")
+
+                            raw_fault_predictions.extend([
+                                {"class": p.get('class'), "confidence": p.get('confidence')}
+                                for p in preds_f
+                            ])
                             
                             draw = ImageDraw.Draw(fault_img)
                             for p in preds_f:
+                                if float(p.get('confidence', 0)) < 0.40:
+                                    continue
+
                                 lbl = normalize_label(p['class'])
+                                raw_fault_labels.append(lbl)
                                 
                                 if "single_phase" in lbl:
                                     charger_power = "7kW"
@@ -717,7 +746,10 @@ with tab1:
                         'brand': brand, 'model': model, 'serial': serial, 'power': charger_power,
                         'customer_issues': all_cust_iss, 'technician_issues': all_tech_iss,
                         'annotated_fault_images': annotated_images,
-                        'routed_tickets': all_routed_tickets
+                        'routed_tickets': all_routed_tickets,
+                        'raw_fault_labels': raw_fault_labels,
+                        'raw_fault_predictions': raw_fault_predictions,
+                        'raw_fault_debug': raw_fault_debug
                     }
                     st.session_state.analysis_done = True
 
@@ -741,6 +773,29 @@ with tab1:
         
         if not res['customer_issues'] and not res['technician_issues']:
             if not st.session_state.force_escalated:
+                label_list = res.get('raw_fault_labels', [])
+                preds_list = res.get('raw_fault_predictions', [])
+                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions count = {len(preds_list)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: detected labels count = {len(label_list)}</p>", unsafe_allow_html=True)
+                if label_list:
+                    detected = ', '.join(label_list)
+                    missing = [lbl for lbl in label_list if lbl not in ROUTING_LOGIC]
+                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: detected labels were {detected}</p>", unsafe_allow_html=True)
+                    if missing:
+                        st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: missing from routing dataset: {', '.join(missing)}</p>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<p style='text-align:center; color:#10B981; font-size:12px;'>DEBUG: all detected labels are present in routing dataset</p>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: no normalized labels passed the confidence threshold.</p>", unsafe_allow_html=True)
+                if preds_list:
+                    preds_debug = '; '.join([f"{item.get('class')}({item.get('confidence')})" for item in preds_list])
+                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions: {preds_debug}</p>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions list is empty.</p>", unsafe_allow_html=True)
+                if res.get('raw_fault_debug'):
+                    for debug_line in res['raw_fault_debug']:
+                        st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: {debug_line}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: routing logic size = {len(ROUTING_LOGIC)}</p>", unsafe_allow_html=True)
                 st.markdown("""
                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
                         <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>

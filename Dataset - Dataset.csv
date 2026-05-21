@@ -1,9 +1,11 @@
 Detection Label,Issue Category,Severity,Troubleshooting Steps & Parameters,Action Required
-brand,Operational,Low,Ensure the brand logo on the charger enclosure is not covered or obstructed. Used for automatic app profile loading.,User/App: Automatic detection loads the correct charger brand profile and configuration settings in the UI backend.
-MCB_three phase,Installation,Low,"Verify if three-phase wiring matches the 22kW charger requirements (400V±15%). Ensure all three phases (L1, L2, L3) are properly connected.",User/Technician: Confirm system is operating on a three-phase supply line. Ensure load balance is configured if multi-phase drop occurs.
-MCB_single_phase,Electrical & Utility,Low,Verify if single-phase wiring matches the 7kW charger requirements (230V±15%). Ensure phase-neutral configuration is correct.,User/Technician: Confirm system is operating on a single-phase supply line. No immediate fault rectification required.
-Isolator_ON/OFF,Operational,Low,Check the isolator switch on the side of the unit.,User/Technician: Flip switch to ON; Replace isolator if faulty
-MCB_Tripped,Electrical & Utility,Medium,Check for short circuit/overload. Try resetting the MCB.,"User/Technician: Isolate charger, wait 2-3 mins to cool down, attempt to reset once. If it trips immediately, contact a certified technician."
-charger_no_light,Electrical & Utility,Critical,"Measure input voltage at the charger terminal (~230V or ~400V). Check if upstream MCB, RCD, or main fuse has blown.","Technician: Check power supply lines, rectify loose incoming connections, or replace faulty internal power module."
-charger_red_light,Electrical & Utility,High,"Check e.BOX App or display for error codes (e.g., Grounding Issue, Over Current). Measure voltage and check earthing resistance (<40Ω).","Technician: Reset the charger. If red light persists, check cabling, verify grounding path, and address specific error code in logs."
+Brand,Operational,Low,Ensure the brand logo on the charger enclosure is not covered or obstructed. Used for automatic app profile loading.,User: Ensure the brand logo on the charger enclosure is not covered or obstructed.
+MCB_three phase,Installation,Low,"Verify if three-phase wiring matches the 22kW charger requirements (400V±15%). Ensure all three phases (L1, L2, L3) are properly connected.",User: Confirm system is operating on a three-phase supply line.
+MCB_single_phase,Electrical & Utility,Low,Verify if single-phase wiring matches the 7kW charger requirements (230V±15%). Ensure phase-neutral configuration is correct.,"User: Confirm system is operating on a single-phase supply line. No immediate fault rectification required.
+"
+Isolator_ON/OFF,Operational,Low,Check the isolator switch on the side of the unit.,"User: Flip switch to ON; Check whether the breaker in the EVDB has tripped.
+"
+MCB_Tripped,Electrical & Utility,Medium,Check for short circuit/overload. Try resetting the MCB.,"User: Isolate charger, wait 2-3 mins to cool down, attempt to reset once."
+charger_no_light,Electrical & Utility,Critical,"Measure input voltage at the charger terminal (~230V or ~400V). Check if upstream MCB, RCD, or main fuse has blown.",User: Check whether the breaker in the EVDB has tripped.
+charger_red_light,Electrical & Utility,High,"Check e.BOX App or display for error codes (e.g., Grounding Issue, Over Current). Measure voltage and check earthing resistance (<40Ω).",User: Screenshot the website and send to technician
 charger_serial_number,Operational,Low,"Ensure the serial number sticker/plate is clean, unblurred, and completely visible to the camera for OCR scanning.",User: Position the camera directly in front of the serial number plate. Manual input required if the text is physically damaged.
