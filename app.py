@@ -532,7 +532,10 @@ def create_routing_ticket(file_name, brand, model, serial, charger_power, fault_
         "charger_power": charger_power,
         "observation": fault_label.replace('_', ' ').title(),
         "troubleshooting_steps": route_info.get('steps', ''),
-        "action_required": route_info.get('act', ''),
+        "recipient": route_info.get('recipient', 'Customer'),
+        "user_act": route_info.get('user_act', 'No immediate action required.'),
+        "tech_act": route_info.get('tech_act', 'No technical action required.'),
+        "action_required": route_info.get('tech_act', route_info.get('act', '')),
         "status": "Pending Review",
         "severity": route_info.get('severity', 'High'),
         "image_data": image_base64 
@@ -556,13 +559,11 @@ try:
                 
                 label = normalize_label(lbl_raw)
                 ROUTING_LOGIC[label] = {
-                    "id": row.get(cat_col, 'Unknown') if cat_col else 'Unknown', 
-                    "recipient": "After-Sales Team" if (
-                        str(row.get('Severity', '')).strip().title() in ['High', 'Critical']
-                        or "Technician" in str(row.get('Action Required', ''))
-                    ) else "Customer",
+                    "id": row.get(cat_col, 'Unknown') if cat_col else 'Unknown',
+                    "recipient": row.get('Recipient', 'Customer'),
                     "steps": row.get('Troubleshooting Steps & Parameters', ''),
-                    "act": row.get('Action Required', ''),
+                    "user_act": row.get('User Action', 'No immediate action required.'),
+                    "tech_act": row.get('Technician Action', 'No technical action required.'),
                     "severity": row.get('Severity', 'Medium')
                 }
 except: pass 
@@ -731,7 +732,14 @@ with tab1:
                                             all_tech_iss.append((lbl, route))
                                             encoded_img = image_to_base64(fault_img)
                                             current_tickets = load_tickets()
-                                            rt_fallback = {"steps": route.get('steps', ''), "act": route.get('act', ''), "id": route.get('id', 'Unknown'), "severity": route.get('severity', 'High')}
+                                            rt_fallback = {
+                                                "steps": route.get('steps', ''),
+                                                "user_act": route.get('user_act', 'No immediate action required.'),
+                                                "tech_act": route.get('tech_act', 'No technical action required.'),
+                                                "recipient": route.get('recipient', 'After-Sales Team'),
+                                                "id": route.get('id', 'Unknown'),
+                                                "severity": route.get('severity', 'High')
+                                            }
                                             new_ticket = create_routing_ticket(getattr(f_file, 'name', 'upload'), brand, model, serial, charger_power, lbl, rt_fallback, encoded_img)
                                             current_tickets.append(new_ticket)
                                             all_routed_tickets.append(new_ticket)
@@ -772,69 +780,47 @@ with tab1:
             st.image(img, use_container_width=True)
         
         if not res['customer_issues'] and not res['technician_issues']:
-            if not st.session_state.force_escalated:
-                label_list = res.get('raw_fault_labels', [])
-                preds_list = res.get('raw_fault_predictions', [])
-                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions count = {len(preds_list)}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: detected labels count = {len(label_list)}</p>", unsafe_allow_html=True)
-                if label_list:
-                    detected = ', '.join(label_list)
-                    missing = [lbl for lbl in label_list if lbl not in ROUTING_LOGIC]
-                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: detected labels were {detected}</p>", unsafe_allow_html=True)
-                    if missing:
-                        st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: missing from routing dataset: {', '.join(missing)}</p>", unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"<p style='text-align:center; color:#10B981; font-size:12px;'>DEBUG: all detected labels are present in routing dataset</p>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: no normalized labels passed the confidence threshold.</p>", unsafe_allow_html=True)
-                if preds_list:
-                    preds_debug = '; '.join([f"{item.get('class')}({item.get('confidence')})" for item in preds_list])
-                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions: {preds_debug}</p>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: raw predictions list is empty.</p>", unsafe_allow_html=True)
-                if res.get('raw_fault_debug'):
-                    for debug_line in res['raw_fault_debug']:
-                        st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: {debug_line}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='text-align:center; color:#F59E0B; font-size:12px;'>DEBUG: routing logic size = {len(ROUTING_LOGIC)}</p>", unsafe_allow_html=True)
-                st.markdown("""
-                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
-                        <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>
-                        <p style="color: #94A3B8; font-size: 12px; margin-top: 5px; text-align: center;">The scan did not identify any known faults requiring action.</p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
-                
-                btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
-                with btn_col2:
-                    if st.button("REQUEST MANUAL REVIEW", key="force_esc", use_container_width=True):
-                        route_fallback = {
-                            "id": "Unknown", 
-                            "steps": "Manual diagnostic required. System failed to auto-detect fault.", 
-                            "act": "Dispatch Technician for manual inspection.", 
-                            "severity": "Unknown"
-                        }
-                        
-                        fallback_img_data = None
-                        if res['annotated_fault_images']:
-                             fallback_img_data = image_to_base64(res['annotated_fault_images'][0])
-                             
-                        new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, res.get('power', 'Unknown Output'), "UNDIAGNOSED_FAULT", route_fallback, fallback_img_data)
-                        
-                        current_tickets = load_tickets()
-                        current_tickets.append(new_ticket)
-                        save_tickets(current_tickets)
-                        
-                        st.session_state.force_escalated = True
-                        res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
-                        
-                        if 'routed_tickets' not in res:
-                            res['routed_tickets'] = []
-                        res['routed_tickets'].append(new_ticket)
-                        
-                        st.rerun()
+            st.markdown("""
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px;">
+                    <p style="color: #10B981; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin: 0; text-align: center;">NO ANOMALIES DETECTED</p>
+                    <p style="color: #94A3B8; font-size: 12px; margin-top: 5px; text-align: center;">The scan did not identify any known faults requiring action.</p>
+                </div>
+            """, unsafe_allow_html=True)
             
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Still experiencing issues?</p>", unsafe_allow_html=True)
+
+            btn_col1, btn_col2, btn_col3 = st.columns([1, 2, 1])
+            with btn_col2:
+                if st.button("REQUEST MANUAL REVIEW", key="force_esc", use_container_width=True):
+                    route_fallback = {
+                        "id": "Unknown",
+                        "steps": "Manual diagnostic required. System failed to auto-detect fault.",
+                        "user_act": "No immediate action required.",
+                        "tech_act": "Dispatch Technician for manual inspection.",
+                        "recipient": "After-Sales Team",
+                        "severity": "Unknown"
+                    }
+
+                    fallback_img_data = None
+                    if res['annotated_fault_images']:
+                        fallback_img_data = image_to_base64(res['annotated_fault_images'][0])
+
+                    new_ticket = create_routing_ticket("User Upload", res['brand'], res['model'], display_serial, res.get('power', 'Unknown Output'), "UNDIAGNOSED_FAULT", route_fallback, fallback_img_data)
+
+                    current_tickets = load_tickets()
+                    current_tickets.append(new_ticket)
+                    save_tickets(current_tickets)
+
+                    st.session_state.force_escalated = True
+                    res['technician_issues'].append(("UNDIAGNOSED_FAULT", route_fallback))
+
+                    if 'routed_tickets' not in res:
+                        res['routed_tickets'] = []
+                    res['routed_tickets'].append(new_ticket)
+
+                    st.rerun()
+
         if res['customer_issues']:
             st.markdown("""
                 <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #F59E0B; border-radius: 12px; padding: 15px; text-align: center; margin-top: 20px; margin-bottom: 10px;">
@@ -843,7 +829,7 @@ with tab1:
                 </div>
             """, unsafe_allow_html=True)
             
-            for lbl, rt in res['customer_issues']:
+            for idx, (lbl, rt) in enumerate(res['customer_issues']):
                 with st.expander(f"⚠️ REQUIRED USER ACTION", expanded=True):
                     c1, c2 = st.columns(2)
                     with c1:
@@ -853,8 +839,15 @@ with tab1:
                         st.markdown('<p class="data-label">SEVERITY</p>', unsafe_allow_html=True)
                         st.markdown(f'<p class="data-value" style="color:#F59E0B;">{rt.get("severity", "Medium")}</p>', unsafe_allow_html=True)
                     
-                    st.markdown('<p class="data-label">TROUBLESHOOTING STEPS</p>', unsafe_allow_html=True)
-                    st.markdown(f'<p class="data-value">{rt["steps"]}</p>', unsafe_allow_html=True)
+                    st.markdown('<p class="data-label">USER ACTION</p>', unsafe_allow_html=True)
+                    st.info(rt.get('user_act', 'No immediate action required.'))
+
+                    if rt.get('recipient') == 'After-Sales Team':
+                        st.markdown('---')
+                        st.markdown('### ⚠️ **Unable to resolve the issue?**', unsafe_allow_html=True)
+                        if st.button('📩 Send Diagnostic Report & Image to Technician', key=f'send_report_{lbl}_{idx}', use_container_width=True):
+                            st.success('✅ Report and image have been successfully sent! A technician will contact you shortly.')
+                            st.balloons()
             
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>Did the steps above fail to fix the issue?</p>", unsafe_allow_html=True)
@@ -897,6 +890,11 @@ with tab1:
                     st.markdown(f"<p style='text-align:center; font-size:14px; color:#F8FAFC;'><b>Fault Detected:</b> {t_obs}</p>", unsafe_allow_html=True)
                     
                 st.markdown("<p style='text-align:center; font-size:12px; color:#94A3B8;'>You can check the progress of this ticket in the 'CHECK STATUS' tab.</p>", unsafe_allow_html=True)
+
+                if res.get('technician_issues'):
+                    if st.button('📩 Send Diagnostic Report & Image to Technician', key='send_report_tech', use_container_width=True):
+                        st.success('✅ Report and image have been successfully sent! A technician will contact you shortly.')
+                        st.balloons()
 
 
 # --- TAB 2: USER TICKET TRACKING ---
@@ -989,13 +987,13 @@ with tab3:
         st.markdown('<div class="dash-sub" style="margin-bottom: 5px !important;">FILTER BY</div>', unsafe_allow_html=True)
         
         available_dates = sorted(list(set([datetime.fromisoformat(t['timestamp']).date() for t in active_tickets if 'timestamp' in t])), reverse=True)
-        available_teams = sorted(list(set([f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}" for t in active_tickets])))
+        available_teams = ["MCB", "Redlight", "Overall"]
         
         fc1, fc2 = st.columns(2)
         with fc1:
             selected_dates = st.multiselect("Date", available_dates, default=[], label_visibility="collapsed", placeholder="Select Date(s)...")
         with fc2:
-            selected_teams = st.multiselect("Department", available_teams, default=[], label_visibility="collapsed", placeholder="Select Department(s)...")
+            selected_teams = st.multiselect("Issue Type", available_teams, default=[], label_visibility="collapsed", placeholder="Select Issue Type...")
             
         st.markdown("<hr style='border-color: #1E293B; margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
@@ -1007,8 +1005,17 @@ with tab3:
             except:
                 date_match = True 
                 
-            ticket_team_string = f"{t.get('team_id', '')} - {TEAM_DESCRIPTIONS.get(t.get('team_id', ''), 'Team')}"
-            team_match = (len(selected_teams) == 0) or (ticket_team_string in selected_teams)
+            if len(selected_teams) == 0:
+                team_match = True
+            else:
+                observation = str(t.get('observation', '')).lower()
+                team_match = False
+                if 'Overall' in selected_teams:
+                    team_match = True
+                if 'MCB' in selected_teams and 'mcb' in observation:
+                    team_match = True
+                if 'Redlight' in selected_teams and ('red light' in observation or 'redlight' in observation):
+                    team_match = True
             
             if date_match and team_match:
                 filtered_tickets.append(t)
@@ -1060,8 +1067,8 @@ with tab3:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
                 
-                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value" style="color:#EF4444;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">TECHNICIAN ACTION</p>', unsafe_allow_html=True)
+                st.error(ticket.get('tech_act', ticket.get('action_required', 'No technical action required.')))
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
@@ -1172,8 +1179,8 @@ with tab4:
                     st.markdown('<p class="data-label">RECIPIENT</p>', unsafe_allow_html=True)
                     st.markdown(f'<p class="data-value">{ticket.get("team_id", "")} - {team_desc}</p>', unsafe_allow_html=True)
                 
-                st.markdown('<p class="data-label">REQUIRED ACTIONS</p>', unsafe_allow_html=True)
-                st.markdown(f'<p class="data-value" style="color:#10B981;">{ticket["action_required"]}</p>', unsafe_allow_html=True)
+                st.markdown('<p class="data-label">TECHNICIAN ACTION</p>', unsafe_allow_html=True)
+                st.markdown(f'<p class="data-value" style="color:#10B981;">{ticket.get("tech_act", ticket.get("action_required", "No technical action required."))}</p>', unsafe_allow_html=True)
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
